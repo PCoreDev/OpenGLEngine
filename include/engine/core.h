@@ -22,6 +22,8 @@ namespace OpenGLEngine {
       void DeinitializeCore();
 
     private:
+      struct CoreData;
+      std::unique_ptr<CoreData> data;
     };
 
     extern std::unique_ptr<Core> core;

@@ -82,7 +82,7 @@ language "C++"
 location "../build/example1"
 targetdir "../bin/example/example1"
   libdirs { "../data/engine" }
-links { "engine" }
+links { "Engine" }
 
 files {   "../src/examples/example1/*.cpp",
   "../include/engine/*.h"
