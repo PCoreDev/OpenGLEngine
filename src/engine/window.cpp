@@ -6,22 +6,73 @@
 #include "engine/window.h"
 #include <iostream>
 
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
+#include "loguru/loguru.hpp"
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+  LOG_F(INFO, "Window size changed to %d x %d", width, height);
+}
+
+//void processInput(GLFWwindow* window) //TODO: Move this to the input class
+//{
+//  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+//      glfwSetWindowShouldClose(window, true);
+//  }
+//}
 
 namespace OpenGLEngine
 {
 
   struct WData {
+    std::string name;
     unsigned int width;
     unsigned int height;
     GLFWwindow* window;
+    bool close = false;
 
+    bool CreateOpenGLContext()
+    {
+      glfwMakeContextCurrent(window);
+      if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+      {
+        LOG_F(INFO, "Failed to initialize GLAD");
+        return false;
+      }
+
+      //Adding viewport
+      glViewport(0, 0, width, height);
+
+      return true;
+    }
+
+    void processInput(GLFWwindow* window) //TODO: Move this to the input class
+    {
+      if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        close = true;
+        glfwSetWindowShouldClose(window, close);
+      }
+    }
   };
 
   Window::Window()
   {
     wdata_ = std::make_unique<WData>();
+    wdata_->name = "OpenGL Engine";
+    wdata_->width = 800;
+    wdata_->height = 600;
+  }
+
+  Window::Window(std::string name, int width, int height)
+  {
+    wdata_ = std::make_unique<WData>();
+    wdata_->name = name;
+    wdata_->width = width;
+    wdata_->height = height;
   }
 
   Window::~Window()
@@ -29,20 +80,30 @@ namespace OpenGLEngine
     wdata_.reset();
   }
 
-  int Window::InitWindow(const char* title, int width, int height, bool fullscreen)
+  void Window::SetWindowData(std::string name, int width, int height)
   {
-    wdata_->window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-    if (wdata_->window == NULL)
-    {
-      std::cout << "Failed to create GLFW window" << std::endl;
-      glfwTerminate();
-      return -1;
-    }
-    glfwMakeContextCurrent(wdata_->window);
-    glViewport(0, 0, 800, 600);
-    return 0;
+    wdata_->name = name;
+    wdata_->width = width;
+    wdata_->height = height;
   }
 
+  bool Window::InitWindow()
+  {
+    wdata_->window = glfwCreateWindow(wdata_->width, wdata_->height, wdata_->name.c_str(), NULL, NULL);
+    if (wdata_->window == NULL)
+    {
+      //std::cout << "Failed to create GLFW window" << std::endl;
+      LOG_F(INFO, "Failed to create GLFW window");
+      glfwTerminate();
+      return false;
+    }
+
+    LOG_F(INFO, "Succeed to create GLFW window");
+
+    glfwSetFramebufferSizeCallback(wdata_->window, framebuffer_size_callback);
+
+    return wdata_->CreateOpenGLContext();
+  }
 
   void* Window::GetWindow() const
   {
@@ -51,5 +112,21 @@ namespace OpenGLEngine
       return wdata_->window;
     }
     return nullptr;
+  }
+
+  void Window::SwapBuffers()
+  {
+    glfwSwapBuffers(wdata_->window);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+
+  void Window::InputHandler()
+  {
+    wdata_->processInput(wdata_->window);
+  }
+  bool Window::CloseWindow()
+  {
+    return wdata_->close;
   }
 }

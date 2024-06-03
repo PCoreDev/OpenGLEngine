@@ -12,13 +12,28 @@
 
 #include "loguru/loguru.hpp"
 
+//Callback function for the window size
+//void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+//{
+//  glViewport(0, 0, width, height);
+//}
+
 namespace OpenGLEngine {
 
   namespace Engine {
 
     struct Core::CoreData
     {
+      bool isRunning = true;
       std::unique_ptr<Window> window;
+      void InitGLFW()
+      {
+        glfwInit();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+      }
     };
 
     Core::Core()
@@ -31,25 +46,16 @@ namespace OpenGLEngine {
     }
     bool Core::InitializeCore()
     {
-      if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-      {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+      data->InitGLFW();
+      data->window->SetWindowData("OpenGL Engine", 1280, 720); //TODO: Change this to a config file
+      if (!data->window->InitWindow()) {
+        return false;
       }
-
-      glfwInit();
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-      data->window->InitWindow("OpenGL Engine", 1280, 720);
-      //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-
       return true;
     }
     void Core::DeinitializeCore()
     {
-
+      glfwTerminate();
     }
 
     void* Core::GetWindow() const
@@ -60,7 +66,22 @@ namespace OpenGLEngine {
       }
       return nullptr;
     }
-
+    bool Core::RunningState() const
+    {
+      return data->window->CloseWindow();
+    }
+    void Core::Input()
+    {
+      data->window->InputHandler();
+    }
+    void Core::BufferHandler()
+    {
+      data->window->SwapBuffers();
+    }
+    void Core::EventsHandler()
+    {
+      glfwPollEvents();
+    }
   }
 }
 

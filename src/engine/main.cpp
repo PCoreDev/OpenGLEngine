@@ -11,48 +11,36 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "loguru/loguru.hpp"
+
 
 #define PX_SCHED_IMPLEMENTATION 1
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-  glViewport(0, 0, width, height);
-}
-
 int main(int argc, char** argv){
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  //Initialize loguru
+  loguru::init(argc, argv);
+  loguru::add_file("../../data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
+  LOG_SCOPE_FUNCTION(INFO);
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-  if (window == NULL)
-  {
-    std::cout << "Failed to create GLFW window" << std::endl;
-    glfwTerminate();
-    system("PAUSE");
-    return -1;
+  std::unique_ptr<OpenGLEngine::Engine::Core> core = std::make_unique<OpenGLEngine::Engine::Core>();
+  
+  if (core->InitializeCore()) {
+    LOG_F(INFO, "Core initialized correctly");
   }
-  glfwMakeContextCurrent(window);
-
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
-    std::cout << "Failed to initialize GLAD" << std::endl;
-    system("PAUSE");
-    return -1;
+  else {
+    LOG_F(INFO, "Core failed to initialize");
   }
 
-  glViewport(0, 0, 800, 600);
-
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-  while (!glfwWindowShouldClose(window))
+  while (!core->RunningState())
   {
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    //Input
+    core->Input();
+    //Update
+    //Render
+    core->EventsHandler();
+    core->BufferHandler();
   }
 
-  glfwTerminate();
+   core->DeinitializeCore();
   return 0;
 }

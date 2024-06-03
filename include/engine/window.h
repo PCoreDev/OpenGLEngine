@@ -6,6 +6,7 @@
 #define __WINDOW_H__ 1
 
 #include <memory>
+#include <string>
 
 namespace OpenGLEngine {
 
@@ -15,10 +16,17 @@ namespace OpenGLEngine {
 
 	public:
 		Window();
+		Window(std::string name, int width, int height);
 		~Window();
 
-		int InitWindow(const char* title, int width, int height, bool fullscreen = false);
+		void SetWindowData(std::string name, int width, int height);
+		bool InitWindow();
 		void* GetWindow() const;
+		void SwapBuffers();
+		void InputHandler();
+		bool CloseWindow();
+
+		
 
 	private:
 

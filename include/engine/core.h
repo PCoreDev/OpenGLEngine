@@ -23,7 +23,14 @@ namespace OpenGLEngine {
 
       void* GetWindow() const;
 
-    private:
+      bool RunningState() const;
+
+      void Input();
+
+      void BufferHandler();
+      void EventsHandler();
+
+    private:             
       struct CoreData;
       std::unique_ptr<CoreData> data;
     };
