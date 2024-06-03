@@ -3,31 +3,36 @@ filename "Engine"
 configurations{"Debug", "Release"}
 location "../build/solution"
 libdirs{"../deps/openAL/libs/Win64"}
-includedirs { 
---Imgui
-"../deps/imgui",
---Minitrace
-"../deps/minitrace",
---OpenAL
-"../deps/openAL/include/AL",
---PXsched
-"../deps/px_sched",
---TinyOBJLoader
-"../deps/tinyObjLoader",
+includedirs {
 --GLFW
-"../deps/glfw/include",
+"../deps/GLFW/glfw/include",
+"../include",
 --GLM
-"../deps/glm",
+"../deps/GLM",
 --OpenGL
-"../deps/openGL/include",
+"../deps/OpenGL/OpenGL/include",
+--PX_Sched
+"../deps/PX_Sched/",
 --Loguru
 "../deps/loguru/",
+--STB
+"../deps/stb_image/",
+--OpenAL
+"../deps/openal-soft/",
+--Imgui
+"../deps/imgui/",
+--LUA
+"../deps/Lua",
+--OBJ LOADER (DELETE)
+"../deps/OBJ_Loader",
 --Guizmo
-"../deps/guizmo/",
---Engine
-"../include/engine"
-}
-platforms { "Win64" }
+"../deps/Guizmo",
+--Tiny OBJ
+"../deps/tinyObjLoader",
+--Minitrace
+"../deps/minitrace"}
+
+platforms { "Win32", "Win64", "Unix32", "Unix64", "MacOS" }
 startproject "Example1"
 
 ----------------------------------------------------------
@@ -40,18 +45,50 @@ project "Engine"
   location "../build/engine"
   targetdir"../data/engine"
   objdir "../build/engine"
+  libdirs ""
 
-  files { "..deps/**.c",
-          "..deps/**.cc",
-          "..deps/**.cpp",
-          "..deps/**.h",
-          "..deps/**.hpp",
-	        "../src/engine/**.c",
-	        "../src/engine/**.cc",
-	        "../src/engine/**.cpp",
+  files { "..deps/GLFW/glfw/src/*.c",
+	        "../src/engine/*.cpp",
 	        "../include/engine/*.h",
-	        "../include/engine/*.hpp"}
-
+	        "../deps/GLFW/glfw/src/win32_*.c",
+	        "../deps/GLFW/glfw/src/context.c",
+	        "../deps/GLFW/glfw/src/egl_context.c",
+	        "../deps/GLFW/glfw/src/wgl_context.c",
+	        "../deps/GLFW/glfw/src/init.c",
+	        "../deps/GLFW/glfw/src/input.c",
+	        "../deps/GLFW/glfw/src/monitor.c",
+	        "../deps/GLFW/glfw/src/osmesa_context.c",
+	        "../deps/GLFW/glfw/src/window.c",
+	        "../deps/GLFW/glfw/src/vulkan.c",
+	        "../deps/GLM/glm/**.hpp",
+	        "../deps/GLM/glm/**.h",
+	        "../deps/GLM/glm/**.c",
+	        "../deps/GLM/glm/**.cpp",
+	        "../deps/GLM/glm/**.inl",
+	        "../deps/OpenGL/OpenGL/src/*.c",
+          "../deps/loguru/loguru/*.hpp",
+          "../deps/loguru/loguru/*.cpp",
+          "../deps/PX_Sched/px_sched/*.h",
+          "../deps/openal-soft/include/*.h",
+          "../deps/imgui/*.c",
+          "../deps/imgui/*.cc",
+          "../deps/imgui/*.cpp",
+          "../deps/imgui/backends/imgui_impl_glfw.cpp",
+          "../deps/imgui/backends/imgui_impl_opengl3.cpp",
+          "../deps/imgui/*.h",
+          "../deps/imgui/guizmo/*.h",
+          "../deps/imgui/guizmo/*.cpp",
+          "../deps/Guizmo/*.h",
+          "../deps/Lua/*.c",
+          "../deps/Lua/*.h",
+          "../deps/Lua/*.hpp",
+          "../deps/OBJ_Loader/OBJ_Loader/*.h",
+          "../deps/openal-soft/OpenAL/include/AL/*.h",
+          "../deps/tinyObjLoader/tinyObjLoader/*.h",
+          "../deps/tinyObjLoader/tinyObjLoader/*.cc",
+          "../deps/minitrace/minitrace.c",
+          "../deps/minitrace/minitrace.h",
+        }
 filter "configurations:Debug"
     defines{"DEBUG"}
     symbols "On"
@@ -61,10 +98,30 @@ filter "configurations:Release"
     symbols "Off"
     optimize "On"
 
+filter{"platforms:Win32"}
+    system "windows"
+    architecture "x86"
+    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
+
 filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
-    defines { "_WIN64", "_GLFW_WIN64", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
+    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
+
+filter{"platforms:Unix32"}
+    system "linux"
+    architecture "x86"
+    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
+
+filter{"platforms:Unix64"}
+    system "linux"
+    architecture "x64"
+    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
+
+filter{"platforms:MacOS"}
+    system "macosx"
+    architecture "x64"
+    defines { "_GLFW_COCOA"}
 
 project "Engine"
     configmap{
@@ -99,10 +156,27 @@ filter "configurations:Release"
     symbols "Off"
     optimize "On"
 
+filter{"platforms:Win32"}
+    system "windows"
+    architecture "x86"
+    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
+
 filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
-    defines { "_WIN64", "_GLFW_WIN64", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
+    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
+
+filter{"platforms:Unix32"}
+    system "linux"
+    architecture "x86"
+
+filter{"platforms:Win64"}
+    system "linux"
+    architecture "x64"
+
+filter{"platforms:MacOS"}
+    system "macosx"
+    architecture "x64"
 
 project "Example1"
     configmap{

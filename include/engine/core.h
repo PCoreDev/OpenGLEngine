@@ -21,6 +21,8 @@ namespace OpenGLEngine {
       bool InitializeCore();
       void DeinitializeCore();
 
+      void* GetWindow() const;
+
     private:
       struct CoreData;
       std::unique_ptr<CoreData> data;

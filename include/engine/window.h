@@ -18,6 +18,7 @@ namespace OpenGLEngine {
 		~Window();
 
 		int InitWindow(const char* title, int width, int height, bool fullscreen = false);
+		void* GetWindow() const;
 
 	private:
 

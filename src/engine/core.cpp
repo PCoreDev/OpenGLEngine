@@ -3,13 +3,14 @@
 //Email: p.core.dev@outlook.com
 //Core functionality of the engine.
 
-#include "core.h"
-#include "window.h"
+#include "engine/core.h"
+#include "engine/window.h"
 
-//#include "glad/glad.h"
-//#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-#include "loguru.hpp"
+#include "loguru/loguru.hpp"
 
 namespace OpenGLEngine {
 
@@ -30,12 +31,34 @@ namespace OpenGLEngine {
     }
     bool Core::InitializeCore()
     {
+      if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+      {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+      }
+
+      glfwInit();
+      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
       data->window->InitWindow("OpenGL Engine", 1280, 720);
+      //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+
       return true;
     }
     void Core::DeinitializeCore()
     {
 
+    }
+
+    void* Core::GetWindow() const
+    {
+      if (data->window)
+      {
+        return data->window->GetWindow();
+      }
+      return nullptr;
     }
 
   }

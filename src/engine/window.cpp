@@ -3,7 +3,8 @@
 //Email: p.core.dev@outlook.com
 //This header contains the functionality of the window class.
 
-#include "window.h"
+#include "engine/window.h"
+#include <iostream>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -30,7 +31,25 @@ namespace OpenGLEngine
 
   int Window::InitWindow(const char* title, int width, int height, bool fullscreen)
   {
-
+    wdata_->window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    if (wdata_->window == NULL)
+    {
+      std::cout << "Failed to create GLFW window" << std::endl;
+      glfwTerminate();
+      return -1;
+    }
+    glfwMakeContextCurrent(wdata_->window);
+    glViewport(0, 0, 800, 600);
     return 0;
+  }
+
+
+  void* Window::GetWindow() const
+  {
+    if (wdata_->window)
+    {
+      return wdata_->window;
+    }
+    return nullptr;
   }
 }
