@@ -1,3 +1,6 @@
+require "cmake"
+require "export-compile-commands"
+
 workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
@@ -5,7 +8,7 @@ location "../build/solution"
 libdirs{"../deps/openAL/libs/Win64"}
 includedirs {
 --GLFW
-"../deps/GLFW/glfw/include",
+"../deps/GLFW/include",
 "../include",
 --GLM
 "../deps/GLM",
@@ -50,16 +53,16 @@ project "Engine"
   files { "..deps/GLFW/glfw/src/*.c",
 	        "../src/engine/*.cpp",
 	        "../include/engine/*.h",
-	        "../deps/GLFW/glfw/src/win32_*.c",
-	        "../deps/GLFW/glfw/src/context.c",
-	        "../deps/GLFW/glfw/src/egl_context.c",
-	        "../deps/GLFW/glfw/src/wgl_context.c",
-	        "../deps/GLFW/glfw/src/init.c",
-	        "../deps/GLFW/glfw/src/input.c",
-	        "../deps/GLFW/glfw/src/monitor.c",
-	        "../deps/GLFW/glfw/src/osmesa_context.c",
-	        "../deps/GLFW/glfw/src/window.c",
-	        "../deps/GLFW/glfw/src/vulkan.c",
+	        "../deps/GLFW/src/win32_*.c",
+	        "../deps/GLFW/src/context.c",
+	        "../deps/GLFW/src/egl_context.c",
+	        "../deps/GLFW/src/wgl_context.c",
+	        "../deps/GLFW/src/init.c",
+	        "../deps/GLFW/src/input.c",
+	        "../deps/GLFW/src/monitor.c",
+	        "../deps/GLFW/src/osmesa_context.c",
+	        "../deps/GLFW/src/window.c",
+	        "../deps/GLFW/src/vulkan.c",
 	        "../deps/GLM/glm/**.hpp",
 	        "../deps/GLM/glm/**.h",
 	        "../deps/GLM/glm/**.c",

@@ -44,11 +44,13 @@ std::string LoadShader(const std::string& filename, std::string& dst) {
 
 
 int main(int argc, char** argv){
-  //Initialize loguru
+//First step initialize loguru and create the core of the engine.
+//Initialize loguru
   loguru::init(argc, argv);
   loguru::add_file("../../data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
   LOG_SCOPE_FUNCTION(INFO);
 
+//Create the core of the engine and initialize it.
   std::unique_ptr<OpenGLEngine::Engine::Core> core = std::make_unique<OpenGLEngine::Engine::Core>();
   
   if (core->InitializeCore()) {

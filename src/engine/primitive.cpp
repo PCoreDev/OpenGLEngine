@@ -40,6 +40,12 @@ std::unique_ptr<Primitive> Primitive::CreatePrimitive()
   }
 }
 
+void Primitive::GenerateCube(){
+  LOG_F(INFO, "Start Generateing Cube");
+ SetVertexData(new float[9]{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f}, 9);
+
+}
+
 void Primitive::SetVertexData(float* vertex, int nvertex)
 {
   LOG_F(INFO, "Vertex data set");

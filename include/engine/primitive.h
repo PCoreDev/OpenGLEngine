@@ -12,6 +12,7 @@ class Primitive
 public:
 	static unsigned int current_primitives_;
 	static std::unique_ptr<Primitive> CreatePrimitive();
+    void GenerateCube();
 	void SetVertexData(float* vertex, int nvertex);
 	float* GetVertexData() const;
 	unsigned int GetVertexDataSizeb() const;
