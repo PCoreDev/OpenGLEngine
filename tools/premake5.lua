@@ -1,6 +1,3 @@
-require "cmake"
-require "export-compile-commands"
-
 workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
