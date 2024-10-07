@@ -8,7 +8,7 @@
 #include <string>
 
 #include "engine/core.h"
-#include "engine/primitive.h"
+#include "engine/mesh.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -40,8 +40,6 @@ std::string LoadShader(const std::string& filename, std::string& dst) {
   return dst;
 }
 
-
-
 int main(int argc, char** argv){
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
@@ -60,13 +58,17 @@ int main(int argc, char** argv){
   }
 
   //To Do: Move this to a primitive class and a shader class
-  std::unique_ptr<Primitive> primitive = Primitive::CreatePrimitive();
-  primitive->SetVertexData(new float[9]{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f}, 9);
+//  std::unique_ptr<Primitive> primitive = Primitive::CreatePrimitive();
+//  primitive->SetVertexData(new float[9]{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f}, 9);
+    Mesh* primitive = new Mesh();
+    primitive->Triangle();
 
    unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, primitive->GetVertexDataSizeb(), primitive->GetVertexData(), GL_STATIC_DRAW);
+  
+  /*
   //***********************VERTEX SHADER***********************
   //Load shader
   std::string vertexShaderSource;
@@ -135,7 +137,7 @@ int main(int argc, char** argv){
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 
-  
+  */
 // 0. copy our vertices array in a buffer for OpenGL to use
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, primitive->GetVertexDataSizeb(), primitive->GetVertexData(), GL_STATIC_DRAW);
@@ -143,7 +145,7 @@ int main(int argc, char** argv){
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 // 2. use with the shader program when we want to render an object
-  glUseProgram(shaderProgram);
+  //glUseProgram(shaderProgram);
 // 3. draw the object
   //glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -162,7 +164,7 @@ int main(int argc, char** argv){
     core->Input();
     //Update
     //Render
-    glUseProgram(shaderProgram);
+  //  glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
