@@ -3,7 +3,6 @@
 //Email: p.core.dev@outlook.com
 //Main file of the engine.
 
-#include <iostream>
 #include <memory>
 #include <fstream>
 #include <string>
@@ -47,7 +46,7 @@ int main(int argc, char** argv){
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
   loguru::init(argc, argv);
-  loguru::add_file("../../data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
+  loguru::add_file("./data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
   LOG_SCOPE_FUNCTION(INFO);
 
 //Create the core of the engine and initialize it.
@@ -71,7 +70,7 @@ int main(int argc, char** argv){
   //***********************VERTEX SHADER***********************
   //Load shader
   std::string vertexShaderSource;
-  LoadShader("../../src/engine/shaders/hello_triangle.vert", vertexShaderSource);
+  LoadShader("./src/engine/shaders/hello_triangle.vert", vertexShaderSource);
   //transform the string to a char*
   const char* vertexShaderSourceChar = vertexShaderSource.c_str();
 
@@ -96,7 +95,7 @@ int main(int argc, char** argv){
   //***********************FRAGMENT SHADER***********************
   //Load shader
   std::string fragmentShaderSource;
-  LoadShader("../../src/engine/shaders/hello_triangle.frag", fragmentShaderSource);
+  LoadShader("./src/engine/shaders/hello_triangle.frag", fragmentShaderSource);
   //transform the string to a char*
   const char* fragmentShaderSourceChar = fragmentShaderSource.c_str();
 

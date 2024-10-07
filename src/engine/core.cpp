@@ -22,8 +22,7 @@ namespace OpenGLEngine {
 
   namespace Engine {
 
-    struct Core::CoreData
-    {
+    struct Core::CoreData {
       bool isRunning = true;
       std::unique_ptr<Window> window;
       void InitGLFW()
@@ -36,16 +35,13 @@ namespace OpenGLEngine {
       }
     };
 
-    Core::Core()
-    {
+    Core::Core() {
       data = std::make_unique<CoreData>();
       data->window = std::make_unique<Window>();
     }
-    Core::~Core()
-    {
-    }
-    bool Core::InitializeCore()
-    {
+    Core::~Core() {}
+    
+    bool Core::InitializeCore() {
       data->InitGLFW();
       data->window->SetWindowData("OpenGL Engine", 1280, 720); //TODO: Change this to a config file
       if (!data->window->InitWindow()) {
@@ -53,35 +49,32 @@ namespace OpenGLEngine {
       }
       return true;
     }
-    void Core::DeinitializeCore()
-    {
+    
+    void Core::DeinitializeCore() {
       glfwTerminate();
     }
 
-    void* Core::GetWindow() const
-    {
-      if (data->window)
-      {
+    void* Core::GetWindow() const {
+      if (data->window) {
         return data->window->GetWindow();
       }
       return nullptr;
     }
-    bool Core::RunningState() const
-    {
+    
+    bool Core::RunningState() const {
       return data->window->CloseWindow();
     }
-    void Core::Input()
-    {
+
+    void Core::Input() {
       data->window->InputHandler();
     }
-    void Core::BufferHandler()
-    {
+    
+    void Core::BufferHandler() {
       data->window->SwapBuffers();
     }
-    void Core::EventsHandler()
-    {
+    
+    void Core::EventsHandler() {
       glfwPollEvents();
     }
   }
 }
-
