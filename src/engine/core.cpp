@@ -8,7 +8,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 #include "loguru/loguru.hpp"
 
@@ -25,8 +24,7 @@ namespace OpenGLEngine {
     struct Core::CoreData {
       bool isRunning = true;
       std::unique_ptr<Window> window;
-      void InitGLFW()
-      {
+      void InitGLFW() {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -39,6 +37,7 @@ namespace OpenGLEngine {
       data = std::make_unique<CoreData>();
       data->window = std::make_unique<Window>();
     }
+
     Core::~Core() {}
     
     bool Core::InitializeCore() {

@@ -8,7 +8,9 @@
 #include <string>
 
 #include "engine/core.h"
-#include "engine/mesh.h"
+#include "engine/entity_manager.h"
+#include "engine/entity.h"
+#include "engine/component.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -44,7 +46,7 @@ int main(int argc, char** argv){
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
   loguru::init(argc, argv);
-  loguru::add_file("./data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
+  loguru::add_file("../../../data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
   LOG_SCOPE_FUNCTION(INFO);
 
 //Create the core of the engine and initialize it.
@@ -56,23 +58,23 @@ int main(int argc, char** argv){
   else {
     LOG_F(INFO, "Core failed to initialize");
   }
+  EntityManager entity_manager;
+  std::shared_ptr<Entity> entity = entity_manager.CreateEntity();
+  LOG_F(INFO, "Entity created with id: %d", entity->ID());
+  LOG_F(INFO, "Number of entities: %d", entity_manager.GetNumberOfEntities());
 
-  //To Do: Move this to a primitive class and a shader class
-//  std::unique_ptr<Primitive> primitive = Primitive::CreatePrimitive();
-//  primitive->SetVertexData(new float[9]{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f}, 9);
-    Mesh* primitive = new Mesh();
-    primitive->Triangle();
-
+  entity->AddMeshComponent();
+  entity->GetMeshComponent()->Triangle();
    unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, primitive->GetVertexDataSizeb(), primitive->GetVertexData(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, entity->GetMeshComponent()->GetVertexSizeb(), entity->GetMeshComponent()->GetVertexData(), GL_STATIC_DRAW);
   
-  /*
+  
   //***********************VERTEX SHADER***********************
   //Load shader
   std::string vertexShaderSource;
-  LoadShader("./src/engine/shaders/hello_triangle.vert", vertexShaderSource);
+  LoadShader("../../src/engine/shaders/hello_triangle.vert", vertexShaderSource);
   //transform the string to a char*
   const char* vertexShaderSourceChar = vertexShaderSource.c_str();
 
@@ -97,7 +99,7 @@ int main(int argc, char** argv){
   //***********************FRAGMENT SHADER***********************
   //Load shader
   std::string fragmentShaderSource;
-  LoadShader("./src/engine/shaders/hello_triangle.frag", fragmentShaderSource);
+  LoadShader("../../src/engine/shaders/hello_triangle.frag", fragmentShaderSource);
   //transform the string to a char*
   const char* fragmentShaderSourceChar = fragmentShaderSource.c_str();
 
@@ -137,10 +139,9 @@ int main(int argc, char** argv){
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 
-  */
 // 0. copy our vertices array in a buffer for OpenGL to use
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, primitive->GetVertexDataSizeb(), primitive->GetVertexData(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, entity->GetMeshComponent()->GetVertexSizeb(), entity->GetMeshComponent()->GetVertexData(), GL_STATIC_DRAW);
 // 1. then set the vertex attributes pointers
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
@@ -153,7 +154,7 @@ int main(int argc, char** argv){
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, primitive->GetVertexDataSizeb(), primitive->GetVertexData(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, entity->GetMeshComponent()->GetVertexSizeb(), entity->GetMeshComponent()->GetVertexData(), GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
@@ -166,7 +167,7 @@ int main(int argc, char** argv){
     //Render
   //  glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, entity->GetMeshComponent()->GetVertexCount());
 
 
     core->EventsHandler();

@@ -2,16 +2,34 @@
 
 #include <memory>
 
-class Entity
-{
+class Entity{
+
 public:
-    ~Entity();
-    //Getters
-    int ID();
-    //Setters
-    void AddComponent(const class Component& component);
+  Entity();
+  Entity(int id);
+  Entity(const Entity& entity);
+  Entity(Entity&& entity);
+  Entity& operator=(const Entity& entity);
+  ~Entity();
+
+  //Getters
+  int ID();
+
+  std::shared_ptr<class MeshComponent>  GetMeshComponent();
+
+  //Setters
+  void AddRenderComponent();
+  void AddTransformComponent();
+ // void AddPhysicsComponent();
+ // void AddNodeComponent();
+ // void AddSoundComponent();
+ // void AddLightComponent();
+ // void AddCameraComponent();
+  void AddMeshComponent();
+  //void AddMaterialComponent();
+
 private:
-    Entity();
-    std::unique_ptr<class EntityData> data_;
+  std::unique_ptr<class EntityData> data_;
+
 };
 
