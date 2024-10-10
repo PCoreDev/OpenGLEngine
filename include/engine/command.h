@@ -6,28 +6,24 @@
 #define __COMMAND_H__ 1
 
 
-struct Command
-{
+struct Command {
     virtual void execute() = 0;
 };
 
-struct ClearCommand : public Command
-{
+struct ClearCommand : public Command {
   void Clear(float R, float G, float B, float A = 1.0f);
   //ClearCommand(gml::Vec4 color);
   void execute() override;
   float r, g, b, a;
 };
 
-struct DrawCommand : public Command
-{
+struct DrawCommand : public Command{
   void Draw();
   void BindUniforms();
   void execute() override;
 };
 
-struct DrawRenderBufferCommand : public Command
-{
+struct DrawRenderBufferCommand : public Command {
   void DrawRenderBuffer();
   void BindUniforms();
   void execute() override;

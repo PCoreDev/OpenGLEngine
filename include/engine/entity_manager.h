@@ -3,7 +3,8 @@
 //Email: p.core.dev@outlook.com
 //Entity manager controls the entities.
 
-#pragma once
+#ifndef __ENTITY_MANAGER_H__
+#define __ENTITY_MANAGER_H__ 1
 
 #include <memory>
 
@@ -21,3 +22,5 @@ public:
   std::unique_ptr<class EntityManagerData> data_;
 
 };
+
+#endif // !__ENTITY_MANAGER_H__
