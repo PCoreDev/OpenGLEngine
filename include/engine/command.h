@@ -10,24 +10,24 @@
 
 
 struct Command {
-    virtual void Execute() = 0;
+  virtual void Execute() = 0;
 };
 
 struct ClearCommand : public Command {
-  void Clear(float R, float G, float B, float A = 1.0f);
+  ClearCommand(float R, float G, float B, float A = 1.0f) : r(R), g(G), b(B), a(A) {};
   //ClearCommand(gml::Vec4 color);
   void Execute() override;
   float r, g, b, a;
 };
 
 struct DrawCommand : public Command{
-  void Draw();
+  DrawCommand();
   void BindUniforms();
   void Execute() override;
 };
 
 struct DrawRenderBufferCommand : public Command {
-  void DrawRenderBuffer();
+  DrawRenderBufferCommand();
   void BindUniforms();
   void Execute() override;
 };
@@ -36,15 +36,27 @@ struct DrawRenderBufferCommand : public Command {
 
 class DisplayList {
   public:
-    DisplayList();
+    DisplayList() = default;
+    DisplayList(const DisplayList& other) = delete;
+    DisplayList(DisplayList&& other) noexcept;
+    DisplayList& operator=(const DisplayList& other) = delete;
+    DisplayList& operator=(DisplayList&& other) noexcept;
     ~DisplayList();
+
+    bool IsEmpty() const;
+    void Clear();
+    void Swap(DisplayList& other);
+
 
     void AddClearCommand(float r, float g, float b, float a);
     void AddDrawCommand();
     void AddDrawRenderBufferCommand();
+
+
+
     void Execute();
   private:
-    std::list<std::unique_ptr<Command>> commands;
+    std::list<std::unique_ptr<Command>> commands_;
 };
 
 

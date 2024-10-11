@@ -7,23 +7,12 @@
 #include "glad/glad.h"
 
 //ClearCommand
-void ClearCommand::Clear(float R, float G, float B, float A) {
-    r = R;
-    g = G;
-    b = B;
-    a = A;
-}
-
 void ClearCommand::Execute() {
     glClearColor(r, g, b, a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 //DrawCommand
-void DrawCommand::Draw() {
-    //Draw the object
-}
-
 void DrawCommand::BindUniforms() {
     //view matrix
     //projection matrix
@@ -44,10 +33,6 @@ void DrawCommand::Execute() {
 }
 
 //DrawRenderBuffer
-void DrawRenderBufferCommand::DrawRenderBuffer() {
-    //Draw the object
-}
-
 void DrawRenderBufferCommand::BindUniforms() {
   int screen_texture_location = glGetUniformLocation(0, "screen_texture");
   if(screen_texture_location != -1) {
@@ -74,3 +59,43 @@ void DrawRenderBufferCommand::Execute() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //0 = buffer data
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
+
+
+//DisplayList
+
+DisplayList::DisplayList(DisplayList&& other) noexcept {
+  commands_ = std::move(other.commands_);
+}
+
+DisplayList& DisplayList::operator=(DisplayList&& other) noexcept {
+  if (this != &other) {
+    commands_ = std::move(other.commands_);
+  }
+  return *this;
+}
+
+DisplayList::~DisplayList() {
+  Clear();
+}
+
+bool DisplayList::IsEmpty() const {
+  return commands_.empty();
+}
+
+void DisplayList::Clear() {
+  commands_.clear();
+}
+
+void DisplayList::Swap(DisplayList& other) {
+  commands_.swap(other.commands_);
+}
+
+void DisplayList::AddClearCommand(float r, float g, float b, float a) {
+  auto command = std::make_unique<ClearCommand>(r, g, b, a);
+  commands_.push_back(std::move(command));
+}
+
+void DisplayList::Execute(){
+  for (auto& command : commands_) { command->Execute(); }
+}
+

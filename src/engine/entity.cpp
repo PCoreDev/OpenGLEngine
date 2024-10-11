@@ -51,11 +51,19 @@ int Entity::ID() {
     return data_->id_;
 }
 
-std::shared_ptr<MeshComponent> Entity::GetMeshComponent()
-{
+std::shared_ptr<MeshComponent> Entity::GetMeshComponent() {
   for (auto& component : data_->components_) {
     if (component->GetType() == ComponentType::ComponentType_Mesh) {
       return std::static_pointer_cast<MeshComponent>(component);
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<ShaderComponent> Entity::GetShaderComponent() {
+  for (auto& component : data_->components_) {
+    if (component->GetType() == ComponentType::ComponentType_Shader) {
+      return std::static_pointer_cast<ShaderComponent>(component);
     }
   }
   return nullptr;
@@ -92,6 +100,10 @@ void Entity::AddCameraComponent() {
 
 void Entity::AddMeshComponent() {
     data_->components_.push_back(std::make_shared<MeshComponent>(data_->id_));
+}
+
+void Entity::AddShaderComponent() {
+    data_->components_.push_back(std::make_shared<ShaderComponent>(data_->id_));
 }
 
 //Getters

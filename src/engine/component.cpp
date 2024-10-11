@@ -5,9 +5,12 @@
 
 #include "engine/component.h"
 #include "loguru/loguru.hpp"
+#include "glad/glad.h"
 
 #include <memory>
 #include <vector>
+#include <fstream>
+
 
 
 #pragma region TransformComponent
@@ -151,3 +154,113 @@ size_t MeshComponent::GetVertexCount()
   return data->n_vertex;
 }
 #pragma endregion MeshComponent
+
+#pragma region ShaderComponent
+
+  ShaderComponent::ShaderComponent(int id) {
+    this->id = id;
+    this->type = ComponentType_Shader;
+    data = std::make_unique<ShaderData>();
+    data->vertex_shader_path = "../../src/engine/shaders/default.vert";
+    data->fragment_shader_path = "../../src/engine/shaders/default.frag";
+  }
+
+  //void ShaderComponent::operator=(const ShaderComponent& other) {
+  //  this->id = other.id;
+  //  this->type = other.type;
+  //}
+
+
+void ShaderComponent::SetVertexShaderPath(const std::string& path) {
+  data->vertex_shader_path = path;
+}
+
+void ShaderComponent::SetFragmentShaderPath(const std::string& path) {
+  data->fragment_shader_path = path;
+}
+
+void ShaderComponent::SetGeometryShaderPath(const std::string& path) {
+  data->geometry_shader_path = path;
+}
+
+std::string ShaderComponent::LoadShader(const std::string& path, std::string& shader_code)
+{
+  //Open the file
+  std::ifstream shader(path);
+  //Check if the file is open
+  if (!shader.is_open()) {
+    LOG_F(ERROR, "Failed to open file %s", path.c_str());
+    return "";
+  }
+  //Read the file
+  std::string loaded_code;
+  std::string line;
+  while (std::getline(shader, line)) {
+    loaded_code += line + "\n";
+  }
+  //Close the file
+  shader.close();
+  //Copy the code to the destination
+  shader_code = loaded_code;
+  return shader_code;
+}
+
+int ShaderComponent::ProcessShader(){
+//Vertex shader
+LoadShader(data->vertex_shader_path, data->vertex_shader_code);
+data->vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+const char* vertex_shader_code_char = data->vertex_shader_code.c_str();
+glShaderSource(data->vertex_shader, 1, &vertex_shader_code_char, nullptr);
+glCompileShader(data->vertex_shader);
+int success;
+char infoLog[512];
+glGetShaderiv(data->vertex_shader, GL_COMPILE_STATUS, &success);
+if(!success) {
+  glGetShaderInfoLog(data->vertex_shader, 512, nullptr, infoLog);
+  LOG_F(ERROR, "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s", infoLog);
+  return success;
+}
+else {
+  LOG_F(INFO, "Vertex shader compiled correctly");
+}
+
+//Fragment shader
+LoadShader(data->fragment_shader_path, data->fragment_shader_code);
+data->fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+const char* fragment_shader_code_char = data->fragment_shader_code.c_str();
+glShaderSource(data->fragment_shader, 1, &fragment_shader_code_char, nullptr);
+glCompileShader(data->fragment_shader);
+glGetShaderiv(data->fragment_shader, GL_COMPILE_STATUS, &success);
+if(!success) {
+  glGetShaderInfoLog(data->fragment_shader, 512, nullptr, infoLog);
+  LOG_F(ERROR, "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s", infoLog);
+  return success;
+}
+else {
+  LOG_F(INFO, "Fragment shader compiled correctly");
+}
+
+//Shader program
+data->shader_program = glCreateProgram();
+glAttachShader(data->shader_program, data->vertex_shader);
+glAttachShader(data->shader_program, data->fragment_shader);
+glLinkProgram(data->shader_program);
+glGetProgramiv(data->shader_program, GL_LINK_STATUS, &success);
+if(!success) {
+  glGetProgramInfoLog(data->shader_program, 512, nullptr, infoLog);
+  LOG_F(ERROR, "ERROR::SHADER::PROGRAM::LINKING_FAILED\n%s", infoLog);
+  return success;
+}
+else {
+  LOG_F(INFO, "Shader program linked correctly");
+}
+
+glUseProgram(data->shader_program);
+glDeleteShader(data->vertex_shader);
+glDeleteShader(data->fragment_shader);
+
+return 0;
+}
+
+#pragma endregion ShaderComponent
+

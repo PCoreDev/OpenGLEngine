@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 #include "glm/glm.hpp"
 
 
@@ -15,6 +16,7 @@ enum ComponentType {
   ComponentType_Render,
   ComponentType_Transform,
   ComponentType_Physics,
+  ComponentType_Shader,
   ComponentType_Node,
   ComponentType_Sound,
   ComponentType_Light,
@@ -54,7 +56,7 @@ enum ComponentType {
 	struct TransformComponent : public Component {
 	public:
     TransformComponent() = default;
-    TransformComponent(const TransformComponent&) = default;
+    TransformComponent(const TransformComponent&);
 		TransformComponent(int id);
 
 		void operator=(const TransformComponent& other);
@@ -69,7 +71,7 @@ enum ComponentType {
 		void SetRotation(glm::vec3 rotation);
 
 		void SetScale(float x, float y, float z);
-		void SetScale(float scale[3]);
+	void SetScale(float scale[3]);
 		void SetScale(glm::vec3 scale);
 
 		//Getters
@@ -98,7 +100,7 @@ enum ComponentType {
   struct MeshComponent : public Component {
     MeshComponent() = default;
     MeshComponent(int id);
-    MeshComponent(const MeshComponent&) = default;
+    MeshComponent(const MeshComponent&);
     void operator=(const MeshComponent& other);
     void Triangle();
     void Square();
@@ -106,5 +108,32 @@ enum ComponentType {
     size_t GetVertexSizeb();
     size_t GetVertexCount();
     std::unique_ptr<MeshData> data;
+  };
+
+  struct ShaderData {
+    std::string vertex_shader_path;
+    std::string fragment_shader_path;
+    std::string geometry_shader_path;
+    std::string vertex_shader_code;
+    std::string fragment_shader_code;
+    std::string geometry_shader_code;
+    int vertex_shader;
+    int fragment_shader;
+    int geometry_shader;
+    int shader_program;
+  };
+
+  struct ShaderComponent : public Component {
+    //ShaderComponent() = default;
+    ShaderComponent(int id);
+    //ShaderComponent(const ShaderComponent&);
+    //void operator=(const ShaderComponent& other);
+    void SetVertexShaderPath(const std::string& path);
+    void SetFragmentShaderPath(const std::string& path);
+    void SetGeometryShaderPath(const std::string& path);
+    std::string LoadShader(const std::string& path, std::string& shader_code);
+    int ProcessShader();
+
+    std::unique_ptr<ShaderData> data;
   };
 #endif // !__COMPONENT_H__

@@ -16,6 +16,7 @@ public:
   int ID();
 
   std::shared_ptr<class MeshComponent>  GetMeshComponent();
+  std::shared_ptr<class ShaderComponent> GetShaderComponent();
 
   //Setters
   void AddRenderComponent();
@@ -26,6 +27,7 @@ public:
  // void AddLightComponent();
  // void AddCameraComponent();
   void AddMeshComponent();
+  void AddShaderComponent();
   //void AddMaterialComponent();
 
 private:
