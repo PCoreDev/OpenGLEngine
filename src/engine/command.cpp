@@ -14,7 +14,7 @@ void ClearCommand::Clear(float R, float G, float B, float A) {
     a = A;
 }
 
-void ClearCommand::execute() {
+void ClearCommand::Execute() {
     glClearColor(r, g, b, a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -32,7 +32,7 @@ void DrawCommand::BindUniforms() {
     //Rest of the uniforms for the shaders, color, material,lights, etc...
 }
 
-void DrawCommand::execute() {
+void DrawCommand::Execute() {
   glUseProgram(0);
 
   BindUniforms();
@@ -65,7 +65,7 @@ void DrawRenderBufferCommand::BindUniforms() {
   }
 }
 
-void DrawRenderBufferCommand::execute() {
+void DrawRenderBufferCommand::Execute() {
   glUseProgram(0);
 
   BindUniforms();
