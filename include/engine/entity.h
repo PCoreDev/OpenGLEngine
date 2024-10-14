@@ -1,6 +1,8 @@
 #ifndef __ENTITY_H__
 #define __ENTITY_H__ 1
+
 #include <memory>
+#include "engine/component.h"
 
 class Entity{
 

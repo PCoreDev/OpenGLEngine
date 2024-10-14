@@ -29,7 +29,7 @@ struct DrawCommand : public Command{
   unsigned int vao;
   unsigned int vbo;
   int n_index;
-  unsigned int index_buffer;
+  unsigned int ibo;
   int shader_program;
 };
 

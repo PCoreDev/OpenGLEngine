@@ -87,11 +87,11 @@ namespace OpenGLEngine {
       data->display_list->AddClearCommand(0.2f, 0.3f, 0.3f, 1.0f);
 
       //TODO: Uncomment and check where is the error.
-      /*for (auto& entity : entity_manager_->GetEntities()) {
+      for (auto& entity : entity_manager_->GetEntities()) {
         if (auto sharedEntity = entity.lock()) {
           data->display_list->AddDrawCommand(*sharedEntity);
         }
-      }*/
+      }
     }
 
     void Core::Render() {

@@ -37,13 +37,7 @@ int main(int argc, char** argv){
     LOG_F(INFO, "Core failed to initialize");
   }
   
-  std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  LOG_F(INFO, "Entity created with id: %d", entity->ID());
-  LOG_F(INFO, "Number of entities: %d", OpenGLEngine::Engine::Core::entity_manager_->GetNumberOfEntities());
-
-  entity->AddMeshComponent();
-  entity->GetMeshComponent()->Triangle();
-  entity->AddShaderComponent();
+  OpenGLEngine::main(argc, argv);
 
   while (!core->RunningState())
   {
@@ -53,7 +47,6 @@ int main(int argc, char** argv){
     core->Update();
     ////Render
     core->Render();
-
 
     core->EventsHandler();
     core->BufferHandler();

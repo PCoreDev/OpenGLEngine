@@ -4,16 +4,18 @@
 //Main file of the user.
 
 #include "engine/core.h"
-
-#include <stdio.h>
-#include <iostream>
+#include "engine/entity.h"
 
 
 int OpenGLEngine::main(int argc, char** argv)
 {
+  std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
 
-  std::cout << "Hello World!" << std::endl;
-  system("pause");
+  entity->AddMeshComponent();
+  entity->GetMeshComponent()->Triangle();
+  entity->AddShaderComponent();
+  entity->GetShaderComponent()->ProcessShader();
+
 
   return 0;
 }

@@ -20,6 +20,7 @@ DrawCommand::DrawCommand(Entity& entity) {
   //Vertex buffer id
   vao = entity.GetMeshComponent()->GetVAO();
   vbo = entity.GetMeshComponent()->GetVBO();
+  ibo = entity.GetMeshComponent()->GetIBO();
   n_index = entity.GetMeshComponent()->GetVertexCount();
   shader_program = entity.GetShaderComponent()->GetShaderProgram();
   //Index buffer id
@@ -49,9 +50,9 @@ void DrawCommand::Execute() {
   BindUniforms();
 
   glEnable(GL_CULL_FACE);
-  glBindVertexArray(vao); //0 = vao
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer); //0 = buffer data
-  glDrawElements(GL_TRIANGLES, n_index, GL_UNSIGNED_INT, nullptr); //0 = number of vertex
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glDrawElements(GL_TRIANGLES, n_index, GL_UNSIGNED_INT, nullptr);
 }
 
 DrawRenderBufferCommand::DrawRenderBufferCommand() {
@@ -61,17 +62,17 @@ DrawRenderBufferCommand::DrawRenderBufferCommand() {
 void DrawRenderBufferCommand::BindUniforms() {
   int screen_texture_location = glGetUniformLocation(0, "screen_texture");
   if(screen_texture_location != -1) {
-    glUniform1i(screen_texture_location, 0); //0 = screen_tex
+    glUniform1i(screen_texture_location, 0);
   }
 
   int depth_texture_location = glGetUniformLocation(0, "depth_texture");
   if (depth_texture_location != -1) {
-    glUniform1i(depth_texture_location, 0); //0 = depth_tex
+    glUniform1i(depth_texture_location, 0);
   }
 
   int stencil_texture_location = glGetUniformLocation(0, "stencil_texture");
   if (stencil_texture_location != -1) {
-    glUniform1i(stencil_texture_location, 0); //0 = stencil_tex
+    glUniform1i(stencil_texture_location, 0);
   }
 }
 
@@ -80,7 +81,7 @@ void DrawRenderBufferCommand::Execute() {
 
   BindUniforms();
 
-  glBindVertexArray(0); //0 = vao
+  glBindVertexArray(0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //0 = buffer data
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
@@ -121,7 +122,6 @@ void DisplayList::AddClearCommand(float r, float g, float b, float a) {
 }
 
 void DisplayList::AddDrawCommand(Entity& entity) {
-  entity.GetShaderComponent()->ProcessShader();
   auto command = std::make_unique<DrawCommand>(entity);
   commands_.push_back(std::move(command));
 }

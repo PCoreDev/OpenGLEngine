@@ -94,8 +94,8 @@ enum ComponentType {
   struct MeshData {
     std::vector<float> vertex_data;
     std::vector<float> normal_data;
-    int n_vertex = 0;
     std::vector<unsigned int> index_data;
+    int n_vertex = 0;
     unsigned int vao, vbo, ibo;
     void Bind();
   };
