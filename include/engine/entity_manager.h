@@ -7,6 +7,7 @@
 #define __ENTITY_MANAGER_H__ 1
 
 #include <memory>
+#include <vector>
 
 class EntityManager {
 
@@ -16,6 +17,8 @@ public:
 
   std::shared_ptr<class Entity> CreateEntity();
   size_t GetNumberOfEntities() const;
+
+  std::vector<std::weak_ptr<class Entity>> GetEntities() const;
 
 
   private:

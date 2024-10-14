@@ -29,7 +29,14 @@ std::shared_ptr<Entity> EntityManager::CreateEntity() {
   return entity;
 }
 
-size_t EntityManager::GetNumberOfEntities() const
-{
+size_t EntityManager::GetNumberOfEntities() const {
   return data_->n_entities;
+}
+
+std::vector<std::weak_ptr<Entity>> EntityManager::GetEntities() const {
+  std::vector<std::weak_ptr<Entity>> weak_entities;
+  for (auto entity : data_->entities) {
+    weak_entities.push_back(entity);
+  }
+  return weak_entities;
 }

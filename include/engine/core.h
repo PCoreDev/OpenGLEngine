@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "engine/entity_manager.h"
+
 namespace OpenGLEngine {
 
   namespace Engine {
@@ -29,6 +31,10 @@ namespace OpenGLEngine {
 
       void BufferHandler();
       void EventsHandler();
+      void Update();
+      void Render();
+
+      static std::unique_ptr<EntityManager> entity_manager_;
 
     private:             
       struct CoreData;

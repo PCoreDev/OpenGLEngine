@@ -36,48 +36,23 @@ int main(int argc, char** argv){
   else {
     LOG_F(INFO, "Core failed to initialize");
   }
-  EntityManager entity_manager;
-  std::shared_ptr<Entity> entity = entity_manager.CreateEntity();
+  
+  std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   LOG_F(INFO, "Entity created with id: %d", entity->ID());
-  LOG_F(INFO, "Number of entities: %d", entity_manager.GetNumberOfEntities());
+  LOG_F(INFO, "Number of entities: %d", OpenGLEngine::Engine::Core::entity_manager_->GetNumberOfEntities());
 
   entity->AddMeshComponent();
   entity->GetMeshComponent()->Triangle();
   entity->AddShaderComponent();
-
-   unsigned int VBO;
-  glGenBuffers(1, &VBO);
-  
-
-// 0. copy our vertices array in a buffer for OpenGL to use
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, entity->GetMeshComponent()->GetVertexSizeb(), entity->GetMeshComponent()->GetVertexData(), GL_STATIC_DRAW);
-// 1. then set the vertex attributes pointers
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-// 2. use with the shader program when we want to render an object
-  entity->GetShaderComponent()->ProcessShader();
-// 3. draw the object
-  //glDrawArrays(GL_TRIANGLES, 0, 3);
-
-  unsigned int VAO;
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, entity->GetMeshComponent()->GetVertexSizeb(), entity->GetMeshComponent()->GetVertexData(), GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-
 
   while (!core->RunningState())
   {
     //Input
     core->Input();
     //Update
-    //Render
-  //  glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, entity->GetMeshComponent()->GetVertexCount());
+    core->Update();
+    ////Render
+    core->Render();
 
 
     core->EventsHandler();

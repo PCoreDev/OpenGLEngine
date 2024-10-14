@@ -8,6 +8,8 @@
 #include <memory>
 #include <list>
 
+#include "engine/entity.h"
+
 
 struct Command {
   virtual void Execute() = 0;
@@ -21,9 +23,14 @@ struct ClearCommand : public Command {
 };
 
 struct DrawCommand : public Command{
-  DrawCommand();
+  DrawCommand(Entity& entity);
   void BindUniforms();
   void Execute() override;
+  unsigned int vao;
+  unsigned int vbo;
+  int n_index;
+  unsigned int index_buffer;
+  int shader_program;
 };
 
 struct DrawRenderBufferCommand : public Command {
@@ -49,7 +56,7 @@ class DisplayList {
 
 
     void AddClearCommand(float r, float g, float b, float a);
-    void AddDrawCommand();
+    void AddDrawCommand(Entity& entity);
     void AddDrawRenderBufferCommand();
 
 

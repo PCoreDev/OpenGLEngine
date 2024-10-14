@@ -88,6 +88,32 @@
   
 #pragma region MeshComponent
 
+void MeshData::Bind() {
+    glCreateBuffers(1, &vbo);
+    glCreateBuffers(1, &ibo);
+
+    glNamedBufferStorage(vbo, vertex_data.size() * sizeof(float), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(ibo, index_data.size() * sizeof(unsigned int), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    glCreateVertexArrays(1, &vao);
+
+    glVertexArrayVertexBuffer(vao, 0, vbo, 0, 3 * sizeof(float)); //Vertex
+    glVertexArrayVertexBuffer(vao, 1, vbo, vertex_data.size() * sizeof(float), 3 * sizeof(float)); //Normals
+    glVertexArrayVertexBuffer(vao, 2, vbo, (vertex_data.size() + normal_data.size()) * sizeof(float), 2 * sizeof(float)); //UV
+
+    glEnableVertexArrayAttrib(vao, 0);
+    glEnableVertexArrayAttrib(vao, 1);
+    glEnableVertexArrayAttrib(vao, 2);
+
+    glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, 0);
+    glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, 0);
+    glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, 0);
+
+    glVertexArrayAttribBinding(vao, 0, 0);
+    glVertexArrayAttribBinding(vao, 1, 1);
+    glVertexArrayAttribBinding(vao, 2, 2);
+}
+
   MeshComponent::MeshComponent(int id) {
     this->id = id;
     this->type = ComponentType_Mesh;
@@ -109,8 +135,19 @@
         0.5f, -0.5f, 0.0f, // bottom right
         0.0f, 0.5f, 0.0f // top
       };
+
+      data->normal_data = {
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f
+      };
+
+      data->index_data = {
+        0, 1, 2
+      };
     }
     data->n_vertex = 3;
+    data->Bind();
   }
 
 void MeshComponent::Square() {
@@ -126,13 +163,25 @@ void MeshComponent::Square() {
         -0.5f, 0.5f, 0.0f // bottom left
     };
 
+    data->index_data = {
+        0, 1, 2,
+        3, 4, 5
+    };
+
+    data->normal_data = {
+        0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+    };
+
       data->n_vertex = 6;
 
     }
+    data->Bind();
 }
 
-float* MeshComponent::GetVertexData()
-{
+float* MeshComponent::GetVertexData() {
   if (data->vertex_data.size() > 0) {
     LOG_F(INFO, "Vertex data retrieved");
     return data->vertex_data.data();
@@ -140,8 +189,7 @@ float* MeshComponent::GetVertexData()
   return nullptr;
 }
 
-size_t MeshComponent::GetVertexSizeb()
-{
+size_t MeshComponent::GetVertexSizeb() {
   if (data->vertex_data.size() > 0) {
     LOG_F(INFO, "Vertex data size retrieved");
     return data->vertex_data.size() * sizeof(float);
@@ -149,10 +197,23 @@ size_t MeshComponent::GetVertexSizeb()
   return 0;
 }
 
-size_t MeshComponent::GetVertexCount()
-{
+size_t MeshComponent::GetVertexCount() {
   return data->n_vertex;
 }
+
+unsigned int MeshComponent::GetVAO() {
+  return data->vao;
+}
+
+unsigned int MeshComponent::GetVBO() {
+  return data->vbo;
+}
+
+unsigned int MeshComponent::GetIBO(){
+  return data->ibo;
+}
+
+
 #pragma endregion MeshComponent
 
 #pragma region ShaderComponent
@@ -260,6 +321,10 @@ glDeleteShader(data->vertex_shader);
 glDeleteShader(data->fragment_shader);
 
 return 0;
+}
+
+int ShaderComponent::GetShaderProgram() {
+  return data->shader_program;
 }
 
 #pragma endregion ShaderComponent

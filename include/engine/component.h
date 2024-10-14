@@ -93,8 +93,11 @@ enum ComponentType {
   //TODO CHeck why I can't do a forward declaration of MeshData
   struct MeshData {
     std::vector<float> vertex_data;
+    std::vector<float> normal_data;
     int n_vertex = 0;
     std::vector<unsigned int> index_data;
+    unsigned int vao, vbo, ibo;
+    void Bind();
   };
 	    
   struct MeshComponent : public Component {
@@ -107,6 +110,9 @@ enum ComponentType {
     float* GetVertexData();
     size_t GetVertexSizeb();
     size_t GetVertexCount();
+    unsigned int GetVAO();
+    unsigned int GetVBO();
+    unsigned int GetIBO();
     std::unique_ptr<MeshData> data;
   };
 
@@ -133,6 +139,7 @@ enum ComponentType {
     void SetGeometryShaderPath(const std::string& path);
     std::string LoadShader(const std::string& path, std::string& shader_code);
     int ProcessShader();
+    int GetShaderProgram();
 
     std::unique_ptr<ShaderData> data;
   };
