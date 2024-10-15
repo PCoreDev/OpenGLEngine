@@ -6,6 +6,9 @@
 #include "engine/command.h"
 #include "engine/component.h"
 #include "glad/glad.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 //ClearCommand
 void ClearCommand::Execute() {
@@ -37,6 +40,71 @@ DrawCommand::DrawCommand(Entity& entity) {
 }
 
 void DrawCommand::BindUniforms() {
+  
+  // Define position, scale, and rotation
+  glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+  glm::vec3 rotation = glm::vec3(45.0f, 20.0f, 0.0f); // Rotation angles in degrees
+
+  // Create translation matrix
+  glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
+
+  // Create rotation matrices for each axis
+  glm::mat4 rotationMatrix = glm::mat4(1.0f);
+  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+  // Create scale matrix
+  glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+
+  // Combine all to create the world matrix
+  glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+  // Define camera parameters
+  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -5.0f); // Camera position
+  glm::vec3 cameraTarget = position; // Target position
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); // Up direction
+
+  // Calculate the view matrix
+  glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraTarget, up);
+
+  // Field of view, aspect ratio, near and far planes
+  float fov = 45.0f;
+  float aspectRatio = 800.0f / 600.0f; // Example aspect ratio (width/height)
+  float nearPlane = 0.1f;
+  float farPlane = 100.0f;
+
+  glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
+
+  int model_matrix_location = glGetUniformLocation(shader_program, "model_matrix");
+  if (model_matrix_location != -1) {
+    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(worldMatrix));
+  }
+
+  int view_matrix_location = glGetUniformLocation(shader_program, "view_matrix");
+  if (view_matrix_location != -1) {
+    glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+  }
+
+  int projection_matrix_location = glGetUniformLocation(shader_program, "projection_matrix");
+  if (projection_matrix_location != -1) {
+    glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+  }
+
+  //int camera_position_location = glGetUniformLocation(shader_program, "camera_position");
+  //if (camera_position_location != -1) {
+  //  glUniform3fv(camera_position_location, 1, glm::value_ptr(camera_position));
+  //}
+
+  //int entity_position_location = glGetUniformLocation(shader_program, "entity_position");
+  //if (entity_position_location != -1) {
+  //  glUniform3fv(entity_position_location, 1, glm::value_ptr(position));
+  //}
+
+
+
+
     //view matrix
     //projection matrix
     //view projection matrix

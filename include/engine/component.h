@@ -56,9 +56,7 @@ enum ComponentType {
 	struct TransformComponent : public Component {
 	public:
     TransformComponent() = default;
-    TransformComponent(const TransformComponent&);
-		TransformComponent(int id);
-
+    TransformComponent(int id);
 		void operator=(const TransformComponent& other);
 
 		//Setters
@@ -71,10 +69,14 @@ enum ComponentType {
 		void SetRotation(glm::vec3 rotation);
 
 		void SetScale(float x, float y, float z);
-	void SetScale(float scale[3]);
+  	void SetScale(float scale[3]);
 		void SetScale(glm::vec3 scale);
 
 		//Getters
+
+    glm::vec3 GetPosition() const;
+    glm::vec3 GetRotation() const;
+    glm::vec3 GetScale() const;
 
 	private:
 
@@ -94,6 +96,7 @@ enum ComponentType {
   struct MeshData {
     std::vector<float> vertex_data;
     std::vector<float> normal_data;
+    std::vector<float> uv_data;
     std::vector<unsigned int> index_data;
     int n_vertex = 0;
     unsigned int vao, vbo, ibo;
@@ -107,6 +110,7 @@ enum ComponentType {
     void operator=(const MeshComponent& other);
     void Triangle();
     void Square();
+    void Cube();
     float* GetVertexData();
     size_t GetVertexSizeb();
     size_t GetVertexCount();
@@ -139,6 +143,7 @@ enum ComponentType {
     void SetGeometryShaderPath(const std::string& path);
     std::string LoadShader(const std::string& path, std::string& shader_code);
     int ProcessShader();
+    void SetUniforms(class Entity& entity);
     int GetShaderProgram();
 
     std::unique_ptr<ShaderData> data;

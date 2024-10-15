@@ -12,8 +12,10 @@ int OpenGLEngine::main(int argc, char** argv)
   std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
 
   entity->AddMeshComponent();
-  entity->GetMeshComponent()->Triangle();
+  entity->GetMeshComponent()->Cube();
   entity->AddShaderComponent();
+  entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
+  entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
   entity->GetShaderComponent()->ProcessShader();
 
 

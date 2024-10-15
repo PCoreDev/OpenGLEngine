@@ -15,62 +15,66 @@
 
 #pragma region TransformComponent
 
-  TransformComponent::TransformComponent(int id) {
-    this->id = id;
-    this->type = ComponentType_Transform;
-    data = std::make_unique<TransformData>();
-  }
+TransformComponent::TransformComponent(int id) {
+  this->id = id;
+  this->type = ComponentType_Transform;
+  data = std::make_unique<TransformData>();
+  data->position = glm::vec3(0.0f, 0.0f, 0.0f);
+  data->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+  data->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+}
 
-  void TransformComponent::operator=(const TransformComponent& other) {
-    this->id = other.id;
-    this->type = other.type;
-    data = std::make_unique<TransformData>(*other.data);
-  }
+void TransformComponent::operator=(const TransformComponent& other) {
+  this->id = other.id;
+  this->type = other.type;
+  data = std::make_unique<TransformData>(*other.data);
+}
 
-  //Position
-  void TransformComponent::SetPosition(float x, float y, float z) {
-    data->position = glm::vec3(x, y, z);
-  }
+//Position
+void TransformComponent::SetPosition(float x, float y, float z) {
+  data->position = glm::vec3(x, y, z);
+}
 
-  void TransformComponent::SetPosition(float position[3]) {
-    data->position = glm::vec3(position[0], position[1], position[2]);
-  }
+void TransformComponent::SetPosition(float position[3]) {
+  data->position = glm::vec3(position[0], position[1], position[2]);
+}
 
-  void TransformComponent::SetPosition(glm::vec3 position) {
-    data->position = position;
-  }
+void TransformComponent::SetPosition(glm::vec3 position) {
+  data->position = position;
+}
 
-  //Rotation
-  void TransformComponent::SetRotation(float x, float y, float z) {
-    data->rotation = glm::vec3(x, y, z);
-  
-  }
+//Rotation
+void TransformComponent::SetRotation(float x, float y, float z) {
+  data->rotation = glm::vec3(x, y, z);
+}
 
-  void TransformComponent::SetRotation(float rotation[3]) {
-    data->rotation = glm::vec3(rotation[0], rotation[1], rotation[2]);
-  }
+void TransformComponent::SetRotation(float rotation[3]) {
+  data->rotation = glm::vec3(rotation[0], rotation[1], rotation[2]);
+}
 
-  void TransformComponent::SetRotation(glm::vec3 rotation) {
-    data->rotation = rotation;
-  
-  }
+void TransformComponent::SetRotation(glm::vec3 rotation) {
+  data->rotation = rotation;
+}
 
-  //Scale
-  void TransformComponent::SetScale(float x, float y, float z) {
-    data->scale = glm::vec3(x, y, z);
-  
-  }
+//Scale
+void TransformComponent::SetScale(float x, float y, float z) {
+  data->scale = glm::vec3(x, y, z);
+}
 
-  void TransformComponent::SetScale(float scale[3]) {
-    data->scale = glm::vec3(scale[0], scale[1], scale[2]);
-  
-  }
+void TransformComponent::SetScale(float scale[3]) {
+  data->scale = glm::vec3(scale[0], scale[1], scale[2]);
+}
 
-  void TransformComponent::SetScale(glm::vec3 scale) {
-    data->scale = scale;
-  
-  
-  }
+void TransformComponent::SetScale(glm::vec3 scale) {
+  data->scale = scale;
+}
+
+//Getters
+glm::vec3 TransformComponent::GetPosition() const { return data->position; }
+
+glm::vec3 TransformComponent::GetRotation() const { return data->rotation; }
+
+glm::vec3 TransformComponent::GetScale() const { return data->scale; }
 
 #pragma endregion TransformComponent
 
@@ -179,6 +183,156 @@ void MeshComponent::Square() {
 
     }
     data->Bind();
+}
+
+void MeshComponent::Cube(){
+  if(data != nullptr){
+    if(data->vertex_data.size() != 0) { data->vertex_data.clear(); }
+
+    data->vertex_data = {
+      //Front
+      -0.5f, 0.5f, 0.5f,
+      -0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, 0.5f, 0.5f,
+
+      //Bottom
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, -0.5f,
+
+      //Back
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, 0.5f, -0.5f,
+
+      //Right
+      0.5f, 0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, 0.5f, -0.5f,
+
+      //Left
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, 0.5f,
+      -0.5f, 0.5f, 0.5f,
+
+      //UP
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, 0.5f, 0.5f,
+      0.5f, 0.5f, 0.5f,
+      0.5f, 0.5f, -0.5f, 
+    };
+
+    data->normal_data = {
+      //Front
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+
+      //Bottom
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+
+      //Back
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+
+      //Right
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+
+      //Left
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+
+      //Up
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+    };
+
+    data->uv_data = {
+      //Front
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Bottom
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Back
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Right
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Left
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Up
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+    };
+
+    data->index_data = {
+      //Front 0, 1, 2, 3
+      0,1,3,
+      1,2,3,
+
+      //Bottom 4, 5, 6, 7
+      7,6,5,
+      7,5,4,
+
+      //Back 8, 9, 10, 11
+      11,9,8,
+      11,10,9,
+
+      //Right 12, 13, 14, 15
+      12,13,15,
+      13,14,15,
+
+      //Left 16, 17, 18, 19
+      16,17,19,
+      17,18,19,
+
+      //Up 20, 21, 22, 23
+      20,21,23,
+      21,22,23,
+    };
+
+    data->n_vertex = 24;
+
+    data->Bind();
+  }
 }
 
 float* MeshComponent::GetVertexData() {
@@ -321,6 +475,12 @@ glDeleteShader(data->vertex_shader);
 glDeleteShader(data->fragment_shader);
 
 return 0;
+}
+
+void ShaderComponent::SetUniforms(Entity& entity){
+//Set Color
+int color_location = glGetUniformLocation(data->shader_program, "color");
+glUniform4f(color_location, 1.0f, 0.0f, 1.0f, 1.0f);
 }
 
 int ShaderComponent::GetShaderProgram() {
