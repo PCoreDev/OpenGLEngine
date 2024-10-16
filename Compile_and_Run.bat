@@ -8,7 +8,8 @@ cd /d "C:\Users\pablo\OneDrive\Documentos\Projects\OpenGL"
 REM Run msbuild with the specified parameters
 msbuild .\build\solution\Engine.sln /p:Configuration=Debug /p:Platform=Win64
 
-.\bin\example\example1\Example1.exe
+cd .\build\solution
+..\..\bin\example\example1\Example1.exe
 
 REM Close the terminal
 exit

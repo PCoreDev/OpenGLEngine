@@ -6,6 +6,10 @@
 #include "engine/component.h"
 #include "loguru/loguru.hpp"
 #include "glad/glad.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "engine/core.h"
+#include "engine/entity.h"
 
 #include <memory>
 #include <vector>
@@ -22,6 +26,12 @@ TransformComponent::TransformComponent(int id) {
   data->position = glm::vec3(0.0f, 0.0f, 0.0f);
   data->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
   data->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+  data->m_translation = glm::translate(glm::mat4(1.0f), data->position);
+  data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(data->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+  data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(data->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+  data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(data->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+  data->m_scale = glm::scale(glm::mat4(1.0f), data->scale);
+  data->parent_id = id;
 }
 
 void TransformComponent::operator=(const TransformComponent& other) {
@@ -32,41 +42,90 @@ void TransformComponent::operator=(const TransformComponent& other) {
 
 //Position
 void TransformComponent::SetPosition(float x, float y, float z) {
-  data->position = glm::vec3(x, y, z);
+  //TODO Check if the position changes.
+  glm::vec3 new_position = glm::vec3(x, y, z);
+  if (data->position != new_position) {
+    data->position = new_position;
+
+    //Update translation matrix
+    if (data->parent_id != id) {
+      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+        if (entity.lock()->ID() == data->parent_id) {
+          data->m_translation = entity.lock()->GetTransformComponent()->GetModelMatrix() * glm::translate(glm::mat4(1.0f), data->position);
+        }
+      }
+    }
+    else {
+      data->m_translation = glm::translate(glm::mat4(1.0f), data->position);
+    }
+  }
 }
 
 void TransformComponent::SetPosition(float position[3]) {
-  data->position = glm::vec3(position[0], position[1], position[2]);
+  SetPosition(position[0], position[1], position[2]);
 }
 
 void TransformComponent::SetPosition(glm::vec3 position) {
-  data->position = position;
+  SetPosition(position.x, position.y, position.z);;
 }
 
 //Rotation
 void TransformComponent::SetRotation(float x, float y, float z) {
-  data->rotation = glm::vec3(x, y, z);
+  glm::vec3 new_rotation = glm::vec3(x, y, z);
+
+  if (data->rotation != new_rotation) {
+    data->rotation = new_rotation;
+
+    //Update rotation matrix
+    if (data->parent_id != id) {
+      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+        if (entity.lock()->ID() == data->parent_id) {
+          data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f));
+          data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(y), glm::vec3(0.0f, 1.0f, 0.0f));
+          data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f));
+          data->m_rotation *= entity.lock()->GetTransformComponent()->GetModelMatrix();
+        }
+      }
+    }
+    else {
+
+      data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f));
+      data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(y), glm::vec3(0.0f, 1.0f, 0.0f));
+      data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+  }
 }
 
 void TransformComponent::SetRotation(float rotation[3]) {
-  data->rotation = glm::vec3(rotation[0], rotation[1], rotation[2]);
+  SetRotation(rotation[0], rotation[1], rotation[2]);
 }
 
 void TransformComponent::SetRotation(glm::vec3 rotation) {
-  data->rotation = rotation;
+  SetRotation(rotation.x, rotation.y, rotation.z);
 }
 
 //Scale
 void TransformComponent::SetScale(float x, float y, float z) {
-  data->scale = glm::vec3(x, y, z);
+  //TODO Check if the scale changes.
+  glm::vec3 new_scale = glm::vec3(x, y, z);
+  if (data->scale != new_scale) {
+    data->scale = new_scale;
+
+    //Update scale matrix
+    data->m_scale = glm::scale(glm::mat4(1.0f), data->scale);
+  }
 }
 
 void TransformComponent::SetScale(float scale[3]) {
-  data->scale = glm::vec3(scale[0], scale[1], scale[2]);
+  SetScale(scale[0], scale[1], scale[2]);
 }
 
 void TransformComponent::SetScale(glm::vec3 scale) {
-  data->scale = scale;
+  SetScale(scale.x, scale.y, scale.z);
+}
+
+void TransformComponent::SetParent(Entity entity){
+  data->parent_id = entity.ID();
 }
 
 //Getters
@@ -75,6 +134,19 @@ glm::vec3 TransformComponent::GetPosition() const { return data->position; }
 glm::vec3 TransformComponent::GetRotation() const { return data->rotation; }
 
 glm::vec3 TransformComponent::GetScale() const { return data->scale; }
+
+glm::mat4 TransformComponent::GetModelMatrix() const {
+  if (data->parent_id != id) {
+    for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+      if (entity.lock()->ID() == data->parent_id) {
+        return data->m_translation * data->m_rotation * data->m_scale * entity.lock()->GetTransformComponent()->GetModelMatrix();
+      }
+    }
+  }
+  else {
+    return data->m_translation * data->m_rotation * data->m_scale;
+  }
+}
 
 #pragma endregion TransformComponent
 
@@ -93,17 +165,26 @@ glm::vec3 TransformComponent::GetScale() const { return data->scale; }
 #pragma region MeshComponent
 
 void MeshData::Bind() {
-    glCreateBuffers(1, &vbo);
-    glCreateBuffers(1, &ibo);
+  //TODO: Change all to one buffer (vertex, normal, uv)
+
+    glCreateBuffers(1, &vbo); //vertex buffer object
+    glCreateBuffers(1, &nbo); //normal buffer object
+    glCreateBuffers(1, &ubo); //uv buffer object
+    glCreateBuffers(1, &ibo); //index buffer object
+                                          
 
     glNamedBufferStorage(vbo, vertex_data.size() * sizeof(float), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    glNamedBufferStorage(nbo, normal_data.size() * sizeof(float), normal_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(ubo, uv_data.size() * sizeof(float), uv_data.data(), GL_DYNAMIC_STORAGE_BIT);
+
     glNamedBufferStorage(ibo, index_data.size() * sizeof(unsigned int), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
 
     glCreateVertexArrays(1, &vao);
 
     glVertexArrayVertexBuffer(vao, 0, vbo, 0, 3 * sizeof(float)); //Vertex
-    glVertexArrayVertexBuffer(vao, 1, vbo, vertex_data.size() * sizeof(float), 3 * sizeof(float)); //Normals
-    glVertexArrayVertexBuffer(vao, 2, vbo, (vertex_data.size() + normal_data.size()) * sizeof(float), 2 * sizeof(float)); //UV
+    glVertexArrayVertexBuffer(vao, 1, nbo, 0, 3 * sizeof(float)); //Normals
+    glVertexArrayVertexBuffer(vao, 2, ubo, 0, 2 * sizeof(float)); //UV
 
     glEnableVertexArrayAttrib(vao, 0);
     glEnableVertexArrayAttrib(vao, 1);
@@ -178,6 +259,15 @@ void MeshComponent::Square() {
         0.0f, 0.0f, 1.0f,
         1.0f, 1.0f, 1.0f,
     };
+    data->uv_data = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f
+    };
 
       data->n_vertex = 6;
 
@@ -188,7 +278,6 @@ void MeshComponent::Square() {
 void MeshComponent::Cube(){
   if(data != nullptr){
     if(data->vertex_data.size() != 0) { data->vertex_data.clear(); }
-
     data->vertex_data = {
       //Front
       -0.5f, 0.5f, 0.5f,
@@ -302,7 +391,117 @@ void MeshComponent::Cube(){
       1.0f, 1.0f,
       1.0f, 0.0f,
     };
+    /*
+    data->vertex_data = {
+      //Front
+      -0.5f, 0.5f, 0.5f,
+      -0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, 0.5f, 0.5f,
 
+      //Bottom
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, -0.5f,
+
+      //Back
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, 0.5f, -0.5f,
+
+      //Right
+      0.5f, 0.5f, 0.5f,
+      0.5f, -0.5f, 0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, 0.5f, -0.5f,
+
+      //Left
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, 0.5f,
+      -0.5f, 0.5f, 0.5f,
+
+      //UP
+      -0.5f, 0.5f, -0.5f,
+      -0.5f, 0.5f, 0.5f,
+      0.5f, 0.5f, 0.5f,
+      0.5f, 0.5f, -0.5f, 
+
+      //Front
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+      0.0f, 0.0f, 0.5f,
+
+      //Bottom
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+      0.0f, -0.5f, 0.0f,
+
+      //Back
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+      0.0f, 0.0f, -0.5f,
+
+      //Right
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+      0.5f, 0.0f, 0.0f,
+
+      //Left
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+      -0.5f, 0.0f, 0.0f,
+
+      //Up
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+
+      //Front
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Bottom
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Back
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Right
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Left
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+
+      //Up
+      0.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+    };
+*/
     data->index_data = {
       //Front 0, 1, 2, 3
       0,1,3,

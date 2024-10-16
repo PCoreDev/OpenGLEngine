@@ -69,6 +69,16 @@ std::shared_ptr<ShaderComponent> Entity::GetShaderComponent() {
   return nullptr;
 }
 
+std::shared_ptr<class TransformComponent> Entity::GetTransformComponent()
+{
+  for (auto& component : data_->components_) {
+    if (component->GetType() == ComponentType::ComponentType_Transform) {
+      return std::static_pointer_cast<TransformComponent>(component);
+    }
+  }
+  return nullptr;
+}
+
 void Entity::AddRenderComponent() {
     data_->components_.push_back(std::make_shared<RenderComponent>(data_->id_));
 }

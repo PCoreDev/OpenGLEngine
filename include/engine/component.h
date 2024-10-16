@@ -11,6 +11,7 @@
 #include "glm/glm.hpp"
 
 
+
 enum ComponentType {
   ComponentType_Invalid = 0,
   ComponentType_Render,
@@ -41,20 +42,22 @@ enum ComponentType {
 
   //TODO CHeck why I can't do a forward declaration of MeshData
   struct TransformData {
-  public:
+    int parent_id;
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
-  private:
 
     glm::mat4 m_translation;
     glm::mat4 m_rotation;
     glm::mat4 m_scale;
-    glm::mat4 m_model;
+    //glm::mat4 m_model;
   };
 
 	struct TransformComponent : public Component {
 	public:
+
+    //Check values
+
     TransformComponent() = default;
     TransformComponent(int id);
 		void operator=(const TransformComponent& other);
@@ -70,13 +73,17 @@ enum ComponentType {
 
 		void SetScale(float x, float y, float z);
   	void SetScale(float scale[3]);
-		void SetScale(glm::vec3 scale);
+    void SetScale(glm::vec3 scale);
+    void SetParent(class Entity entity);
+
+    //TODO:Make local transformations
 
 		//Getters
 
     glm::vec3 GetPosition() const;
     glm::vec3 GetRotation() const;
     glm::vec3 GetScale() const;
+    glm::mat4 GetModelMatrix() const;
 
 	private:
 
@@ -99,7 +106,7 @@ enum ComponentType {
     std::vector<float> uv_data;
     std::vector<unsigned int> index_data;
     int n_vertex = 0;
-    unsigned int vao, vbo, ibo;
+    unsigned int vao, vbo, ibo, nbo, ubo;
     void Bind();
   };
 	    
@@ -148,4 +155,16 @@ enum ComponentType {
 
     std::unique_ptr<ShaderData> data;
   };
+
+  struct CameraData{
+
+  };
+
+  struct CameraComponent : public Component{
+
+
+
+  };
+
+
 #endif // !__COMPONENT_H__

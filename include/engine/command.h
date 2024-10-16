@@ -9,6 +9,8 @@
 #include <list>
 
 #include "engine/entity.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 
 struct Command {
@@ -26,12 +28,19 @@ struct DrawCommand : public Command{
   DrawCommand(Entity& entity);
   void BindUniforms();
   void Execute() override;
-  unsigned int vao;
-  unsigned int vbo;
-  int n_index;
-  unsigned int ibo;
-  int shader_program;
-};
+  int id;
+  //unsigned int vao;
+  //unsigned int vbo;
+  //int n_index;
+  //unsigned int ibo;
+  //int shader_program;
+
+
+  //glm::vec3 position;
+  //glm::vec3 scale;
+  //glm::vec3 rotation;
+  //glm::mat4 worldMatrix;
+ };
 
 struct DrawRenderBufferCommand : public Command {
   DrawRenderBufferCommand();

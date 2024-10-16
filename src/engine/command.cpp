@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "engine/core.h"
 
 //ClearCommand
 void ClearCommand::Execute() {
@@ -19,32 +20,59 @@ void ClearCommand::Execute() {
 //DrawCommand
 
 DrawCommand::DrawCommand(Entity& entity) {
-  //What I need to draw is.
-  //Vertex buffer id
-  vao = entity.GetMeshComponent()->GetVAO();
-  vbo = entity.GetMeshComponent()->GetVBO();
-  ibo = entity.GetMeshComponent()->GetIBO();
-  n_index = entity.GetMeshComponent()->GetVertexCount();
-  shader_program = entity.GetShaderComponent()->GetShaderProgram();
-  //Index buffer id
-  //n_index
-  //vao
   
-  //model matrix
-  //view matrix
-  //projection matrix
-  //view projection matrix
-  //camera position
-  //entity position
+  id = entity.ID();
 
+
+
+  ////What I need to draw is.
+  ////Vertex buffer id
+  //vao = entity.GetMeshComponent()->GetVAO();
+  //vbo = entity.GetMeshComponent()->GetVBO();
+  //ibo = entity.GetMeshComponent()->GetIBO();
+  //n_index = entity.GetMeshComponent()->GetVertexCount();
+  //shader_program = entity.GetShaderComponent()->GetShaderProgram();
+  ////Index buffer id
+  ////n_index
+  ////vao
+  //
+  ////model matrix
+  ////view matrix
+  ////projection matrix
+  ////view projection matrix
+  ////camera position
+  ////entity position
+
+  //  // Define position, scale, and rotation
+  //if (entity.GetTransformComponent() != nullptr) {
+  //  position = entity.GetTransformComponent()->GetPosition();
+  //  scale = entity.GetTransformComponent()->GetScale();
+  //  rotation = entity.GetTransformComponent()->GetRotation();
+  //  worldMatrix = entity.GetTransformComponent()->GetModelMatrix();
+  //}
 }
 
 void DrawCommand::BindUniforms() {
   
-  // Define position, scale, and rotation
-  glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
-  glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-  glm::vec3 rotation = glm::vec3(45.0f, 20.0f, 0.0f); // Rotation angles in degrees
+  //Check if transform is null
+
+  glm::vec3 position;
+  glm::vec3 scale;
+  glm::vec3 rotation;
+  glm::mat4 worldMatrix;
+  int shader_program;
+  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+    if (entity.lock()->ID() == id) {
+      if (entity.lock()->GetTransformComponent() != nullptr) {
+        position = entity.lock()->GetTransformComponent()->GetPosition();
+        scale = entity.lock()->GetTransformComponent()->GetScale();
+        rotation = entity.lock()->GetTransformComponent()->GetRotation();
+        worldMatrix = entity.lock()->GetTransformComponent()->GetModelMatrix();
+        shader_program = entity.lock()->GetShaderComponent()->GetShaderProgram();
+      }
+    }
+  }
+
 
   // Create translation matrix
   glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
@@ -59,7 +87,7 @@ void DrawCommand::BindUniforms() {
   glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 
   // Combine all to create the world matrix
-  glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+  
 
   // Define camera parameters
   glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -5.0f); // Camera position
@@ -113,14 +141,26 @@ void DrawCommand::BindUniforms() {
 }
 
 void DrawCommand::Execute() {
-  glUseProgram(shader_program);
+  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+    if (entity.lock()->ID() == id) {
+      glUseProgram(entity.lock()->GetShaderComponent()->GetShaderProgram());
 
-  BindUniforms();
+      BindUniforms();
+      if (entity.lock()->GetMeshComponent() != nullptr) {
+        glBindVertexArray(entity.lock()->GetMeshComponent()->GetVAO());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity.lock()->GetMeshComponent()->GetIBO());
+        glDrawElements(GL_TRIANGLES, entity.lock()->GetMeshComponent()->GetVertexCount(), GL_UNSIGNED_INT, nullptr);
+      }
+    }
+  }
+  //glUseProgram(shader_program);
 
-  glEnable(GL_CULL_FACE);
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_TRIANGLES, n_index, GL_UNSIGNED_INT, nullptr);
+  //BindUniforms();
+
+  //glEnable(GL_CULL_FACE);
+  //glBindVertexArray(vao);
+  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  //glDrawElements(GL_TRIANGLES, n_index, GL_UNSIGNED_INT, nullptr);
 }
 
 DrawRenderBufferCommand::DrawRenderBufferCommand() {

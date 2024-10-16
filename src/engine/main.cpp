@@ -20,6 +20,8 @@
 
 #define PX_SCHED_IMPLEMENTATION 1
 
+//TODO: Make it multi-threaded with PX_SCHED
+
 int main(int argc, char** argv){
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
@@ -38,6 +40,8 @@ int main(int argc, char** argv){
   }
   
   OpenGLEngine::main(argc, argv);
+
+
 
   while (!core->RunningState())
   {

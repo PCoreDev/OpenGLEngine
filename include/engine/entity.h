@@ -19,6 +19,7 @@ public:
 
   std::shared_ptr<class MeshComponent>  GetMeshComponent();
   std::shared_ptr<class ShaderComponent> GetShaderComponent();
+  std::shared_ptr<class TransformComponent> GetTransformComponent();
 
   //Setters
   void AddRenderComponent();
