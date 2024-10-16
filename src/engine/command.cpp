@@ -147,9 +147,11 @@ void DrawCommand::Execute() {
 
       BindUniforms();
       if (entity.lock()->GetMeshComponent() != nullptr) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
         glBindVertexArray(entity.lock()->GetMeshComponent()->GetVAO());
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity.lock()->GetMeshComponent()->GetIBO());
-        glDrawElements(GL_TRIANGLES, entity.lock()->GetMeshComponent()->GetVertexCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, entity.lock()->GetMeshComponent()->GetVertexCount() * 9, GL_UNSIGNED_INT, nullptr);
       }
     }
   }

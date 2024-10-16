@@ -41,12 +41,23 @@ int main(int argc, char** argv){
   
   OpenGLEngine::main(argc, argv);
 
+  std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+
+  entity->AddMeshComponent();
+  entity->AddTransformComponent();
+  entity->GetTransformComponent()->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+  entity->GetMeshComponent()->Cube();
+  entity->AddShaderComponent();
+  entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
+  entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
+  entity->GetShaderComponent()->ProcessShader();
 
 
   while (!core->RunningState())
   {
     //Input
     core->Input();
+    entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.3f, 0.3f, 0.3f));
     //Update
     core->Update();
     ////Render

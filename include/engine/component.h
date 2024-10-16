@@ -56,7 +56,7 @@ enum ComponentType {
 	struct TransformComponent : public Component {
 	public:
 
-    //Check values
+    //TODO: review the component transformations.
 
     TransformComponent() = default;
     TransformComponent(int id);
@@ -118,6 +118,7 @@ enum ComponentType {
     void Triangle();
     void Square();
     void Cube();
+    void LoadOBJ(const std::string& path);
     float* GetVertexData();
     size_t GetVertexSizeb();
     size_t GetVertexCount();

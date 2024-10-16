@@ -11,11 +11,13 @@ uniform mat4 projection_matrix;
 
 out vec3 normals;  // Normal in world space
 out vec2 texCoords;  // Texture coordinates
+out vec4 fragPos;  // Fragment position in world space
 
 void main() {
     // Apply transformations
     gl_Position = model_matrix * vec4(aPos, 1.0);
     normals = aNormal;
     texCoords = aTexCoords;
+    fragPos = model_matrix * vec4(aPos, 1.0);
 }
 
