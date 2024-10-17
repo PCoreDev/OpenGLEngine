@@ -10,6 +10,7 @@
 
 namespace OpenGLEngine {
 
+
 	struct WData;
 
 	class Window {
@@ -25,9 +26,6 @@ namespace OpenGLEngine {
 		void SwapBuffers();
 		void InputHandler();
 		bool CloseWindow();
-
-		
-
 	private:
 
 		std::unique_ptr<WData> wdata_;

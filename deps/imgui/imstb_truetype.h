@@ -916,8 +916,8 @@ STBTT_DEF void stbtt_Rasterize(stbtt__bitmap *result,        // 1-channel bitmap
                                stbtt_vertex *vertices,       // array of vertices defining shape
                                int num_verts,                // number of vertices in above array
                                float scale_x, float scale_y, // scale applied to input vertices
-                               float shift_x, float shift_y, // translation applied to input vertices
-                               int x_off, int y_off,         // another translation applied to input
+                               float shift_x, float shift_y, // traslation applied to input vertices
+                               int x_off, int y_off,         // another traslation applied to input
                                int invert,                   // if non-zero, vertically flip shape
                                void *userdata);              // context for to STBTT_MALLOC
 

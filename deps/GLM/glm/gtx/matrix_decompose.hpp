@@ -8,7 +8,7 @@
 ///
 /// Include <glm/gtx/matrix_decompose.hpp> to use the features of this extension.
 ///
-/// Decomposes a model matrix to translations, rotation and scale components
+/// Decomposes a model matrix to traslations, rotation and scale components
 
 #pragma once
 
@@ -33,12 +33,12 @@ namespace glm
 	/// @addtogroup gtx_matrix_decompose
 	/// @{
 
-	/// Decomposes a model matrix to translations, rotation and scale components
+	/// Decomposes a model matrix to traslations, rotation and scale components
 	/// @see gtx_matrix_decompose
 	template<typename T, qualifier Q>
 	GLM_FUNC_DECL bool decompose(
 		mat<4, 4, T, Q> const& modelMatrix,
-		vec<3, T, Q> & scale, qua<T, Q> & orientation, vec<3, T, Q> & translation, vec<3, T, Q> & skew, vec<4, T, Q> & perspective);
+		vec<3, T, Q> & scale, qua<T, Q> & orientation, vec<3, T, Q> & traslation, vec<3, T, Q> & skew, vec<4, T, Q> & perspective);
 
 	/// @}
 }//namespace glm

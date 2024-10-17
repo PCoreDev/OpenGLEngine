@@ -20,6 +20,7 @@ public:
   std::shared_ptr<class MeshComponent>  GetMeshComponent();
   std::shared_ptr<class ShaderComponent> GetShaderComponent();
   std::shared_ptr<class TransformComponent> GetTransformComponent();
+  std::shared_ptr<class CameraComponent> GetCameraComponent();
 
   //Setters
   void AddRenderComponent();
@@ -28,7 +29,7 @@ public:
  // void AddNodeComponent();
  // void AddSoundComponent();
  // void AddLightComponent();
- // void AddCameraComponent();
+ void AddCameraComponent();
   void AddMeshComponent();
   void AddShaderComponent();
   //void AddMaterialComponent();

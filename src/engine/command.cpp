@@ -19,150 +19,74 @@ void ClearCommand::Execute() {
 
 //DrawCommand
 
-DrawCommand::DrawCommand(Entity& entity) {
-  
-  id = entity.ID();
-
-
-
-  ////What I need to draw is.
-  ////Vertex buffer id
-  //vao = entity.GetMeshComponent()->GetVAO();
-  //vbo = entity.GetMeshComponent()->GetVBO();
-  //ibo = entity.GetMeshComponent()->GetIBO();
-  //n_index = entity.GetMeshComponent()->GetVertexCount();
-  //shader_program = entity.GetShaderComponent()->GetShaderProgram();
-  ////Index buffer id
-  ////n_index
-  ////vao
-  //
-  ////model matrix
-  ////view matrix
-  ////projection matrix
-  ////view projection matrix
-  ////camera position
-  ////entity position
-
-  //  // Define position, scale, and rotation
-  //if (entity.GetTransformComponent() != nullptr) {
-  //  position = entity.GetTransformComponent()->GetPosition();
-  //  scale = entity.GetTransformComponent()->GetScale();
-  //  rotation = entity.GetTransformComponent()->GetRotation();
-  //  worldMatrix = entity.GetTransformComponent()->GetModelMatrix();
-  //}
+DrawCommand::DrawCommand(Entity& e) {
+  entity = std::make_shared<Entity>(e);
 }
 
 void DrawCommand::BindUniforms() {
-  
-  //Check if transform is null
 
-  glm::vec3 position;
-  glm::vec3 scale;
-  glm::vec3 rotation;
-  glm::mat4 worldMatrix;
+  //Check if transform is null
+  std::shared_ptr<TransformComponent> transform = entity->GetTransformComponent();
+  std::shared_ptr<ShaderComponent> shader = entity->GetShaderComponent();
+
+  glm::vec3 position, scale, rotation;
+  glm::mat4 traslationMatrix, rotationMatrix, scaleMatrix, worldMatrix;
+
   int shader_program;
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) {
-      if (entity.lock()->GetTransformComponent() != nullptr) {
-        position = entity.lock()->GetTransformComponent()->GetPosition();
-        scale = entity.lock()->GetTransformComponent()->GetScale();
-        rotation = entity.lock()->GetTransformComponent()->GetRotation();
-        worldMatrix = entity.lock()->GetTransformComponent()->GetModelMatrix();
-        shader_program = entity.lock()->GetShaderComponent()->GetShaderProgram();
+  if (transform != nullptr) {
+
+    //Parse data
+    position = entity->GetTransformComponent()->GetPosition();
+    scale = entity->GetTransformComponent()->GetScale();
+    rotation = entity->GetTransformComponent()->GetRotation();
+    worldMatrix = entity->GetTransformComponent()->GetModelMatrix();
+
+    traslationMatrix = entity->GetTransformComponent()->GetTraslationMatrix();;
+    rotationMatrix = entity->GetTransformComponent()->GetRotationMatrix();
+    scaleMatrix = entity->GetTransformComponent()->GetScaleMatrix();
+  }
+
+  if (shader != nullptr) {
+    shader_program = shader->GetShaderProgram();
+  }
+
+  std::weak_ptr<CameraComponent> camera = OpenGLEngine::Engine::Core::camera_;
+  if (camera.lock() != nullptr) {
+    glm::mat4 viewMatrix = camera.lock()->GetViewMatrix();
+    glm::mat4 projectionMatrix = camera.lock()->GetProjectionMatrix();
+
+    if (shader != nullptr) {
+      int model_matrix_location = glGetUniformLocation(shader_program, "model_matrix");
+      if (model_matrix_location != -1) {
+        glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(worldMatrix));
+      }
+
+      int view_matrix_location = glGetUniformLocation(shader_program, "view_matrix");
+      if (view_matrix_location != -1) {
+        glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+      }
+
+      int projection_matrix_location = glGetUniformLocation(shader_program, "projection_matrix");
+      if (projection_matrix_location != -1) {
+        glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
       }
     }
   }
-
-
-  // Create translation matrix
-  glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
-
-  // Create rotation matrices for each axis
-  glm::mat4 rotationMatrix = glm::mat4(1.0f);
-  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-  rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-  // Create scale matrix
-  glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
-
-  // Combine all to create the world matrix
-  
-
-  // Define camera parameters
-  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -5.0f); // Camera position
-  glm::vec3 cameraTarget = position; // Target position
-  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); // Up direction
-
-  // Calculate the view matrix
-  glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraTarget, up);
-
-  // Field of view, aspect ratio, near and far planes
-  float fov = 45.0f;
-  float aspectRatio = 800.0f / 600.0f; // Example aspect ratio (width/height)
-  float nearPlane = 0.1f;
-  float farPlane = 100.0f;
-
-  glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
-
-  int model_matrix_location = glGetUniformLocation(shader_program, "model_matrix");
-  if (model_matrix_location != -1) {
-    glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(worldMatrix));
-  }
-
-  int view_matrix_location = glGetUniformLocation(shader_program, "view_matrix");
-  if (view_matrix_location != -1) {
-    glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-  }
-
-  int projection_matrix_location = glGetUniformLocation(shader_program, "projection_matrix");
-  if (projection_matrix_location != -1) {
-    glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-  }
-
-  //int camera_position_location = glGetUniformLocation(shader_program, "camera_position");
-  //if (camera_position_location != -1) {
-  //  glUniform3fv(camera_position_location, 1, glm::value_ptr(camera_position));
-  //}
-
-  //int entity_position_location = glGetUniformLocation(shader_program, "entity_position");
-  //if (entity_position_location != -1) {
-  //  glUniform3fv(entity_position_location, 1, glm::value_ptr(position));
-  //}
-
-
-
-
-    //view matrix
-    //projection matrix
-    //view projection matrix
-    //model matrix
-    //Rest of the uniforms for the shaders, color, material,lights, etc...
 }
 
 void DrawCommand::Execute() {
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) {
-      glUseProgram(entity.lock()->GetShaderComponent()->GetShaderProgram());
-
-      BindUniforms();
-      if (entity.lock()->GetMeshComponent() != nullptr) {
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
-        glBindVertexArray(entity.lock()->GetMeshComponent()->GetVAO());
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity.lock()->GetMeshComponent()->GetIBO());
-        glDrawElements(GL_TRIANGLES, entity.lock()->GetMeshComponent()->GetVertexCount() * 9, GL_UNSIGNED_INT, nullptr);
-      }
-    }
+  if (entity->GetShaderComponent() != nullptr) {
+    glUseProgram(entity->GetShaderComponent()->GetShaderProgram());
   }
-  //glUseProgram(shader_program);
 
-  //BindUniforms();
-
-  //glEnable(GL_CULL_FACE);
-  //glBindVertexArray(vao);
-  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  //glDrawElements(GL_TRIANGLES, n_index, GL_UNSIGNED_INT, nullptr);
+  BindUniforms();
+  if (entity->GetMeshComponent() != nullptr) {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glBindVertexArray(entity->GetMeshComponent()->GetVAO());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity->GetMeshComponent()->GetIBO());
+    glDrawElements(GL_TRIANGLES, entity->GetMeshComponent()->GetVertexCount() * 3, GL_UNSIGNED_INT, nullptr);
+  }
 }
 
 DrawRenderBufferCommand::DrawRenderBufferCommand() {

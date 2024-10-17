@@ -11,6 +11,7 @@
 #include "engine/entity_manager.h"
 #include "engine/entity.h"
 #include "engine/component.h"
+#include "engine/window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -39,9 +40,14 @@ int main(int argc, char** argv){
     LOG_F(INFO, "Core failed to initialize");
   }
   
-  OpenGLEngine::main(argc, argv);
+  //OpenGLEngine::main(argc, argv);
 
   std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  camera->AddTransformComponent();
+  camera->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+  camera->AddCameraComponent();
+  camera->GetCameraComponent()->SetMainCamera();
 
   entity->AddMeshComponent();
   entity->AddTransformComponent();
@@ -58,6 +64,36 @@ int main(int argc, char** argv){
     //Input
     core->Input();
     entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.3f, 0.3f, 0.3f));
+
+    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyW))
+    //{
+    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, 10.0f));
+    //  camera->GetCameraComponent()->UpdateMatrices();
+    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
+
+    //}
+
+    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyS))
+    //{
+    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, -10.0f));
+    //  camera->GetCameraComponent()->UpdateMatrices();
+    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
+    //}
+
+    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyA))
+    //{
+    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(-10.0f, 0.0f, 0.0f));
+    //  camera->GetCameraComponent()->UpdateMatrices();
+    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
+    //}
+
+    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyD))
+    //{
+    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(10.0f, 0.0f, 0.0f));
+    //  camera->GetCameraComponent()->UpdateMatrices();
+    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
+    //}
+
     //Update
     core->Update();
     ////Render

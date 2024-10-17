@@ -6,6 +6,8 @@
 #include "engine/core.h"
 #include "engine/window.h"
 #include "engine/command.h"
+#include "engine/component.h"
+#include "engine/engine_input.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,11 +25,14 @@ namespace OpenGLEngine {
   namespace Engine {
 
     std::unique_ptr<EntityManager> Core::entity_manager_ = nullptr;
+    std::shared_ptr<CameraComponent> Core::camera_;
+    
 
     struct Core::CoreData {
       std::unique_ptr<DisplayList> display_list;
       bool isRunning = true;
       std::unique_ptr<Window> window;
+      std::unique_ptr<EngineInput> input;
       void InitGLFW() {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -38,20 +43,22 @@ namespace OpenGLEngine {
     };
 
     Core::Core() {
-      data = std::make_unique<CoreData>();
-      data->window = std::make_unique<Window>();
+      data_ = std::make_unique<CoreData>();
+      data_->window = std::make_unique<Window>();
       entity_manager_ = std::make_unique<EntityManager>();
-      data->display_list = std::make_unique<DisplayList>();
+      data_->display_list = std::make_unique<DisplayList>();
+      data_->input = std::make_unique<EngineInput>();
     }
 
     Core::~Core() {}
 
     bool Core::InitializeCore() {
-      data->InitGLFW();
-      data->window->SetWindowData("OpenGL Engine", 1280, 720); //TODO: Change this to a config file
-      if (!data->window->InitWindow()) {
+      data_->InitGLFW();
+      data_->window->SetWindowData("OpenGL Engine", 1280, 720); //TODO: Change this to a config file
+      if (!data_->window->InitWindow()) {
         return false;
       }
+      data_->input->BindCallbacks(data_->window->GetWindow());
       return true;
     }
 
@@ -60,42 +67,43 @@ namespace OpenGLEngine {
     }
 
     void* Core::GetWindow() const {
-      if (data->window) {
-        return data->window->GetWindow();
+      if (data_->window) {
+        return data_->window->GetWindow();
       }
       return nullptr;
     }
 
     bool Core::RunningState() const {
-      return data->window->CloseWindow();
+      return data_->window->CloseWindow();
     }
 
     void Core::Input() {
-      data->window->InputHandler();
+
     }
 
     void Core::BufferHandler() {
-      data->window->SwapBuffers();
+      data_->window->SwapBuffers();
     }
 
     void Core::EventsHandler() {
       glfwPollEvents();
+      //glfwWaitEvents();
     }
 
     void Core::Update() {
-      data->display_list->Clear();
-      data->display_list->AddClearCommand(0.2f, 0.3f, 0.3f, 1.0f);
+      data_->display_list->Clear();
+      data_->display_list->AddClearCommand(0.2f, 0.3f, 0.3f, 1.0f);
 
       //TODO: Uncomment and check where is the error.
       for (auto& entity : entity_manager_->GetEntities()) {
         if (auto sharedEntity = entity.lock()) {
-          data->display_list->AddDrawCommand(*sharedEntity);
+          data_->display_list->AddDrawCommand(*sharedEntity);
         }
       }
     }
 
     void Core::Render() {
-      data->display_list->Execute();
+      data_->display_list->Execute();
     }
 
   } // namespace Engine

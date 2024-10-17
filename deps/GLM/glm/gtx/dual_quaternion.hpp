@@ -64,7 +64,7 @@ namespace glm
 		// -- Explicit basic constructors --
 
 		GLM_FUNC_DECL GLM_CONSTEXPR tdualquat(qua<T, Q> const& real);
-		GLM_FUNC_DECL GLM_CONSTEXPR tdualquat(qua<T, Q> const& orientation, vec<3, T, Q> const& translation);
+		GLM_FUNC_DECL GLM_CONSTEXPR tdualquat(qua<T, Q> const& orientation, vec<3, T, Q> const& traslation);
 		GLM_FUNC_DECL GLM_CONSTEXPR tdualquat(qua<T, Q> const& real, qua<T, Q> const& dual);
 
 		// -- Conversion constructors --
@@ -174,7 +174,7 @@ namespace glm
 	template<typename T, qualifier Q>
 	GLM_FUNC_DECL tdualquat<T, Q> dualquat_cast(mat<2, 4, T, Q> const& x);
 
-	/// Converts a 3 * 4 matrix (augmented matrix rotation + translation) to a quaternion.
+	/// Converts a 3 * 4 matrix (augmented matrix rotation + traslation) to a quaternion.
 	///
 	/// @see gtx_dual_quaternion
 	template<typename T, qualifier Q>

@@ -196,7 +196,7 @@ static void freeLibraries(void)
         FreeLibrary(_glfw.win32.ntdll.instance);
 }
 
-// Create key code translation tables
+// Create key code traslation tables
 //
 static void createKeyTables(void)
 {

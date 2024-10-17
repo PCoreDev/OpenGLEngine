@@ -12,23 +12,24 @@
 
 #include "loguru/loguru.hpp"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-  glViewport(0, 0, width, height);
-  LOG_F(INFO, "Window size changed to %d x %d", width, height);
-}
 
-//void processInput(GLFWwindow* window) //TODO: Move this to the input class
-//{
-//  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-//      glfwSetWindowShouldClose(window, true);
-//  }
-//}
 
 namespace OpenGLEngine
 {
+  void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+  {
+    glViewport(0, 0, width, height);
+    LOG_F(INFO, "Window size changed to %d x %d", width, height);
+  }
+
+  void window_size_callback(GLFWwindow* window, int width, int height)
+  {
+    glfwSetWindowSize(window, width, height);
+    LOG_F(INFO, "Window size changed to %d x %d", width, height);
+  }
 
   struct WData {
+
     std::string name;
     unsigned int width;
     unsigned int height;
@@ -48,14 +49,6 @@ namespace OpenGLEngine
       glViewport(0, 0, width, height);
 
       return true;
-    }
-
-    void processInput(GLFWwindow* window) //TODO: Move this to the input class
-    {
-      if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        close = true;
-        glfwSetWindowShouldClose(window, close);
-      }
     }
   };
 
@@ -100,6 +93,7 @@ namespace OpenGLEngine
 
     LOG_F(INFO, "Succeed to create GLFW window");
 
+    glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
     glfwSetFramebufferSizeCallback(wdata_->window, framebuffer_size_callback);
 
     return wdata_->CreateOpenGLContext();
@@ -119,12 +113,9 @@ namespace OpenGLEngine
     glfwSwapBuffers(wdata_->window);
   }
 
-  void Window::InputHandler()
-  {
-    wdata_->processInput(wdata_->window);
-  }
   bool Window::CloseWindow()
   {
     return wdata_->close;
   }
+
 }

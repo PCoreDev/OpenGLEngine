@@ -328,9 +328,9 @@ namespace IMGUIZMO_NAMESPACE
 
       operator float* () { return m16; }
       operator const float* () const { return m16; }
-      void Translation(float _x, float _y, float _z) { this->Translation(makeVect(_x, _y, _z)); }
+      void traslation(float _x, float _y, float _z) { this->traslation(makeVect(_x, _y, _z)); }
 
-      void Translation(const vec_t& vt)
+      void traslation(const vec_t& vt)
       {
          v.right.Set(1.f, 0.f, 0.f, 0.f);
          v.up.Set(0.f, 1.f, 0.f, 0.f);
@@ -659,7 +659,7 @@ namespace IMGUIZMO_NAMESPACE
       matrix_t mModelSource;
       matrix_t mModelSourceInverse;
       matrix_t mMVP;
-      matrix_t mMVPLocal; // MVP with full model matrix whereas mMVP's model matrix might only be translation in case of World space edition
+      matrix_t mMVPLocal; // MVP with full model matrix whereas mMVP's model matrix might only be traslation in case of World space edition
       matrix_t mViewProjection;
 
       vec_t mModelScaleOrigin;
@@ -683,11 +683,11 @@ namespace IMGUIZMO_NAMESPACE
       bool mbMouseOver;
       bool mReversed; // reversed projection matrix
 
-      // translation
-      vec_t mTranslationPlan;
-      vec_t mTranslationPlanOrigin;
+      // traslation
+      vec_t mtraslationPlan;
+      vec_t mtraslationPlanOrigin;
       vec_t mMatrixOrigin;
-      vec_t mTranslationLastDelta;
+      vec_t mtraslationLastDelta;
 
       // rotation
       vec_t mRotationVectorSource;
@@ -746,13 +746,13 @@ namespace IMGUIZMO_NAMESPACE
    static const ImU32 planeColor[3] = { IM_COL32(0xAA, 0, 0, 0x61), IM_COL32(0, 0xAA, 0, 0x61), IM_COL32(0, 0, 0xAA, 0x61) };
    static const ImU32 selectionColor = IM_COL32(0xFF, 0x80, 0x10, 0x8A);
    static const ImU32 inactiveColor = IM_COL32(0x99, 0x99, 0x99, 0x99);
-   static const ImU32 translationLineColor = IM_COL32(0xAA, 0xAA, 0xAA, 0xAA);
-   static const char* translationInfoMask[] = { "X : %5.3f", "Y : %5.3f", "Z : %5.3f",
+   static const ImU32 traslationLineColor = IM_COL32(0xAA, 0xAA, 0xAA, 0xAA);
+   static const char* traslationInfoMask[] = { "X : %5.3f", "Y : %5.3f", "Z : %5.3f",
       "Y : %5.3f Z : %5.3f", "X : %5.3f Z : %5.3f", "X : %5.3f Y : %5.3f",
       "X : %5.3f Y : %5.3f Z : %5.3f" };
    static const char* scaleInfoMask[] = { "X : %5.2f", "Y : %5.2f", "Z : %5.2f", "XYZ : %5.2f" };
    static const char* rotationInfoMask[] = { "X : %5.2f deg %5.2f rad", "Y : %5.2f deg %5.2f rad", "Z : %5.2f deg %5.2f rad", "Screen : %5.2f deg %5.2f rad" };
-   static const int translationInfoIndex[] = { 0,0,0, 1,0,0, 2,0,0, 1,2,0, 0,2,0, 0,1,0, 0,1,2 };
+   static const int traslationInfoIndex[] = { 0,0,0, 1,0,0, 2,0,0, 1,2,0, 0,2,0, 0,1,0, 0,1,2 };
    static const float quadMin = 0.5f;
    static const float quadMax = 0.8f;
    static const float quadUV[8] = { quadMin, quadMin, quadMin, quadMax, quadMax, quadMax, quadMax, quadMin };
@@ -1012,7 +1012,7 @@ namespace IMGUIZMO_NAMESPACE
       }
       else
       {
-         gContext.mModel.Translation(((matrix_t*)matrix)->v.position);
+         gContext.mModel.traslation(((matrix_t*)matrix)->v.position);
       }
       gContext.mModelSource = *(matrix_t*)matrix;
       gContext.mModelScaleOrigin.Set(gContext.mModelSource.v.right.Length(), gContext.mModelSource.v.up.Length(), gContext.mModelSource.v.dir.Length());
@@ -1180,11 +1180,11 @@ namespace IMGUIZMO_NAMESPACE
 
    static float ComputeAngleOnPlan()
    {
-      const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
+      const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
       vec_t localPos = Normalized(gContext.mRayOrigin + gContext.mRayVector * len - gContext.mModel.v.position);
 
       vec_t perpendicularVector;
-      perpendicularVector.Cross(gContext.mRotationVectorSource, gContext.mTranslationPlan);
+      perpendicularVector.Cross(gContext.mRotationVectorSource, gContext.mtraslationPlan);
       perpendicularVector.Normalize();
       float acosAngle = Clamp(Dot(localPos, gContext.mRotationVectorSource), -1.f, 1.f);
       float angle = acosf(acosAngle);
@@ -1266,7 +1266,7 @@ namespace IMGUIZMO_NAMESPACE
          {
             float ng = gContext.mRotationAngle * ((float)(i - 1) / (float)(halfCircleSegmentCount - 1));
             matrix_t rotateVectorMatrix;
-            rotateVectorMatrix.RotationAxis(gContext.mTranslationPlan, ng);
+            rotateVectorMatrix.RotationAxis(gContext.mtraslationPlan, ng);
             vec_t pos;
             pos.TransformPoint(gContext.mRotationVectorSource, rotateVectorMatrix);
             pos *= gContext.mScreenFactor * rotationDisplayFactor;
@@ -1366,14 +1366,14 @@ namespace IMGUIZMO_NAMESPACE
          /*vec_t dif(destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y);
          dif.Normalize();
          dif *= 5.f;
-         drawList->AddCircle(sourcePosOnScreen, 6.f, translationLineColor);
-         drawList->AddCircle(destinationPosOnScreen, 6.f, translationLineColor);
-         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
+         drawList->AddCircle(sourcePosOnScreen, 6.f, traslationLineColor);
+         drawList->AddCircle(destinationPosOnScreen, 6.f, traslationLineColor);
+         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), traslationLineColor, 2.f);
          */
          char tmps[512];
          //vec_t deltaInfo = gContext.mModel.v.position - gContext.mMatrixOrigin;
          int componentInfoIndex = (type - MT_SCALE_X) * 3;
-         ImFormatString(tmps, sizeof(tmps), scaleInfoMask[type - MT_SCALE_X], scaleDisplay[translationInfoIndex[componentInfoIndex]]);
+         ImFormatString(tmps, sizeof(tmps), scaleInfoMask[type - MT_SCALE_X], scaleDisplay[traslationInfoIndex[componentInfoIndex]]);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
       }
@@ -1449,20 +1449,20 @@ namespace IMGUIZMO_NAMESPACE
          /*vec_t dif(destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y);
          dif.Normalize();
          dif *= 5.f;
-         drawList->AddCircle(sourcePosOnScreen, 6.f, translationLineColor);
-         drawList->AddCircle(destinationPosOnScreen, 6.f, translationLineColor);
-         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
+         drawList->AddCircle(sourcePosOnScreen, 6.f, traslationLineColor);
+         drawList->AddCircle(destinationPosOnScreen, 6.f, traslationLineColor);
+         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), traslationLineColor, 2.f);
          */
          char tmps[512];
          //vec_t deltaInfo = gContext.mModel.v.position - gContext.mMatrixOrigin;
          int componentInfoIndex = (type - MT_SCALE_X) * 3;
-         ImFormatString(tmps, sizeof(tmps), scaleInfoMask[type - MT_SCALE_X], scaleDisplay[translationInfoIndex[componentInfoIndex]]);
+         ImFormatString(tmps, sizeof(tmps), scaleInfoMask[type - MT_SCALE_X], scaleDisplay[traslationInfoIndex[componentInfoIndex]]);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
       }
    }
 
-   static void DrawTranslationGizmo(OPERATION op, int type)
+   static void DrawtraslationGizmo(OPERATION op, int type)
    {
       ImDrawList* drawList = gContext.mDrawList;
       if (!drawList)
@@ -1543,14 +1543,14 @@ namespace IMGUIZMO_NAMESPACE
          vec_t dif = { destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y, 0.f, 0.f };
          dif.Normalize();
          dif *= 5.f;
-         drawList->AddCircle(sourcePosOnScreen, 6.f, translationLineColor);
-         drawList->AddCircle(destinationPosOnScreen, 6.f, translationLineColor);
-         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
+         drawList->AddCircle(sourcePosOnScreen, 6.f, traslationLineColor);
+         drawList->AddCircle(destinationPosOnScreen, 6.f, traslationLineColor);
+         drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), traslationLineColor, 2.f);
 
          char tmps[512];
          vec_t deltaInfo = gContext.mModel.v.position - gContext.mMatrixOrigin;
          int componentInfoIndex = (type - MT_MOVE_X) * 3;
-         ImFormatString(tmps, sizeof(tmps), translationInfoMask[type - MT_MOVE_X], deltaInfo[translationInfoIndex[componentInfoIndex]], deltaInfo[translationInfoIndex[componentInfoIndex + 1]], deltaInfo[translationInfoIndex[componentInfoIndex + 2]]);
+         ImFormatString(tmps, sizeof(tmps), traslationInfoMask[type - MT_MOVE_X], deltaInfo[traslationInfoIndex[componentInfoIndex]], deltaInfo[traslationInfoIndex[componentInfoIndex + 1]], deltaInfo[traslationInfoIndex[componentInfoIndex + 2]]);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
       }
@@ -1796,8 +1796,8 @@ namespace IMGUIZMO_NAMESPACE
 
             // transform matrix
             matrix_t preScale, postScale;
-            preScale.Translation(-gContext.mBoundsLocalPivot);
-            postScale.Translation(gContext.mBoundsLocalPivot);
+            preScale.traslation(-gContext.mBoundsLocalPivot);
+            postScale.traslation(gContext.mBoundsLocalPivot);
             matrix_t res = preScale * scale * postScale * gContext.mBoundsMatrix;
             *matrix = res;
 
@@ -2028,7 +2028,7 @@ namespace IMGUIZMO_NAMESPACE
       return type;
    }
 
-   static bool HandleTranslation(float* matrix, float* deltaMatrix, OPERATION op, int& type, const float* snap)
+   static bool Handletraslation(float* matrix, float* deltaMatrix, OPERATION op, int& type, const float* snap)
    {
       if(!Intersects(op, TRANSLATE) || type != MT_NONE)
       {
@@ -2042,7 +2042,7 @@ namespace IMGUIZMO_NAMESPACE
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsTranslateType(gContext.mCurrentOperation))
       {
          ImGui::CaptureMouseFromApp();
-         const float signedLength = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
+         const float signedLength = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
          const float len = fabsf(signedLength); // near plan
          const vec_t newPos = gContext.mRayOrigin + gContext.mRayVector * len;
 
@@ -2081,21 +2081,21 @@ namespace IMGUIZMO_NAMESPACE
 
          }
 
-         if (delta != gContext.mTranslationLastDelta)
+         if (delta != gContext.mtraslationLastDelta)
          {
             modified = true;
          }
-         gContext.mTranslationLastDelta = delta;
+         gContext.mtraslationLastDelta = delta;
 
          // compute matrix & delta
-         matrix_t deltaMatrixTranslation;
-         deltaMatrixTranslation.Translation(delta);
+         matrix_t deltaMatrixtraslation;
+         deltaMatrixtraslation.traslation(delta);
          if (deltaMatrix)
          {
-            memcpy(deltaMatrix, deltaMatrixTranslation.m16, sizeof(float) * 16);
+            memcpy(deltaMatrix, deltaMatrixtraslation.m16, sizeof(float) * 16);
          }
 
-         const matrix_t res = gContext.mModelSource * deltaMatrixTranslation;
+         const matrix_t res = gContext.mModelSource * deltaMatrixtraslation;
          *(matrix_t*)matrix = res;
 
          if (!io.MouseDown[0])
@@ -2131,12 +2131,12 @@ namespace IMGUIZMO_NAMESPACE
                movePlanNormal[i].Normalize();
             }
             // pickup plan
-            gContext.mTranslationPlan = BuildPlan(gContext.mModel.v.position, movePlanNormal[type - MT_MOVE_X]);
-            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
-            gContext.mTranslationPlanOrigin = gContext.mRayOrigin + gContext.mRayVector * len;
+            gContext.mtraslationPlan = BuildPlan(gContext.mModel.v.position, movePlanNormal[type - MT_MOVE_X]);
+            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
+            gContext.mtraslationPlanOrigin = gContext.mRayOrigin + gContext.mRayVector * len;
             gContext.mMatrixOrigin = gContext.mModel.v.position;
 
-            gContext.mRelativeOrigin = (gContext.mTranslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
+            gContext.mRelativeOrigin = (gContext.mtraslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
          }
       }
       return modified;
@@ -2167,12 +2167,12 @@ namespace IMGUIZMO_NAMESPACE
             const vec_t movePlanNormal[] = { gContext.mModel.v.up, gContext.mModel.v.dir, gContext.mModel.v.right, gContext.mModel.v.dir, gContext.mModel.v.up, gContext.mModel.v.right, -gContext.mCameraDir };
             // pickup plan
 
-            gContext.mTranslationPlan = BuildPlan(gContext.mModel.v.position, movePlanNormal[type - MT_SCALE_X]);
-            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
-            gContext.mTranslationPlanOrigin = gContext.mRayOrigin + gContext.mRayVector * len;
+            gContext.mtraslationPlan = BuildPlan(gContext.mModel.v.position, movePlanNormal[type - MT_SCALE_X]);
+            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
+            gContext.mtraslationPlanOrigin = gContext.mRayOrigin + gContext.mRayVector * len;
             gContext.mMatrixOrigin = gContext.mModel.v.position;
             gContext.mScale.Set(1.f, 1.f, 1.f);
-            gContext.mRelativeOrigin = (gContext.mTranslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
+            gContext.mRelativeOrigin = (gContext.mtraslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
             gContext.mScaleValueOrigin = makeVect(gContext.mModelSource.v.right.Length(), gContext.mModelSource.v.up.Length(), gContext.mModelSource.v.dir.Length());
             gContext.mSaveMousePosx = io.MousePos.x;
          }
@@ -2181,7 +2181,7 @@ namespace IMGUIZMO_NAMESPACE
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsScaleType(gContext.mCurrentOperation))
       {
          ImGui::CaptureMouseFromApp();
-         const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
+         const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
          vec_t newPos = gContext.mRayOrigin + gContext.mRayVector * len;
          vec_t newOrigin = newPos - gContext.mRelativeOrigin * gContext.mScreenFactor;
          vec_t delta = newOrigin - gContext.mModelLocal.v.position;
@@ -2194,7 +2194,7 @@ namespace IMGUIZMO_NAMESPACE
             float lengthOnAxis = Dot(axisValue, delta);
             delta = axisValue * lengthOnAxis;
 
-            vec_t baseVector = gContext.mTranslationPlanOrigin - gContext.mModelLocal.v.position;
+            vec_t baseVector = gContext.mtraslationPlanOrigin - gContext.mModelLocal.v.position;
             float ratio = Dot(axisValue, baseVector + delta) / Dot(axisValue, baseVector);
 
             gContext.mScale[axisIndex] = max(ratio, 0.001f);
@@ -2288,14 +2288,14 @@ namespace IMGUIZMO_NAMESPACE
             // pickup plan
             if (applyRotationLocaly)
             {
-               gContext.mTranslationPlan = BuildPlan(gContext.mModel.v.position, rotatePlanNormal[type - MT_ROTATE_X]);
+               gContext.mtraslationPlan = BuildPlan(gContext.mModel.v.position, rotatePlanNormal[type - MT_ROTATE_X]);
             }
             else
             {
-               gContext.mTranslationPlan = BuildPlan(gContext.mModelSource.v.position, directionUnary[type - MT_ROTATE_X]);
+               gContext.mtraslationPlan = BuildPlan(gContext.mModelSource.v.position, directionUnary[type - MT_ROTATE_X]);
             }
 
-            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan);
+            const float len = IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mtraslationPlan);
             vec_t localPos = gContext.mRayOrigin + gContext.mRayVector * len - gContext.mModel.v.position;
             gContext.mRotationVectorSource = Normalized(localPos);
             gContext.mRotationAngleOrigin = ComputeAngleOnPlan();
@@ -2314,7 +2314,7 @@ namespace IMGUIZMO_NAMESPACE
          }
          vec_t rotationAxisLocalSpace;
 
-         rotationAxisLocalSpace.TransformVector(makeVect(gContext.mTranslationPlan.x, gContext.mTranslationPlan.y, gContext.mTranslationPlan.z, 0.f), gContext.mModelInverse);
+         rotationAxisLocalSpace.TransformVector(makeVect(gContext.mtraslationPlan.x, gContext.mtraslationPlan.y, gContext.mtraslationPlan.z, 0.f), gContext.mModelInverse);
          rotationAxisLocalSpace.Normalize();
 
          matrix_t deltaRotation;
@@ -2356,7 +2356,7 @@ namespace IMGUIZMO_NAMESPACE
       return modified;
    }
 
-   void DecomposeMatrixToComponents(const float* matrix, float* translation, float* rotation, float* scale)
+   void DecomposeMatrixToComponents(const float* matrix, float* traslation, float* rotation, float* scale)
    {
       matrix_t mat = *(matrix_t*)matrix;
 
@@ -2370,12 +2370,12 @@ namespace IMGUIZMO_NAMESPACE
       rotation[1] = RAD2DEG * atan2f(-mat.m[0][2], sqrtf(mat.m[1][2] * mat.m[1][2] + mat.m[2][2] * mat.m[2][2]));
       rotation[2] = RAD2DEG * atan2f(mat.m[0][1], mat.m[0][0]);
 
-      translation[0] = mat.v.position.x;
-      translation[1] = mat.v.position.y;
-      translation[2] = mat.v.position.z;
+      traslation[0] = mat.v.position.x;
+      traslation[1] = mat.v.position.y;
+      traslation[2] = mat.v.position.z;
    }
 
-   void RecomposeMatrixFromComponents(const float* translation, const float* rotation, const float* scale, float* matrix)
+   void RecomposeMatrixFromComponents(const float* traslation, const float* rotation, const float* scale, float* matrix)
    {
       matrix_t& mat = *(matrix_t*)matrix;
 
@@ -2402,7 +2402,7 @@ namespace IMGUIZMO_NAMESPACE
       mat.v.right *= validScale[0];
       mat.v.up *= validScale[1];
       mat.v.dir *= validScale[2];
-      mat.v.position.Set(translation[0], translation[1], translation[2], 1.f);
+      mat.v.position.Set(traslation[0], traslation[1], traslation[2], 1.f);
    }
 
    void SetID(int id)
@@ -2441,7 +2441,7 @@ namespace IMGUIZMO_NAMESPACE
       {
          if (!gContext.mbUsingBounds)
          {
-            manipulated = HandleTranslation(matrix, deltaMatrix, operation, type, snap) ||
+            manipulated = Handletraslation(matrix, deltaMatrix, operation, type, snap) ||
                           HandleScale(matrix, deltaMatrix, operation, type, snap) ||
                           HandleRotation(matrix, deltaMatrix, operation, type, snap);
          }
@@ -2456,7 +2456,7 @@ namespace IMGUIZMO_NAMESPACE
       if (!gContext.mbUsingBounds)
       {
          DrawRotationGizmo(operation, type);
-         DrawTranslationGizmo(operation, type);
+         DrawtraslationGizmo(operation, type);
          DrawScaleGizmo(operation, type);
          DrawScaleUniveralGizmo(operation, type);
       }

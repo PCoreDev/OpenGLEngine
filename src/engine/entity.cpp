@@ -79,6 +79,16 @@ std::shared_ptr<class TransformComponent> Entity::GetTransformComponent()
   return nullptr;
 }
 
+std::shared_ptr<class CameraComponent> Entity::GetCameraComponent()
+{
+  for (auto& component : data_->components_) {
+    if (component->GetType() == ComponentType::ComponentType_Camera) {
+      return std::static_pointer_cast<CameraComponent>(component);
+    }
+  }
+  return nullptr;
+}
+
 void Entity::AddRenderComponent() {
     data_->components_.push_back(std::make_shared<RenderComponent>(data_->id_));
 }
@@ -107,6 +117,11 @@ void Entity::AddCameraComponent() {
     data_->components_.push_back(std::make_shared<CameraComponent>());
 }
 */
+
+void Entity::AddCameraComponent()
+{
+  data_->components_.push_back(std::make_shared<CameraComponent>(data_->id_));
+}
 
 void Entity::AddMeshComponent() {
     data_->components_.push_back(std::make_shared<MeshComponent>(data_->id_));

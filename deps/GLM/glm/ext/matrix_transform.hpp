@@ -38,10 +38,10 @@ namespace glm
 	template<typename genType>
 	GLM_FUNC_DECL GLM_CONSTEXPR genType identity();
 
-	/// Builds a translation 4 * 4 matrix created from a vector of 3 components.
+	/// Builds a traslation 4 * 4 matrix created from a vector of 3 components.
 	///
-	/// @param m Input matrix multiplied by this translation matrix.
-	/// @param v Coordinates of a translation vector.
+	/// @param m Input matrix multiplied by this traslation matrix.
+	/// @param v Coordinates of a traslation vector.
 	///
 	/// @tparam T A floating-point scalar type
 	/// @tparam Q A value from qualifier enum

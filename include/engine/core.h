@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "engine/entity_manager.h"
+#include "engine/component.h"
 
 namespace OpenGLEngine {
 
@@ -35,10 +36,11 @@ namespace OpenGLEngine {
       void Render();
 
       static std::unique_ptr<EntityManager> entity_manager_;
+      static std::shared_ptr<CameraComponent> camera_;
 
     private:             
       struct CoreData;
-      std::unique_ptr<CoreData> data;
+      std::unique_ptr<CoreData> data_;
     };
 
     extern std::unique_ptr<Core> core;

@@ -25,10 +25,10 @@ struct ClearCommand : public Command {
 };
 
 struct DrawCommand : public Command{
-  DrawCommand(Entity& entity);
+  DrawCommand(Entity& e);
   void BindUniforms();
   void Execute() override;
-  int id;
+  std::shared_ptr<Entity> entity;
   //unsigned int vao;
   //unsigned int vbo;
   //int n_index;

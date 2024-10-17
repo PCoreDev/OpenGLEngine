@@ -26,10 +26,10 @@ namespace detail
 
 	// Matrix decompose
 	// http://www.opensource.apple.com/source/WebCore/WebCore-514/platform/graphics/transforms/TransformationMatrix.cpp
-	// Decomposes the mode matrix to translations,rotation scale components
+	// Decomposes the mode matrix to traslations,rotation scale components
 
 	template<typename T, qualifier Q>
-	GLM_FUNC_QUALIFIER bool decompose(mat<4, 4, T, Q> const& ModelMatrix, vec<3, T, Q> & Scale, qua<T, Q> & Orientation, vec<3, T, Q> & Translation, vec<3, T, Q> & Skew, vec<4, T, Q> & Perspective)
+	GLM_FUNC_QUALIFIER bool decompose(mat<4, 4, T, Q> const& ModelMatrix, vec<3, T, Q> & Scale, qua<T, Q> & Orientation, vec<3, T, Q> & traslation, vec<3, T, Q> & Skew, vec<4, T, Q> & Perspective)
 	{
 		mat<4, 4, T, Q> LocalMatrix(ModelMatrix);
 
@@ -85,8 +85,8 @@ namespace detail
 			Perspective = vec<4, T, Q>(0, 0, 0, 1);
 		}
 
-		// Next take care of translation (easy).
-		Translation = vec<3, T, Q>(LocalMatrix[3]);
+		// Next take care of traslation (easy).
+		traslation = vec<3, T, Q>(LocalMatrix[3]);
 		LocalMatrix[3] = vec<4, T, Q>(0, 0, 0, LocalMatrix[3].w);
 
 		vec<3, T, Q> Row[3], Pdum3;

@@ -47,7 +47,7 @@ enum ComponentType {
     glm::vec3 rotation;
     glm::vec3 scale;
 
-    glm::mat4 m_translation;
+    glm::mat4 m_traslation;
     glm::mat4 m_rotation;
     glm::mat4 m_scale;
     //glm::mat4 m_model;
@@ -83,6 +83,9 @@ enum ComponentType {
     glm::vec3 GetPosition() const;
     glm::vec3 GetRotation() const;
     glm::vec3 GetScale() const;
+    glm::mat4 GetTraslationMatrix() const;
+    glm::mat4 GetScaleMatrix() const;
+    glm::mat4 GetRotationMatrix() const;
     glm::mat4 GetModelMatrix() const;
 
 	private:
@@ -158,13 +161,49 @@ enum ComponentType {
   };
 
   struct CameraData{
+    glm::vec3 target;
+    glm::vec3 direction;
+    glm::vec3 up;
+    glm::vec3 right;
+    glm::mat4 view_matrix;
 
+    float fov;
+    float aspect_ratio;
+    float near_plane;
+    float far_plane;
+
+    glm::mat4 projection_matrix;
+    glm::mat4 ortho_matrix;
   };
 
   struct CameraComponent : public Component{
+    CameraComponent() = default;
+    CameraComponent(int id);
+    void operator=(const CameraComponent& other);
+    void SetTarget(glm::vec3 target);
+    void SetFOV(float fov);
+    void SetAspectRatio(float aspect_ratio);
+    void SetNearPlane(float near_plane);
+    void SetFarPlane(float far_plane);
+    void SetMainCamera();
+
+    glm::vec3 GetTarget();
+    glm::vec3 GetDirection();
+    glm::vec3 GetUp();
+    glm::vec3 GetRight();
+    glm::mat4 GetViewMatrix();
+    glm::mat4 GetProjectionMatrix();
+    glm::mat4 GetOrthoMatrix();
+    float GetFOV();
+    float GetAspectRatio();
+    float GetNearPlane();
+    float GetFarPlane();
+
+    void UpdateMatrices();
 
 
 
+    std::unique_ptr<CameraData> data;
   };
 
 
