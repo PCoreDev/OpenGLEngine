@@ -21,6 +21,8 @@ public:
   std::shared_ptr<class ShaderComponent> GetShaderComponent();
   std::shared_ptr<class TransformComponent> GetTransformComponent();
   std::shared_ptr<class CameraComponent> GetCameraComponent();
+  std::shared_ptr<class MaterialComponent> GetMaterialComponent();
+
 
   //Setters
   void AddRenderComponent();
@@ -29,10 +31,10 @@ public:
  // void AddNodeComponent();
  // void AddSoundComponent();
  // void AddLightComponent();
- void AddCameraComponent();
+  void AddCameraComponent();
   void AddMeshComponent();
   void AddShaderComponent();
-  //void AddMaterialComponent();
+  void AddMaterialComponent();
 
 private:
   std::unique_ptr<class EntityData> data_;

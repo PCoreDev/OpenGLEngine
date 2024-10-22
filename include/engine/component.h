@@ -23,6 +23,7 @@ enum ComponentType {
   ComponentType_Light,
   ComponentType_Camera,
   ComponentType_Mesh,
+  ComponentType_Material,
   ComponentType_MAX,
 };
 
@@ -116,7 +117,7 @@ enum ComponentType {
   struct MeshComponent : public Component {
     MeshComponent() = default;
     MeshComponent(int id);
-    MeshComponent(const MeshComponent&);
+    MeshComponent(const MeshComponent&) = default;
     void operator=(const MeshComponent& other);
     void Triangle();
     void Square();
@@ -204,6 +205,34 @@ enum ComponentType {
 
 
     std::unique_ptr<CameraData> data;
+  };
+
+  struct Texture {
+    unsigned int texture;
+    int width, height, n_channels;
+    unsigned char* data;
+    float border_color[4];
+  };
+
+  struct MaterialData {
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float shininess;
+    Texture m_texture;
+  };
+
+  struct MaterialComponent : public Component {
+    MaterialComponent() = default;
+    MaterialComponent(int id);
+    MaterialComponent(const MaterialComponent&) = default;
+    void operator=(const MaterialComponent& other);
+    void LoadTexture(const std::string& path);
+    unsigned int GetTexture();
+
+    void Process();
+
+    std::unique_ptr<MaterialData> data;
   };
 
 

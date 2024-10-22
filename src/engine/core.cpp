@@ -7,7 +7,6 @@
 #include "engine/window.h"
 #include "engine/command.h"
 #include "engine/component.h"
-#include "engine/engine_input.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -32,7 +31,7 @@ namespace OpenGLEngine {
       std::unique_ptr<DisplayList> display_list;
       bool isRunning = true;
       std::unique_ptr<Window> window;
-      std::unique_ptr<EngineInput> input;
+      std::shared_ptr<EngineInput> input;
       void InitGLFW() {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -47,7 +46,7 @@ namespace OpenGLEngine {
       data_->window = std::make_unique<Window>();
       entity_manager_ = std::make_unique<EntityManager>();
       data_->display_list = std::make_unique<DisplayList>();
-      data_->input = std::make_unique<EngineInput>();
+      data_->input = std::make_shared<EngineInput>();
     }
 
     Core::~Core() {}
@@ -77,9 +76,6 @@ namespace OpenGLEngine {
       return data_->window->CloseWindow();
     }
 
-    void Core::Input() {
-
-    }
 
     void Core::BufferHandler() {
       data_->window->SwapBuffers();

@@ -48,8 +48,6 @@ struct DrawRenderBufferCommand : public Command {
   void Execute() override;
 };
 
-
-
 class DisplayList {
   public:
     DisplayList() = default;

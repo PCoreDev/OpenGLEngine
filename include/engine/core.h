@@ -10,6 +10,7 @@
 
 #include "engine/entity_manager.h"
 #include "engine/component.h"
+#include "engine/engine_input.h"
 
 namespace OpenGLEngine {
 
@@ -27,8 +28,6 @@ namespace OpenGLEngine {
       void* GetWindow() const;
 
       bool RunningState() const;
-
-      void Input();
 
       void BufferHandler();
       void EventsHandler();

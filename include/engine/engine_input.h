@@ -144,15 +144,19 @@ public:
   EngineInput();
   ~EngineInput();
 
-  bool IsKeyPressed(EngineInput::KeyNames key);
-  bool IsKeyReleased(EngineInput::KeyNames key);
-  bool IsMouseButtonPressed(EngineInput::MouseButtons button);
-  void GetMousePosition(double& x, double& y);
+  static bool IsKeyPressed(EngineInput::KeyNames key);
+  static bool IsKeyReleased(EngineInput::KeyNames key);
+  static bool IsMouseButtonPressed(EngineInput::MouseButtons button);
+  static void GetMousePosition(double& x, double& y);
 
   void BindCallbacks(void* window);
 
   struct EngineInputData;
   static std::shared_ptr<EngineInputData> data_;
+
+  static std::unique_ptr<EngineInput> input_;
 };
+
+
 
 #endif // __ENGINE_INPUT_H__

@@ -11,6 +11,9 @@
 #include "engine/core.h"
 #include "engine/entity.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
+
 #include <memory>
 #include <vector>
 #include <fstream>
@@ -854,14 +857,59 @@ glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matri
 
 glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }
 
-
-
-
-
-
-
-
-
-
-
 #pragma endregion CameraComponent
+
+#pragma region MeterialComponent
+
+MaterialComponent::MaterialComponent(int id) {
+  this->id = id;
+  this->type = ComponentType_Material;
+  data = std::make_unique<MaterialData>();
+}
+
+void MaterialComponent::operator=(const MaterialComponent& other){
+  this->id = other.id;
+  this->type = other.type;
+  data = std::make_unique<MaterialData>(*other.data);
+}
+
+void MaterialComponent::LoadTexture(const std::string& path){
+  data->m_texture.data = stbi_load(path.c_str(), &data->m_texture.width, &data->m_texture.height, &data->m_texture.n_channels, 0);
+
+  if (data->m_texture.data) {
+    LOG_F(INFO, "Texture loaded correctly");
+    Process();
+  }
+  else {
+    LOG_F(ERROR, "Failed to load texture");
+  }
+
+
+}
+
+unsigned int MaterialComponent::GetTexture() { return data->m_texture.texture; }
+
+void MaterialComponent::Process(){
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, data->m_texture.border_color);
+  
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glGenTextures(1, &data->m_texture.texture);
+
+  glBindTexture(GL_TEXTURE_2D, data->m_texture.texture);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data->m_texture.width, data->m_texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data->m_texture.data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  stbi_image_free(data->m_texture.data);
+}
+
+#pragma endregion MeterialComponent

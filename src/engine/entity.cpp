@@ -76,7 +76,7 @@ std::shared_ptr<class TransformComponent> Entity::GetTransformComponent()
       return std::static_pointer_cast<TransformComponent>(component);
     }
   }
-  return nullptr;
+  return std::shared_ptr<class TransformComponent>();
 }
 
 std::shared_ptr<class CameraComponent> Entity::GetCameraComponent()
@@ -84,6 +84,15 @@ std::shared_ptr<class CameraComponent> Entity::GetCameraComponent()
   for (auto& component : data_->components_) {
     if (component->GetType() == ComponentType::ComponentType_Camera) {
       return std::static_pointer_cast<CameraComponent>(component);
+    }
+  }
+  return nullptr;
+}
+
+std::shared_ptr<class MaterialComponent> Entity::GetMaterialComponent(){
+  for (auto& component : data_->components_) {
+    if (component->GetType() == ComponentType::ComponentType_Material) {
+      return std::static_pointer_cast<MaterialComponent>(component);
     }
   }
   return nullptr;
@@ -129,6 +138,10 @@ void Entity::AddMeshComponent() {
 
 void Entity::AddShaderComponent() {
     data_->components_.push_back(std::make_shared<ShaderComponent>(data_->id_));
+}
+
+void Entity::AddMaterialComponent(){
+  data_->components_.push_back(std::make_shared<MaterialComponent>(data_->id_));
 }
 
 //Getters

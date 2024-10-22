@@ -28,6 +28,7 @@ void DrawCommand::BindUniforms() {
   //Check if transform is null
   std::shared_ptr<TransformComponent> transform = entity->GetTransformComponent();
   std::shared_ptr<ShaderComponent> shader = entity->GetShaderComponent();
+  std::shared_ptr<MaterialComponent> material = entity->GetMaterialComponent();
 
   glm::vec3 position, scale, rotation;
   glm::mat4 traslationMatrix, rotationMatrix, scaleMatrix, worldMatrix;
@@ -48,6 +49,15 @@ void DrawCommand::BindUniforms() {
 
   if (shader != nullptr) {
     shader_program = shader->GetShaderProgram();
+
+    if (material != nullptr) {
+      //bind texture
+      int texture_location = glGetUniformLocation(shader_program, "texture_sampler");
+      if (texture_location != -1) {
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(texture_location, 0);
+      }
+    }
   }
 
   std::weak_ptr<CameraComponent> camera = OpenGLEngine::Engine::Core::camera_;
@@ -72,6 +82,8 @@ void DrawCommand::BindUniforms() {
       }
     }
   }
+
+  
 }
 
 void DrawCommand::Execute() {
@@ -83,6 +95,7 @@ void DrawCommand::Execute() {
   if (entity->GetMeshComponent() != nullptr) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
+    glBindTexture(GL_TEXTURE_2D, entity->GetMaterialComponent()->GetTexture());
     glBindVertexArray(entity->GetMeshComponent()->GetVAO());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity->GetMeshComponent()->GetIBO());
     glDrawElements(GL_TRIANGLES, entity->GetMeshComponent()->GetVertexCount() * 3, GL_UNSIGNED_INT, nullptr);

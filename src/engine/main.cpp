@@ -54,6 +54,8 @@ int main(int argc, char** argv){
   entity->GetTransformComponent()->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
   entity->GetMeshComponent()->Cube();
   entity->AddShaderComponent();
+  entity->AddMaterialComponent();
+  entity->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
   entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
   entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
   entity->GetShaderComponent()->ProcessShader();
@@ -62,37 +64,28 @@ int main(int argc, char** argv){
   while (!core->RunningState())
   {
     //Input
-    core->Input();
-    entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.3f, 0.3f, 0.3f));
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
+    {
+      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.3f, 0.0f, 0.0f));
+    }
 
-    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyW))
-    //{
-    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, 10.0f));
-    //  camera->GetCameraComponent()->UpdateMatrices();
-    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
+    //Input
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
+    {
+      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(-0.3f, 0.0f, 0.0f));
+    }
 
-    //}
+    //Input
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
+    {
+      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.0f, 0.3f, 0.0f));
+    }
 
-    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyS))
-    //{
-    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, -10.0f));
-    //  camera->GetCameraComponent()->UpdateMatrices();
-    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
-    //}
-
-    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyA))
-    //{
-    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(-10.0f, 0.0f, 0.0f));
-    //  camera->GetCameraComponent()->UpdateMatrices();
-    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
-    //}
-
-    //if (static_cast<OpenGLEngine::Window*>(core->GetWindow())->IsKeyPressed(OpenGLEngine::KeyNames::kKeyNames_KeyD))
-    //{
-    //  camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(10.0f, 0.0f, 0.0f));
-    //  camera->GetCameraComponent()->UpdateMatrices();
-    //  LOG_F(INFO, "New Camera Position: %f, %f, %f", camera->GetTransformComponent()->GetPosition().x, camera->GetTransformComponent()->GetPosition().y, camera->GetTransformComponent()->GetPosition().z);
-    //}
+    //Input
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
+    {
+      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.0f, -0.3f, 0.0f));
+    }
 
     //Update
     core->Update();
