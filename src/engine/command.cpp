@@ -31,7 +31,7 @@ void DrawCommand::BindUniforms() {
   std::shared_ptr<MaterialComponent> material = entity->GetMaterialComponent();
 
   glm::vec3 position, scale, rotation;
-  glm::mat4 traslationMatrix, rotationMatrix, scaleMatrix, worldMatrix;
+  glm::mat4 traslationMatrix, rotationMatrix, scaleMatrix, worldMatrix, model;
 
   int shader_program;
   if (transform != nullptr) {
@@ -42,9 +42,15 @@ void DrawCommand::BindUniforms() {
     rotation = entity->GetTransformComponent()->GetRotation();
     worldMatrix = entity->GetTransformComponent()->GetModelMatrix();
 
-    traslationMatrix = entity->GetTransformComponent()->GetTraslationMatrix();;
+    traslationMatrix = entity->GetTransformComponent()->GetTraslationMatrix();
     rotationMatrix = entity->GetTransformComponent()->GetRotationMatrix();
     scaleMatrix = entity->GetTransformComponent()->GetScaleMatrix();
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, position);
+    model = model * rotationMatrix;
+    model = glm::scale(model, scale);
+
   }
 
   if (shader != nullptr) {
@@ -58,27 +64,26 @@ void DrawCommand::BindUniforms() {
         glUniform1i(texture_location, 0);
       }
     }
-  }
 
-  std::weak_ptr<CameraComponent> camera = OpenGLEngine::Engine::Core::camera_;
-  if (camera.lock() != nullptr) {
-    glm::mat4 viewMatrix = camera.lock()->GetViewMatrix();
-    glm::mat4 projectionMatrix = camera.lock()->GetProjectionMatrix();
+    if (OpenGLEngine::Engine::Core::camera_ != nullptr) {
+      glm::mat4 viewMatrix = OpenGLEngine::Engine::Core::camera_->GetViewMatrix();
+      glm::mat4 projectionMatrix = OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix();
 
-    if (shader != nullptr) {
-      int model_matrix_location = glGetUniformLocation(shader_program, "model_matrix");
-      if (model_matrix_location != -1) {
-        glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(worldMatrix));
-      }
+      if (shader != nullptr) {
+        int model_matrix_location = glGetUniformLocation(shader_program, "model_matrix");
+        if (model_matrix_location != -1) {
+          glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(model));
+        }
 
-      int view_matrix_location = glGetUniformLocation(shader_program, "view_matrix");
-      if (view_matrix_location != -1) {
-        glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-      }
+        int view_matrix_location = glGetUniformLocation(shader_program, "view_matrix");
+        if (view_matrix_location != -1) {
+          glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        }
 
-      int projection_matrix_location = glGetUniformLocation(shader_program, "projection_matrix");
-      if (projection_matrix_location != -1) {
-        glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        int projection_matrix_location = glGetUniformLocation(shader_program, "projection_matrix");
+        if (projection_matrix_location != -1) {
+          glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        }
       }
     }
   }
@@ -94,7 +99,7 @@ void DrawCommand::Execute() {
   BindUniforms();
   if (entity->GetMeshComponent() != nullptr) {
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    glCullFace(GL_BACK);
     glBindTexture(GL_TEXTURE_2D, entity->GetMaterialComponent()->GetTexture());
     glBindVertexArray(entity->GetMeshComponent()->GetVAO());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, entity->GetMeshComponent()->GetIBO());

@@ -162,11 +162,13 @@ enum ComponentType {
   };
 
   struct CameraData{
-    glm::vec3 target;
-    glm::vec3 direction;
-    glm::vec3 up;
-    glm::vec3 right;
-    glm::mat4 view_matrix;
+    glm::vec3 camera_position;
+    glm::vec3 camera_target;
+    glm::vec3 camera_direction;
+    glm::vec3 camera_front;
+    glm::vec3 camera_up;
+    glm::vec3 camera_right;
+    glm::mat4 camera_view_matrix;
 
     float fov;
     float aspect_ratio;

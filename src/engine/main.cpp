@@ -42,49 +42,50 @@ int main(int argc, char** argv){
   
   //OpenGLEngine::main(argc, argv);
 
-  std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   camera->AddTransformComponent();
-  camera->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
   camera->AddCameraComponent();
   camera->GetCameraComponent()->SetMainCamera();
 
-  entity->AddMeshComponent();
-  entity->AddTransformComponent();
-  entity->GetTransformComponent()->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-  entity->GetMeshComponent()->Cube();
-  entity->AddShaderComponent();
-  entity->AddMaterialComponent();
-  entity->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
-  entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-  entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-  entity->GetShaderComponent()->ProcessShader();
+  for (int i = 0; i < 10; i++) {
+    std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+    entity->AddMeshComponent();
+    entity->AddTransformComponent();
+    entity->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 0.0f, i * 10.0f));
+    entity->GetMeshComponent()->Cube();
+    entity->AddShaderComponent();
+    entity->AddMaterialComponent();
+    entity->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+    entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
+    entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
+    entity->GetShaderComponent()->ProcessShader();
+  }
 
 
   while (!core->RunningState())
   {
     //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
-    {
-      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.3f, 0.0f, 0.0f));
-    }
-
-    //Input
     if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
     {
-      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(-0.3f, 0.0f, 0.0f));
+      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, 0.3f));
     }
 
     //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
     {
-      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.0f, 0.3f, 0.0f));
+      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, -0.3f));
     }
 
     //Input
     if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
     {
-      entity->GetTransformComponent()->SetRotation(entity->GetTransformComponent()->GetRotation() + glm::vec3(0.0f, -0.3f, 0.0f));
+      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.3f, 0.0f, 0.0f));
+    }
+
+    //Input
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
+    {
+      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(-0.3f, 0.0f, 0.0f));
     }
 
     //Update

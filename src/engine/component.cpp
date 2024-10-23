@@ -49,6 +49,7 @@ void TransformComponent::SetPosition(float x, float y, float z) {
   glm::vec3 new_position = glm::vec3(x, y, z);
   if (data->position != new_position) {
     data->position = new_position;
+    LOG_F(INFO, "New position! %f, %f, %f", data->position.x, data->position.y, data->position.z);
 
     //Update traslation matrix
     if (data->parent_id != id) {
@@ -740,30 +741,13 @@ int ShaderComponent::GetShaderProgram() {
 CameraComponent::CameraComponent(int id) {
   this->id = id;
   this->type = ComponentType_Camera;
+
   data = std::make_unique<CameraData>();
-  glm::vec3 position;
+  data->camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
+  data->camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+  data->camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-  //Set Camera default target
-  data->target = glm::vec3(0.0f, 0.0f, 0.0f);
-
-  //Get Transform component
-  std::shared_ptr<TransformComponent> transform;
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) { transform = entity.lock()->GetTransformComponent(); }
-  }
-
-  //Set Position
-  position = (transform != nullptr) ? transform->GetPosition() : glm::vec3(0.0f, 0.0f, 0.0f);
-
-
-  data->direction = glm::normalize(position - data->target);
-
-  glm::vec3 up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
-  data->right = glm::normalize(glm::cross(up_vector, data->direction));
-  data->up = glm::cross(data->direction, data->right);
-
-  data->view_matrix = glm::lookAt(position, position + data->direction, data->up);
-
+  data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_position + data->camera_front, data->camera_up);
 
   data->fov = 90.0f;
   data->aspect_ratio = 1280.0f / 720.0f;
@@ -772,7 +756,50 @@ CameraComponent::CameraComponent(int id) {
 
   data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 
-  data->ortho_matrix = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, 0.1f, 1000.0f);
+  //data->camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
+  //data->camera_target = glm::vec3(0.0f, 0.0f, 0.0f);
+  //data->camera_direction = glm::normalize(data->camera_position - data->camera_target);
+  //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  //data->camera_right = glm::normalize(glm::cross(up, data->camera_direction));
+  //data->camera_up = glm::cross(data->camera_direction, data->camera_right);
+  //data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_target, up);
+
+
+  //this->id = id;
+  //this->type = ComponentType_Camera;
+  //data = std::make_unique<CameraData>();
+  //glm::vec3 position;
+
+  ////Set Camera default target
+  //data->target = glm::vec3(0.0f, 0.0f, 0.0f);
+
+  ////Get Transform component
+  //std::shared_ptr<TransformComponent> transform;
+  //for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+  //  if (entity.lock()->ID() == id) { transform = entity.lock()->GetTransformComponent(); }
+  //}
+
+  ////Set Position
+  //position = (transform != nullptr) ? transform->GetPosition() : glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+  //data->direction = glm::normalize(position - data->target);
+
+  //glm::vec3 up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
+  //data->right = glm::normalize(glm::cross(up_vector, data->direction));
+  //data->up = glm::cross(data->direction, data->right);
+
+  //data->view_matrix = glm::lookAt(position, position + data->direction, data->up);
+
+
+  //data->fov = 90.0f;
+  //data->aspect_ratio = 1280.0f / 720.0f;
+  //data->near_plane = 0.1f;
+  //data->far_plane = 1000.0f;
+
+  //data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
+
+  //data->ortho_matrix = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, 0.1f, 1000.0f);
 }
 
 void CameraComponent::operator=(const CameraComponent& other) {
@@ -782,7 +809,7 @@ void CameraComponent::operator=(const CameraComponent& other) {
 }
 
 void CameraComponent::SetTarget(glm::vec3 target) {
-  data->target = target;
+  data->camera_target = target;
 }
 
 void CameraComponent::SetFOV(float fov) {
@@ -811,11 +838,11 @@ void CameraComponent::SetMainCamera() {
   }
 }
 
-glm::vec3 CameraComponent::GetTarget() { return data->target; }
+glm::vec3 CameraComponent::GetTarget() { return data->camera_target; }
 
-glm::vec3 CameraComponent::GetDirection() { return data->direction; }
+glm::vec3 CameraComponent::GetDirection() { return data->camera_direction; }
 
-glm::vec3 CameraComponent::GetUp() { return data->up; }
+glm::vec3 CameraComponent::GetUp() { return data->camera_up; }
 
 float CameraComponent::GetFOV() { return data->fov; }
 
@@ -826,32 +853,27 @@ float CameraComponent::GetNearPlane() { return data->near_plane; }
 float CameraComponent::GetFarPlane() { return data->far_plane; }
 
 void CameraComponent::UpdateMatrices(){
-
   std::shared_ptr<TransformComponent> transform;
+  glm::vec3 position;
   for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
     if (entity.lock()->ID() == id) { transform = entity.lock()->GetTransformComponent(); }
   }
-  //glm::vec3 position = (transform != nullptr) ? transform->GetPosition() : glm::vec3(0.0f, 0.0f, 0.0f);
+  if (transform != nullptr) {
+    position = data->camera_position + transform->GetPosition();
+  }
+  else {
+    position = data->camera_position;
+  }
+  data->camera_view_matrix = glm::lookAt(position, data->camera_position + data->camera_front, data->camera_up);
 
-  glm::vec3 position = transform->GetPosition();
-
-
-  data->direction = glm::normalize(position - data->target);
-
-  glm::vec3 up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
-  data->right = glm::normalize(glm::cross(up_vector, data->direction));
-  data->up = glm::cross(data->direction, data->right);
-
-  data->view_matrix = glm::lookAt(position, position + data->direction, data->up);
+  data->camera_direction = glm::normalize(data->camera_position - data->camera_target);
 
   data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
-
-  data->ortho_matrix = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, data->near_plane, data->far_plane);
 }
 
-glm::vec3 CameraComponent::GetRight() { return data->right; }
+glm::vec3 CameraComponent::GetRight() { return data->camera_right; }
 
-glm::mat4 CameraComponent::GetViewMatrix() { return data->view_matrix; }
+glm::mat4 CameraComponent::GetViewMatrix() { return data->camera_view_matrix; }
 
 glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matrix; }
 

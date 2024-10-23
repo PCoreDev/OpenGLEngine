@@ -96,6 +96,7 @@ namespace OpenGLEngine {
           data_->display_list->AddDrawCommand(*sharedEntity);
         }
       }
+      camera_->UpdateMatrices();
     }
 
     void Core::Render() {

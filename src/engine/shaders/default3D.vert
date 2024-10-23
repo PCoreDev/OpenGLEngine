@@ -15,9 +15,9 @@ out vec4 fragPos;  // Fragment position in world space
 
 void main() {
     // Apply transformations
-    gl_Position = model_matrix * vec4(aPos, 1.0);
+    gl_Position = projection_matrix * view_matrix * model_matrix * vec4(aPos, 1.0);
     normals = aNormal;
     texCoords = aTexCoords;
-    fragPos = view_matrix * projection_matrix * vec4(aPos, 1.0);
+    fragPos = view_matrix * projection_matrix * model_matrix * vec4(aPos, 1.0);
 }
 
