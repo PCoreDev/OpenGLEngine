@@ -1,6 +1,7 @@
 #include "engine/engine_input.h"
 #include "GLFW/glfw3.h"
 
+
 #include "loguru/loguru.hpp"
 
 std::shared_ptr<EngineInput::EngineInputData> EngineInput::data_ = std::make_shared<EngineInput::EngineInputData>();

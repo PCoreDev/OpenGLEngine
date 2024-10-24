@@ -51,7 +51,13 @@ enum ComponentType {
     glm::mat4 m_traslation;
     glm::mat4 m_rotation;
     glm::mat4 m_scale;
-    //glm::mat4 m_model;
+    glm::mat4 m_model;
+
+    void UpdateTraslationMatrix();
+    void UpdateScaleMatrix();
+    void UpdateRotationMatrix();
+    void UpdateModelMatrix();
+
   };
 
 	struct TransformComponent : public Component {
@@ -92,7 +98,10 @@ enum ComponentType {
 	private:
 
 		std::unique_ptr<TransformData> data;
+  };
 
+  struct RenderData {
+    bool enabled;
   };
 
 	struct RenderComponent : public Component {
@@ -101,6 +110,12 @@ enum ComponentType {
 		RenderComponent(int id);
     RenderComponent(const RenderComponent&) = default;
     void operator=(const RenderComponent& other);
+    bool IsEnabled();
+    void SetEnabled(bool enabled);
+
+    void Render();
+
+    std::unique_ptr<RenderData> data;
 	};
 
   //TODO CHeck why I can't do a forward declaration of MeshData
@@ -143,6 +158,8 @@ enum ComponentType {
     int fragment_shader;
     int geometry_shader;
     int shader_program;
+    bool active;
+
   };
 
   struct ShaderComponent : public Component {
@@ -155,56 +172,76 @@ enum ComponentType {
     void SetGeometryShaderPath(const std::string& path);
     std::string LoadShader(const std::string& path, std::string& shader_code);
     int ProcessShader();
-    void SetUniforms(class Entity& entity);
+    void SetUniforms();
     int GetShaderProgram();
+    bool UseShader();
 
     std::unique_ptr<ShaderData> data;
   };
 
   struct CameraData{
-    glm::vec3 camera_position;
-    glm::vec3 camera_target;
+    std::shared_ptr<TransformComponent> transform;
+    //camera attributes
     glm::vec3 camera_direction;
     glm::vec3 camera_front;
     glm::vec3 camera_up;
     glm::vec3 camera_right;
     glm::mat4 camera_view_matrix;
+    glm::vec3 up;
+
+    //For position relative to the transform (no implemented yet)
+    glm::vec3 camera_offset;
+
+    //euler Angles
+    float camera_pitch;
+    float camera_yaw;
+    float camera_roll;
+
 
     float fov;
     float aspect_ratio;
     float near_plane;
     float far_plane;
 
+
+    double last_x, last_y;
+
+    float camera_sensitivity;
+    float camera_speed;
+
+    bool first_mouse;
+    
+
     glm::mat4 projection_matrix;
     glm::mat4 ortho_matrix;
+
+
+    void UpdateVectors();
   };
 
   struct CameraComponent : public Component{
     CameraComponent() = default;
     CameraComponent(int id);
     void operator=(const CameraComponent& other);
-    void SetTarget(glm::vec3 target);
     void SetFOV(float fov);
     void SetAspectRatio(float aspect_ratio);
     void SetNearPlane(float near_plane);
     void SetFarPlane(float far_plane);
     void SetMainCamera();
+    void MoveCamera();
+    void MoveKeyboard();
+    void MoveMouse();
 
-    glm::vec3 GetTarget();
-    glm::vec3 GetDirection();
-    glm::vec3 GetUp();
-    glm::vec3 GetRight();
+    //glm::vec3 GetDirection();
+    //glm::vec3 GetUp();
+    //glm::vec3 GetRight();
     glm::mat4 GetViewMatrix();
     glm::mat4 GetProjectionMatrix();
-    glm::mat4 GetOrthoMatrix();
+    //glm::mat4 GetOrthoMatrix();
     float GetFOV();
-    float GetAspectRatio();
-    float GetNearPlane();
-    float GetFarPlane();
-
-    void UpdateMatrices();
-
-
+    //float GetAspectRatio();
+    //float GetNearPlane();
+    //float GetFarPlane();
 
     std::unique_ptr<CameraData> data;
   };

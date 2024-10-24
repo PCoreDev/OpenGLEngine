@@ -22,6 +22,7 @@ public:
   std::shared_ptr<class TransformComponent> GetTransformComponent();
   std::shared_ptr<class CameraComponent> GetCameraComponent();
   std::shared_ptr<class MaterialComponent> GetMaterialComponent();
+  std::shared_ptr<class RenderComponent> GetRenderComponent();
 
 
   //Setters

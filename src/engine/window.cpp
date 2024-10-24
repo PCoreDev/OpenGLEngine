@@ -92,6 +92,7 @@ namespace OpenGLEngine
     }
 
     LOG_F(INFO, "Succeed to create GLFW window");
+    glfwSetInputMode(wdata_->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
     glfwSetFramebufferSizeCallback(wdata_->window, framebuffer_size_callback);

@@ -98,6 +98,16 @@ std::shared_ptr<class MaterialComponent> Entity::GetMaterialComponent(){
   return nullptr;
 }
 
+std::shared_ptr<class RenderComponent> Entity::GetRenderComponent()
+{
+  for (auto& component : data_->components_) {
+    if (component->GetType() == ComponentType::ComponentType_Render) {
+      return std::static_pointer_cast<RenderComponent>(component);
+    }
+  }
+  return nullptr;
+}
+
 void Entity::AddRenderComponent() {
     data_->components_.push_back(std::make_shared<RenderComponent>(data_->id_));
 }

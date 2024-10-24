@@ -8,6 +8,7 @@
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "engine/core.h"
 #include "engine/entity.h"
 
@@ -29,11 +30,9 @@ TransformComponent::TransformComponent(int id) {
   data->position = glm::vec3(0.0f, 0.0f, 0.0f);
   data->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
   data->scale = glm::vec3(1.0f, 1.0f, 1.0f);
-  data->m_traslation = glm::translate(glm::mat4(1.0f), data->position);
-  data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(data->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-  data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(data->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-  data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(data->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-  data->m_scale = glm::scale(glm::mat4(1.0f), data->scale);
+  data->UpdateTraslationMatrix();
+  data->UpdateRotationMatrix();
+  data->UpdateScaleMatrix();
   data->parent_id = id;
 }
 
@@ -45,23 +44,10 @@ void TransformComponent::operator=(const TransformComponent& other) {
 
 //Position
 void TransformComponent::SetPosition(float x, float y, float z) {
-  //TODO Check if the position changes.
   glm::vec3 new_position = glm::vec3(x, y, z);
   if (data->position != new_position) {
     data->position = new_position;
-    LOG_F(INFO, "New position! %f, %f, %f", data->position.x, data->position.y, data->position.z);
-
-    //Update traslation matrix
-    if (data->parent_id != id) {
-      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-        if (entity.lock()->ID() == data->parent_id) {
-          data->m_traslation = entity.lock()->GetTransformComponent()->GetModelMatrix() * glm::translate(glm::mat4(1.0f), data->position);
-        }
-      }
-    }
-    else {
-      data->m_traslation = glm::translate(glm::mat4(1.0f), data->position);
-    }
+    data->UpdateTraslationMatrix();
   }
 }
 
@@ -76,27 +62,9 @@ void TransformComponent::SetPosition(glm::vec3 position) {
 //Rotation
 void TransformComponent::SetRotation(float x, float y, float z) {
   glm::vec3 new_rotation = glm::vec3(x, y, z);
-
   if (data->rotation != new_rotation) {
     data->rotation = new_rotation;
-
-    //Update rotation matrix
-    if (data->parent_id != id) {
-      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-        if (entity.lock()->ID() == data->parent_id) {
-          data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f));
-          data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(y), glm::vec3(0.0f, 1.0f, 0.0f));
-          data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f));
-          data->m_rotation *= entity.lock()->GetTransformComponent()->GetModelMatrix();
-        }
-      }
-    }
-    else {
-
-      data->m_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f));
-      data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(y), glm::vec3(0.0f, 1.0f, 0.0f));
-      data->m_rotation *= glm::rotate(data->m_rotation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f));
-    }
+    data->UpdateRotationMatrix();
   }
 }
 
@@ -110,13 +78,10 @@ void TransformComponent::SetRotation(glm::vec3 rotation) {
 
 //Scale
 void TransformComponent::SetScale(float x, float y, float z) {
-  //TODO Check if the scale changes.
   glm::vec3 new_scale = glm::vec3(x, y, z);
   if (data->scale != new_scale) {
     data->scale = new_scale;
-
-    //Update scale matrix
-    data->m_scale = glm::scale(glm::mat4(1.0f), data->scale);
+    data->UpdateScaleMatrix();
   }
 }
 
@@ -179,16 +144,32 @@ glm::mat4 TransformComponent::GetRotationMatrix() const {
 }
 
 glm::mat4 TransformComponent::GetModelMatrix() const {
-  if (data->parent_id != id) {
-    for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-      if (entity.lock()->ID() == data->parent_id) {
-        return data->m_traslation * data->m_rotation * data->m_scale * entity.lock()->GetTransformComponent()->GetModelMatrix();
-      }
-    }
-  }
-  else {
-    return data->m_traslation * data->m_rotation * data->m_scale;
-  }
+  return data->m_model;
+}
+
+void TransformData::UpdateTraslationMatrix() {
+  m_traslation = glm::mat4(1.0f);
+  m_traslation = glm::translate(m_traslation, position);
+  UpdateModelMatrix();
+}
+
+void TransformData::UpdateScaleMatrix() {
+  m_scale = glm::mat4(1.0f);
+  m_scale = glm::scale(m_scale, scale);
+  UpdateModelMatrix();
+}
+
+void TransformData::UpdateRotationMatrix() {
+  m_rotation = glm::mat4(1.0f);
+  m_rotation = glm::rotate(m_rotation, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+  m_rotation = glm::rotate(m_rotation, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+  m_rotation = glm::rotate(m_rotation, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+  UpdateModelMatrix();
+}
+
+void TransformData::UpdateModelMatrix(){
+  m_model = glm::mat4(1.0f);
+  m_model = m_traslation * m_rotation * m_scale;
 }
 
 #pragma endregion TransformComponent
@@ -197,12 +178,60 @@ glm::mat4 TransformComponent::GetModelMatrix() const {
   RenderComponent::RenderComponent(int id) {
     this->id = id;
     this->type = ComponentType_Render;
+    data = std::make_unique<RenderData>();
+    data->enabled = true;
   }
 
   void RenderComponent::operator=(const RenderComponent& other) {
     this->id = other.id;
     this->type = other.type;
   }
+
+  bool RenderComponent::IsEnabled()
+  {
+    return data->enabled;
+  }
+
+  void RenderComponent::SetEnabled(bool enabled) {
+    data->enabled = enabled;
+  }
+
+  void RenderComponent::Render() {
+    if (data->enabled == true) {
+      std::shared_ptr<ShaderComponent> shader;
+      std::shared_ptr<MaterialComponent> material;
+      std::shared_ptr<MeshComponent> mesh;
+
+      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+        if (entity.lock()->ID() == id) {
+          shader = entity.lock()->GetShaderComponent();
+          material = entity.lock()->GetMaterialComponent();
+          mesh = entity.lock()->GetMeshComponent();
+        }
+      }
+
+      if (shader != nullptr) {
+        if (shader->UseShader()) {
+          glUseProgram(shader->GetShaderProgram());
+          shader->SetUniforms();
+        }
+      }
+
+      glEnable(GL_CULL_FACE);
+      glCullFace(GL_BACK);
+
+      if (material != nullptr) {
+        glBindTexture(GL_TEXTURE_2D, material->GetTexture());
+      }
+
+      if (mesh != nullptr) {
+        glBindVertexArray(mesh->GetVAO());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->GetIBO());
+        glDrawElements(GL_TRIANGLES, mesh->GetVertexCount() * 3, GL_UNSIGNED_INT, nullptr);
+      }
+    }
+  }
+
 #pragma endregion RenderComponent
   
 #pragma region MeshComponent
@@ -625,6 +654,7 @@ unsigned int MeshComponent::GetIBO(){
     data = std::make_unique<ShaderData>();
     data->vertex_shader_path = "../../src/engine/shaders/default.vert";
     data->fragment_shader_path = "../../src/engine/shaders/default.frag";
+    data->active = true;
   }
 
   //void ShaderComponent::operator=(const ShaderComponent& other) {
@@ -721,85 +751,111 @@ glUseProgram(data->shader_program);
 glDeleteShader(data->vertex_shader);
 glDeleteShader(data->fragment_shader);
 
+
 return 0;
 }
 
-void ShaderComponent::SetUniforms(Entity& entity){
-//Set Color
-int color_location = glGetUniformLocation(data->shader_program, "color");
-glUniform4f(color_location, 1.0f, 0.0f, 1.0f, 1.0f);
+void ShaderComponent::SetUniforms(){
+  std::shared_ptr<TransformComponent> transform;
+  std::shared_ptr<MaterialComponent> material;
+
+  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+    if (entity.lock()->ID() == id) {
+      transform = entity.lock()->GetTransformComponent();
+      material = entity.lock()->GetMaterialComponent();
+    }
+  }
+
+  if (material != nullptr) {
+      //bind texture
+      int texture_location = glGetUniformLocation(data->shader_program, "texture_sampler");
+      if (texture_location != -1) {
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(texture_location, 0);
+      } else { LOG_F(ERROR, "texture_sampler not found in shader program"); }
+  } else { LOG_F(ERROR, "MaterialComponent not found for entity with ID %d", id); }
+
+  if (OpenGLEngine::Engine::Core::camera_ != nullptr) {
+    if (transform != nullptr) {
+      int model_matrix_location = glGetUniformLocation(data->shader_program, "model_matrix");
+      if (model_matrix_location != -1) {
+        glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, glm::value_ptr(transform->GetModelMatrix()));
+      }
+      else { LOG_F(ERROR, "model_matrix not found in shader program"); }
+    } else { LOG_F(ERROR, "TransformComponent not found for entity with ID %d", id); }
+
+        int view_matrix_location = glGetUniformLocation(data->shader_program, "view_matrix");
+        if (view_matrix_location != -1) {
+          glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, glm::value_ptr(OpenGLEngine::Engine::Core::camera_->GetViewMatrix()));
+        } else { LOG_F(ERROR, "view_matrix not found in shader program"); }
+
+        int projection_matrix_location = glGetUniformLocation(data->shader_program, "projection_matrix");
+        if (projection_matrix_location != -1) {
+          glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix()));
+        } else { LOG_F(ERROR, "projection_matrix not found in shader program"); }
+    } else { LOG_F(ERROR, "There isn't any camera set"); }
 }
 
 int ShaderComponent::GetShaderProgram() {
   return data->shader_program;
 }
 
+bool ShaderComponent::UseShader()
+{
+  return data->active;
+}
+
 #pragma endregion ShaderComponent
 
 #pragma region CameraComponent
 
+void CameraData::UpdateVectors()
+{
+  // calculate the new Front vector
+  up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+  glm::vec3 front;
+  front.x = cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
+  front.y = sin(glm::radians(camera_pitch));
+  front.z = sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
+
+  camera_front = glm::normalize(front);
+  camera_right = glm::normalize(glm::cross(camera_front, up));
+  camera_up = glm::normalize(glm::cross(camera_right, camera_front));
+}
+
 CameraComponent::CameraComponent(int id) {
   this->id = id;
   this->type = ComponentType_Camera;
-
   data = std::make_unique<CameraData>();
-  data->camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
-  data->camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
-  data->camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-  data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_position + data->camera_front, data->camera_up);
+  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+    if (entity.lock()->ID() == id) {
+      data->transform = entity.lock()->GetTransformComponent();
+      if (data->transform == nullptr) {
+        LOG_F(ERROR, "TransformComponent not found for entity with ID %d", id);
+        LOG_F(ERROR, "Creating new TransformComponent for entity with ID %d", id);
+        entity.lock()->AddTransformComponent();
+        data->transform = entity.lock()->GetTransformComponent();
+        if (data->transform == nullptr) {
+          LOG_F(ERROR, "Unable to create TransformComponent for entity with ID %d", id);
+        }
+      }
+    }
+  }
+
+  data->camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
   data->fov = 90.0f;
   data->aspect_ratio = 1280.0f / 720.0f;
   data->near_plane = 0.1f;
   data->far_plane = 1000.0f;
 
+  data->camera_yaw = -90.0f;
+  data->first_mouse = true;
+  data->camera_speed = 1.0f;
+  data->camera_sensitivity = 0.1f;
   data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
-
-  //data->camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
-  //data->camera_target = glm::vec3(0.0f, 0.0f, 0.0f);
-  //data->camera_direction = glm::normalize(data->camera_position - data->camera_target);
-  //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  //data->camera_right = glm::normalize(glm::cross(up, data->camera_direction));
-  //data->camera_up = glm::cross(data->camera_direction, data->camera_right);
-  //data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_target, up);
-
-
-  //this->id = id;
-  //this->type = ComponentType_Camera;
-  //data = std::make_unique<CameraData>();
-  //glm::vec3 position;
-
-  ////Set Camera default target
-  //data->target = glm::vec3(0.0f, 0.0f, 0.0f);
-
-  ////Get Transform component
-  //std::shared_ptr<TransformComponent> transform;
-  //for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-  //  if (entity.lock()->ID() == id) { transform = entity.lock()->GetTransformComponent(); }
-  //}
-
-  ////Set Position
-  //position = (transform != nullptr) ? transform->GetPosition() : glm::vec3(0.0f, 0.0f, 0.0f);
-
-
-  //data->direction = glm::normalize(position - data->target);
-
-  //glm::vec3 up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
-  //data->right = glm::normalize(glm::cross(up_vector, data->direction));
-  //data->up = glm::cross(data->direction, data->right);
-
-  //data->view_matrix = glm::lookAt(position, position + data->direction, data->up);
-
-
-  //data->fov = 90.0f;
-  //data->aspect_ratio = 1280.0f / 720.0f;
-  //data->near_plane = 0.1f;
-  //data->far_plane = 1000.0f;
-
-  //data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
-
-  //data->ortho_matrix = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, 0.1f, 1000.0f);
 }
 
 void CameraComponent::operator=(const CameraComponent& other) {
@@ -808,24 +864,28 @@ void CameraComponent::operator=(const CameraComponent& other) {
   data = std::make_unique<CameraData>(*other.data);
 }
 
-void CameraComponent::SetTarget(glm::vec3 target) {
-  data->camera_target = target;
-}
+//void CameraComponent::SetTarget(glm::vec3 target) {
+//  data->camera_target = target;
+//}
 
 void CameraComponent::SetFOV(float fov) {
   data->fov = fov;
+  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
 void CameraComponent::SetAspectRatio(float aspect_ratio) {
   data->aspect_ratio = aspect_ratio;
+  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
 void CameraComponent::SetNearPlane(float near_plane) {
   data->near_plane = near_plane;
+  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
 void CameraComponent::SetFarPlane(float far_plane) {
   data->far_plane = far_plane;
+  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
 void CameraComponent::SetMainCamera() {
@@ -838,46 +898,88 @@ void CameraComponent::SetMainCamera() {
   }
 }
 
-glm::vec3 CameraComponent::GetTarget() { return data->camera_target; }
-
-glm::vec3 CameraComponent::GetDirection() { return data->camera_direction; }
-
-glm::vec3 CameraComponent::GetUp() { return data->camera_up; }
-
-float CameraComponent::GetFOV() { return data->fov; }
-
-float CameraComponent::GetAspectRatio() { return data->aspect_ratio; }
-
-float CameraComponent::GetNearPlane() { return data->near_plane; }
-
-float CameraComponent::GetFarPlane() { return data->far_plane; }
-
-void CameraComponent::UpdateMatrices(){
-  std::shared_ptr<TransformComponent> transform;
-  glm::vec3 position;
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) { transform = entity.lock()->GetTransformComponent(); }
-  }
-  if (transform != nullptr) {
-    position = data->camera_position + transform->GetPosition();
-  }
-  else {
-    position = data->camera_position;
-  }
-  data->camera_view_matrix = glm::lookAt(position, data->camera_position + data->camera_front, data->camera_up);
-
-  data->camera_direction = glm::normalize(data->camera_position - data->camera_target);
-
-  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
+void CameraComponent::MoveCamera(){
+  MoveMouse();
+  MoveKeyboard();
+  data->camera_view_matrix = glm::lookAt(data->transform->GetPosition(), data->camera_front, data->camera_up);
 }
 
-glm::vec3 CameraComponent::GetRight() { return data->camera_right; }
+void CameraComponent::MoveKeyboard()
+{
+  float camera_speed = data->camera_speed;
+  std::shared_ptr<TransformComponent> transform;
+  for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
+    if (entity.lock()->ID() == id) {
+      transform = entity.lock()->GetTransformComponent();
+    }
+  }
+  glm::vec3 position = transform->GetPosition();
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
+    position += camera_speed * data->camera_front;
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
+    position -= camera_speed * data->camera_front;
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
+    position -= glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed;
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
+    position += glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed;
 
+  if (position != transform->GetPosition()) {
+    transform->SetPosition(position);
+  }
+}
+
+void CameraComponent::MoveMouse()
+{
+  double xpos, ypos;
+  EngineInput::GetMousePosition(xpos, ypos);
+
+  if (data->first_mouse) {
+    data->last_x = xpos;
+    data->last_y = ypos;
+    data->first_mouse = false;
+  }
+  
+  float xoffset = static_cast<float>(xpos - data->last_x);
+  float yoffset = static_cast<float>(data->last_y - ypos);
+  data->last_x = xpos;
+  data->last_y = ypos;
+
+
+  xoffset *= data->camera_sensitivity;
+  yoffset *= data->camera_sensitivity;
+
+  data->camera_yaw += xoffset;
+  data->camera_pitch += yoffset;
+
+  if (data->camera_pitch > 89.0f) {
+    data->camera_pitch = 89.0f;
+  }
+  if (data->camera_pitch < -89.0f) {
+    data->camera_pitch = -89.0f;
+  }
+
+  data->UpdateVectors();
+}
+
+//glm::vec3 CameraComponent::GetDirection() { return data->camera_direction; }
+//
+//glm::vec3 CameraComponent::GetUp() { return data->camera_up; }
+//
+float CameraComponent::GetFOV() { return data->fov; }
+//
+//float CameraComponent::GetAspectRatio() { return data->aspect_ratio; }
+//
+//float CameraComponent::GetNearPlane() { return data->near_plane; }
+//
+//float CameraComponent::GetFarPlane() { return data->far_plane; }
+//
+//glm::vec3 CameraComponent::GetRight() { return data->camera_right; }
+//
 glm::mat4 CameraComponent::GetViewMatrix() { return data->camera_view_matrix; }
 
 glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matrix; }
-
-glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }
+//
+//glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }
 
 #pragma endregion CameraComponent
 
@@ -933,5 +1035,7 @@ void MaterialComponent::Process(){
 
   stbi_image_free(data->m_texture.data);
 }
+
+
 
 #pragma endregion MeterialComponent

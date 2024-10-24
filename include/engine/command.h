@@ -26,20 +26,8 @@ struct ClearCommand : public Command {
 
 struct DrawCommand : public Command{
   DrawCommand(Entity& e);
-  void BindUniforms();
   void Execute() override;
   std::shared_ptr<Entity> entity;
-  //unsigned int vao;
-  //unsigned int vbo;
-  //int n_index;
-  //unsigned int ibo;
-  //int shader_program;
-
-
-  //glm::vec3 position;
-  //glm::vec3 scale;
-  //glm::vec3 rotation;
-  //glm::mat4 worldMatrix;
  };
 
 struct DrawRenderBufferCommand : public Command {

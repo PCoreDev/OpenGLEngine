@@ -12,6 +12,8 @@
 #include "engine/component.h"
 #include "engine/engine_input.h"
 
+static float delta_time;
+
 namespace OpenGLEngine {
 
   namespace Engine {
@@ -33,6 +35,8 @@ namespace OpenGLEngine {
       void EventsHandler();
       void Update();
       void Render();
+      void FPS();
+      static float DeltaTime();
 
       static std::unique_ptr<EntityManager> entity_manager_;
       static std::shared_ptr<CameraComponent> camera_;

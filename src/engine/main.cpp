@@ -40,54 +40,14 @@ int main(int argc, char** argv){
     LOG_F(INFO, "Core failed to initialize");
   }
   
-  //OpenGLEngine::main(argc, argv);
+  OpenGLEngine::main(argc, argv);
 
-  std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  camera->AddTransformComponent();
-  camera->AddCameraComponent();
-  camera->GetCameraComponent()->SetMainCamera();
+  float fov = core->camera_->GetFOV();
 
-  for (int i = 0; i < 10; i++) {
-    std::shared_ptr<Entity> entity = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-    entity->AddMeshComponent();
-    entity->AddTransformComponent();
-    entity->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 0.0f, i * 10.0f));
-    entity->GetMeshComponent()->Cube();
-    entity->AddShaderComponent();
-    entity->AddMaterialComponent();
-    entity->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
-    entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-    entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-    entity->GetShaderComponent()->ProcessShader();
-  }
-
-
-  while (!core->RunningState())
+  while (core->RunningState())
   {
-    //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
-    {
-      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, 0.3f));
-    }
-
-    //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
-    {
-      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.0f, 0.0f, -0.3f));
-    }
-
-    //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
-    {
-      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(0.3f, 0.0f, 0.0f));
-    }
-
-    //Input
-    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
-    {
-      camera->GetTransformComponent()->SetPosition(camera->GetTransformComponent()->GetPosition() + glm::vec3(-0.3f, 0.0f, 0.0f));
-    }
-
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_Key9)) { core->camera_->SetFOV(++fov); }
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_Key0)) { core->camera_->SetFOV(--fov); }
     //Update
     core->Update();
     ////Render
@@ -95,6 +55,7 @@ int main(int argc, char** argv){
 
     core->EventsHandler();
     core->BufferHandler();
+    core->FPS();
   }
 
    core->DeinitializeCore();

@@ -29,7 +29,13 @@ namespace OpenGLEngine {
 
     struct Core::CoreData {
       std::unique_ptr<DisplayList> display_list;
-      bool isRunning = true;
+      bool isRunning;
+
+      //Maybe change this to window
+      float delta_time;
+      float last_frame;
+      float max_fps = 60.0f;
+
       std::unique_ptr<Window> window;
       std::shared_ptr<EngineInput> input;
       void InitGLFW() {
@@ -47,6 +53,9 @@ namespace OpenGLEngine {
       entity_manager_ = std::make_unique<EntityManager>();
       data_->display_list = std::make_unique<DisplayList>();
       data_->input = std::make_shared<EngineInput>();
+      data_->isRunning = true;
+      data_->delta_time = 0.0f;
+      data_->last_frame = 0.0f;
     }
 
     Core::~Core() {}
@@ -73,7 +82,7 @@ namespace OpenGLEngine {
     }
 
     bool Core::RunningState() const {
-      return data_->window->CloseWindow();
+      return data_->isRunning;
     }
 
 
@@ -96,13 +105,33 @@ namespace OpenGLEngine {
           data_->display_list->AddDrawCommand(*sharedEntity);
         }
       }
-      camera_->UpdateMatrices();
+      if (camera_ != nullptr) {
+        camera_->MoveCamera();
+      }
+
+      if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_Escape))
+      {
+        data_->isRunning = false;
+      }
     }
 
     void Core::Render() {
       data_->display_list->Execute();
     }
 
+    void Core::FPS() {
+      LOG_F(INFO, "FPS: %f", 1.0f / data_->delta_time);
+        
+      float currentFrame = static_cast<float>(glfwGetTime());
+      data_->delta_time = currentFrame - data_->last_frame;
+      data_->last_frame = currentFrame;
+      delta_time = data_->delta_time;
+
+      float frameTime = 1.0f / data_->max_fps;
+      while (data_->delta_time < frameTime) {
+        data_->delta_time = static_cast<float>(glfwGetTime()) - data_->last_frame;
+      }
+    }
   } // namespace Engine
 
 } // namespace OpenGLEngine
