@@ -109,11 +109,11 @@ std::shared_ptr<class RenderComponent> Entity::GetRenderComponent()
 }
 
 void Entity::AddRenderComponent() {
-    data_->components_.push_back(std::make_shared<RenderComponent>(data_->id_));
+    data_->components_.push_back(std::make_shared<RenderComponent>(weak_from_this()));
 }
 
 void Entity::AddTransformComponent() {
-    data_->components_.push_back(std::make_shared<TransformComponent>(data_->id_));
+    data_->components_.push_back(std::make_shared<TransformComponent>(weak_from_this()));
 }
 /*
 void Entity::AddPhysicsComponent() {
@@ -139,19 +139,19 @@ void Entity::AddCameraComponent() {
 
 void Entity::AddCameraComponent()
 {
-  data_->components_.push_back(std::make_shared<CameraComponent>(data_->id_));
+  data_->components_.push_back(std::make_shared<CameraComponent>(weak_from_this()));
 }
 
 void Entity::AddMeshComponent() {
-    data_->components_.push_back(std::make_shared<MeshComponent>(data_->id_));
+    data_->components_.push_back(std::make_shared<MeshComponent>(weak_from_this()));
 }
 
 void Entity::AddShaderComponent() {
-    data_->components_.push_back(std::make_shared<ShaderComponent>(data_->id_));
+    data_->components_.push_back(std::make_shared<ShaderComponent>(weak_from_this()));
 }
 
 void Entity::AddMaterialComponent(){
-  data_->components_.push_back(std::make_shared<MaterialComponent>(data_->id_));
+  data_->components_.push_back(std::make_shared<MaterialComponent>(weak_from_this()));
 }
 
 //Getters

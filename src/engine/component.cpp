@@ -23,8 +23,9 @@
 
 #pragma region TransformComponent
 
-TransformComponent::TransformComponent(int id) {
-  this->id = id;
+TransformComponent::TransformComponent(std::weak_ptr<Entity> e) {
+  this->entity = e;
+  this->id = entity.lock()->ID();
   this->type = ComponentType_Transform;
   data = std::make_unique<TransformData>();
   data->position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -33,7 +34,7 @@ TransformComponent::TransformComponent(int id) {
   data->UpdateTraslationMatrix();
   data->UpdateRotationMatrix();
   data->UpdateScaleMatrix();
-  data->parent_id = id;
+  data->parent_id = this->id;
 }
 
 void TransformComponent::operator=(const TransformComponent& other) {
@@ -112,9 +113,7 @@ glm::mat4 TransformComponent::GetTraslationMatrix() const {
       }
     }
   }
-  else {
-    return data->m_traslation;
-  }
+  return data->m_traslation;
 }
 
 glm::mat4 TransformComponent::GetScaleMatrix() const {
@@ -125,9 +124,7 @@ glm::mat4 TransformComponent::GetScaleMatrix() const {
       }
     }
   }
-  else {
-    return data->m_scale;
-  }
+  return data->m_scale;
 }
 
 glm::mat4 TransformComponent::GetRotationMatrix() const {
@@ -138,9 +135,7 @@ glm::mat4 TransformComponent::GetRotationMatrix() const {
       }
     }
   }
-  else {
-    return data->m_rotation;
-  }
+  return data->m_rotation;
 }
 
 glm::mat4 TransformComponent::GetModelMatrix() const {
@@ -175,8 +170,9 @@ void TransformData::UpdateModelMatrix(){
 #pragma endregion TransformComponent
 
 #pragma region RenderComponent
-  RenderComponent::RenderComponent(int id) {
-    this->id = id;
+  RenderComponent::RenderComponent(std::weak_ptr<Entity> e) {
+    this->entity = e;
+    this->id = entity.lock()->ID();
     this->type = ComponentType_Render;
     data = std::make_unique<RenderData>();
     data->enabled = true;
@@ -198,17 +194,9 @@ void TransformData::UpdateModelMatrix(){
 
   void RenderComponent::Render() {
     if (data->enabled == true) {
-      std::shared_ptr<ShaderComponent> shader;
-      std::shared_ptr<MaterialComponent> material;
-      std::shared_ptr<MeshComponent> mesh;
-
-      for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-        if (entity.lock()->ID() == id) {
-          shader = entity.lock()->GetShaderComponent();
-          material = entity.lock()->GetMaterialComponent();
-          mesh = entity.lock()->GetMeshComponent();
-        }
-      }
+      std::shared_ptr<ShaderComponent> shader = entity.lock()->GetShaderComponent();
+      std::shared_ptr<MaterialComponent> material = entity.lock()->GetMaterialComponent();
+      std::shared_ptr<MeshComponent> mesh = entity.lock()->GetMeshComponent();
 
       if (shader != nullptr) {
         if (shader->UseShader()) {
@@ -245,12 +233,11 @@ void MeshData::Bind() {
     glCreateBuffers(1, &ibo); //index buffer object
                                           
 
-    glNamedBufferStorage(vbo, vertex_data.size() * sizeof(float), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
 
-    glNamedBufferStorage(nbo, normal_data.size() * sizeof(float), normal_data.data(), GL_DYNAMIC_STORAGE_BIT);
-    glNamedBufferStorage(ubo, uv_data.size() * sizeof(float), uv_data.data(), GL_DYNAMIC_STORAGE_BIT);
-
-    glNamedBufferStorage(ibo, index_data.size() * sizeof(unsigned int), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(vbo, static_cast<GLsizei>(vertex_data.size() * sizeof(float)), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(nbo, static_cast<GLsizei>(normal_data.size() * sizeof(float)), normal_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(ubo, static_cast<GLsizei>(uv_data.size() * sizeof(float)), uv_data.data(), GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(ibo, static_cast<GLsizei>(index_data.size() * sizeof(unsigned int)), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
 
     glCreateVertexArrays(1, &vao);
 
@@ -271,8 +258,9 @@ void MeshData::Bind() {
     glVertexArrayAttribBinding(vao, 2, 2);
 }
 
-  MeshComponent::MeshComponent(int id) {
-    this->id = id;
+  MeshComponent::MeshComponent(std::weak_ptr<Entity> e) {
+    this->entity = e;
+    this->id = entity.lock()->ID();
     this->type = ComponentType_Mesh;
     data = std::make_unique<MeshData>();
   }
@@ -648,8 +636,9 @@ unsigned int MeshComponent::GetIBO(){
 
 #pragma region ShaderComponent
 
-  ShaderComponent::ShaderComponent(int id) {
-    this->id = id;
+  ShaderComponent::ShaderComponent(std::weak_ptr<Entity> e) {
+    this->entity = e;
+    this->id = entity.lock()->ID();
     this->type = ComponentType_Shader;
     data = std::make_unique<ShaderData>();
     data->vertex_shader_path = "../../src/engine/shaders/default.vert";
@@ -756,15 +745,8 @@ return 0;
 }
 
 void ShaderComponent::SetUniforms(){
-  std::shared_ptr<TransformComponent> transform;
-  std::shared_ptr<MaterialComponent> material;
-
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) {
-      transform = entity.lock()->GetTransformComponent();
-      material = entity.lock()->GetMaterialComponent();
-    }
-  }
+  std::shared_ptr<TransformComponent> transform = entity.lock()->GetTransformComponent();
+  std::shared_ptr<MaterialComponent> material = entity.lock()->GetMaterialComponent();
 
   if (material != nullptr) {
       //bind texture
@@ -793,7 +775,7 @@ void ShaderComponent::SetUniforms(){
         if (projection_matrix_location != -1) {
           glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE, glm::value_ptr(OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix()));
         } else { LOG_F(ERROR, "projection_matrix not found in shader program"); }
-    } else { LOG_F(ERROR, "There isn't any camera set"); }
+  } else { LOG_F(ERROR, "There isn't any camera set"); }
 }
 
 int ShaderComponent::GetShaderProgram() {
@@ -809,40 +791,26 @@ bool ShaderComponent::UseShader()
 
 #pragma region CameraComponent
 
-void CameraData::UpdateVectors()
-{
-  // calculate the new Front vector
+void CameraData::UpdateVectors() {
   up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-  glm::vec3 front;
-  front.x = cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
-  front.y = sin(glm::radians(camera_pitch));
-  front.z = sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
+  camera_direction.x = cos(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
+  camera_direction.y = sin(glm::radians(camera_pitch));
+  camera_direction.z = sin(glm::radians(camera_yaw)) * cos(glm::radians(camera_pitch));
 
-  camera_front = glm::normalize(front);
+  camera_front = glm::normalize(camera_direction);
   camera_right = glm::normalize(glm::cross(camera_front, up));
   camera_up = glm::normalize(glm::cross(camera_right, camera_front));
 }
 
-CameraComponent::CameraComponent(int id) {
-  this->id = id;
+CameraComponent::CameraComponent(std::weak_ptr<Entity> e) {
+  this->entity = e;
+  this->id = entity.lock()->ID();
   this->type = ComponentType_Camera;
   data = std::make_unique<CameraData>();
 
-  for (auto& entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) {
-      data->transform = entity.lock()->GetTransformComponent();
-      if (data->transform == nullptr) {
-        LOG_F(ERROR, "TransformComponent not found for entity with ID %d", id);
-        LOG_F(ERROR, "Creating new TransformComponent for entity with ID %d", id);
-        entity.lock()->AddTransformComponent();
-        data->transform = entity.lock()->GetTransformComponent();
-        if (data->transform == nullptr) {
-          LOG_F(ERROR, "Unable to create TransformComponent for entity with ID %d", id);
-        }
-      }
-    }
-  }
+  data->camera_position = glm::vec3(100.0f, 0.0f, 0.0f);
+  data->camera_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
   data->camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -901,35 +869,33 @@ void CameraComponent::SetMainCamera() {
 void CameraComponent::MoveCamera(){
   MoveMouse();
   MoveKeyboard();
-  data->camera_view_matrix = glm::lookAt(data->transform->GetPosition(), data->camera_front, data->camera_up);
+  data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_position + data->camera_front, data->camera_up);
 }
 
 void CameraComponent::MoveKeyboard()
 {
   float camera_speed = data->camera_speed;
-  std::shared_ptr<TransformComponent> transform;
-  for (auto entity : OpenGLEngine::Engine::Core::entity_manager_->GetEntities()) {
-    if (entity.lock()->ID() == id) {
-      transform = entity.lock()->GetTransformComponent();
-    }
-  }
-  glm::vec3 position = transform->GetPosition();
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
-    position += camera_speed * data->camera_front;
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
-    position -= camera_speed * data->camera_front;
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
-    position -= glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed;
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
-    position += glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed;
+  //std::shared_ptr<TransformComponent> transform = entity.lock()->GetTransformComponent();
 
-  if (position != transform->GetPosition()) {
-    transform->SetPosition(position);
-  }
+  //if (transform != nullptr) {
+    //glm::vec3 position = transform->GetPosition();
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
+      data->camera_position += (camera_speed * data->camera_front);
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
+      data->camera_position -= (camera_speed * data->camera_front);
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
+      data->camera_position -= (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
+    if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
+      data->camera_position += (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
+
+
+    //if (position != transform->GetPosition()) {
+    //  transform->SetPosition(position);
+    //}
+//  }
 }
 
-void CameraComponent::MoveMouse()
-{
+void CameraComponent::MoveMouse() {
   double xpos, ypos;
   EngineInput::GetMousePosition(xpos, ypos);
 
@@ -949,7 +915,7 @@ void CameraComponent::MoveMouse()
   yoffset *= data->camera_sensitivity;
 
   data->camera_yaw += xoffset;
-  data->camera_pitch += yoffset;
+  data->camera_pitch += yoffset; //If you want to invert the mouse Y axis, you must do data->camera_pitch -= yoffset. or multiply by -1
 
   if (data->camera_pitch > 89.0f) {
     data->camera_pitch = 89.0f;
@@ -985,10 +951,12 @@ glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matri
 
 #pragma region MeterialComponent
 
-MaterialComponent::MaterialComponent(int id) {
-  this->id = id;
+MaterialComponent::MaterialComponent(std::weak_ptr<Entity> e) {
+  this->entity = e;
+  this->id = entity.lock()->ID();
   this->type = ComponentType_Material;
   data = std::make_unique<MaterialData>();
+
 }
 
 void MaterialComponent::operator=(const MaterialComponent& other){

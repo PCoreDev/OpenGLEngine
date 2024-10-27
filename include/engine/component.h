@@ -10,7 +10,7 @@
 #include <string>
 #include "glm/glm.hpp"
 
-
+class Entity;
 
 enum ComponentType {
   ComponentType_Invalid = 0,
@@ -33,8 +33,9 @@ enum ComponentType {
 		Component() = default;
 		Component(const Component&) = default;
 
-		int id;
-		ComponentType type;
+		int id = -1;
+		ComponentType type = ComponentType_Invalid;
+    std::weak_ptr<Entity> entity;
 
 	public:
 		int GetId() const { return id; }
@@ -66,7 +67,7 @@ enum ComponentType {
     //TODO: review the component transformations.
 
     TransformComponent() = default;
-    TransformComponent(int id);
+    TransformComponent(std::weak_ptr<Entity> entity);
 		void operator=(const TransformComponent& other);
 
 		//Setters
@@ -107,7 +108,7 @@ enum ComponentType {
 	struct RenderComponent : public Component {
 
 		RenderComponent() = default;
-		RenderComponent(int id);
+		RenderComponent(std::weak_ptr<Entity> entity);
     RenderComponent(const RenderComponent&) = default;
     void operator=(const RenderComponent& other);
     bool IsEnabled();
@@ -131,7 +132,7 @@ enum ComponentType {
 	    
   struct MeshComponent : public Component {
     MeshComponent() = default;
-    MeshComponent(int id);
+    MeshComponent(std::weak_ptr<Entity> entity);
     MeshComponent(const MeshComponent&) = default;
     void operator=(const MeshComponent& other);
     void Triangle();
@@ -164,7 +165,7 @@ enum ComponentType {
 
   struct ShaderComponent : public Component {
     //ShaderComponent() = default;
-    ShaderComponent(int id);
+    ShaderComponent(std::weak_ptr<Entity> entity);
     //ShaderComponent(const ShaderComponent&);
     //void operator=(const ShaderComponent& other);
     void SetVertexShaderPath(const std::string& path);
@@ -182,7 +183,10 @@ enum ComponentType {
   struct CameraData{
     std::shared_ptr<TransformComponent> transform;
     //camera attributes
+
+    glm::vec3 camera_position;
     glm::vec3 camera_direction;
+
     glm::vec3 camera_front;
     glm::vec3 camera_up;
     glm::vec3 camera_right;
@@ -221,7 +225,7 @@ enum ComponentType {
 
   struct CameraComponent : public Component{
     CameraComponent() = default;
-    CameraComponent(int id);
+    CameraComponent(std::weak_ptr<Entity> entity);
     void operator=(const CameraComponent& other);
     void SetFOV(float fov);
     void SetAspectRatio(float aspect_ratio);
@@ -263,7 +267,7 @@ enum ComponentType {
 
   struct MaterialComponent : public Component {
     MaterialComponent() = default;
-    MaterialComponent(int id);
+    MaterialComponent(std::weak_ptr<Entity> entity);
     MaterialComponent(const MaterialComponent&) = default;
     void operator=(const MaterialComponent& other);
     void LoadTexture(const std::string& path);
