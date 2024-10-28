@@ -128,6 +128,7 @@ enum ComponentType {
     int n_vertex = 0;
     unsigned int vao, vbo, ibo, nbo, ubo;
     void Bind();
+    bool cube;
   };
 	    
   struct MeshComponent : public Component {
@@ -138,7 +139,9 @@ enum ComponentType {
     void Triangle();
     void Square();
     void Cube();
-    void LoadOBJ(const std::string& path);
+    void SkyBox();
+    void Sphere(float radius, unsigned int sectorCount, unsigned int stackCount);
+    bool LoadOBJ(const std::string& path);
     float* GetVertexData();
     size_t GetVertexSizeb();
     size_t GetVertexCount();
@@ -183,43 +186,33 @@ enum ComponentType {
   struct CameraData{
     std::shared_ptr<TransformComponent> transform;
     //camera attributes
-
     glm::vec3 camera_position;
     glm::vec3 camera_direction;
-
     glm::vec3 camera_front;
     glm::vec3 camera_up;
     glm::vec3 camera_right;
     glm::mat4 camera_view_matrix;
     glm::vec3 up;
-
-    //For position relative to the transform (no implemented yet)
-    glm::vec3 camera_offset;
+    glm::mat4 projection_matrix;
+    glm::mat4 ortho_matrix;
 
     //euler Angles
     float camera_pitch;
     float camera_yaw;
     float camera_roll;
 
-
+    //camera options
     float fov;
     float aspect_ratio;
     float near_plane;
     float far_plane;
-
-
-    double last_x, last_y;
-
     float camera_sensitivity;
     float camera_speed;
 
+    //Mouse variables
+    double last_x, last_y;
     bool first_mouse;
     
-
-    glm::mat4 projection_matrix;
-    glm::mat4 ortho_matrix;
-
-
     void UpdateVectors();
   };
 
@@ -273,6 +266,7 @@ enum ComponentType {
     void LoadTexture(const std::string& path);
     unsigned int GetTexture();
 
+    void LoadBMP_custom(const std::string& imagepath);
     void Process();
 
     std::unique_ptr<MaterialData> data;

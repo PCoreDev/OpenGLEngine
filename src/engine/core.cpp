@@ -120,7 +120,7 @@ namespace OpenGLEngine {
     }
 
     void Core::FPS() {
-      LOG_F(INFO, "FPS: %f", 1.0f / data_->delta_time);
+      //LOG_F(INFO, "FPS: %f", 1.0f / data_->delta_time);
         
       float currentFrame = static_cast<float>(glfwGetTime());
       data_->delta_time = currentFrame - data_->last_frame;

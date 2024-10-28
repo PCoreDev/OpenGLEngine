@@ -11,6 +11,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "engine/core.h"
 #include "engine/entity.h"
+#include "OBJ_Loader/OBJ_Loader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -204,10 +205,7 @@ void TransformData::UpdateModelMatrix(){
           shader->SetUniforms();
         }
       }
-
-      glEnable(GL_CULL_FACE);
-      glCullFace(GL_BACK);
-
+      
       if (material != nullptr) {
         glBindTexture(GL_TEXTURE_2D, material->GetTexture());
       }
@@ -299,34 +297,28 @@ void MeshComponent::Square() {
     if(data != nullptr) {
         if(data->vertex_data.size() != 0) { data->vertex_data.clear(); }
     data->vertex_data = {
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.5f, -0.5f, 0.0f, // bottom right
-        0.5f, 0.5f, 0.0f, // top right
-
-        -0.5f, -0.5f, 0.0f, // top right
-        0.5f, 0.5f, 0.0f, // top left
-        -0.5f, 0.5f, 0.0f // bottom left
+         -1.0f, 1.0f, 1.0f,
+         -1.0f, -1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f,
+         1.0f, 1.0f, 1.0f
     };
 
     data->index_data = {
-        0, 1, 2,
-        3, 4, 5
+        1,0,3,
+        3,2,1
     };
 
     data->normal_data = {
-        0.0f, 1.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f
     };
     data->uv_data = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-
-        0.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f
     };
 
       data->n_vertex = 6;
@@ -335,83 +327,83 @@ void MeshComponent::Square() {
     data->Bind();
 }
 
-void MeshComponent::Cube(){
-  if(data != nullptr){
-    if(data->vertex_data.size() != 0) { data->vertex_data.clear(); }
+void MeshComponent::SkyBox() {
+  if (data != nullptr) {
+    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
     data->vertex_data = {
       //Front
-         -0.5f, 0.5f, 0.5f,
-         -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
+         -1.0f, 1.0f, 1.0f,
+         -1.0f, -1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f,
+         1.0f, 1.0f, 1.0f,
 
          //Bottom
-         -0.5f, -0.5f, -0.5f,
-         -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, -0.5f,
+         -1.0f, -1.0f, 1.0f,
+         -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, 1.0f,
 
          //Back
-         -0.5f, 0.5f, -0.5f,
-         -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, 0.5f, -0.5f,
+         1.0f, 1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         -1.0f, -1.0f, -1.0f,
+         -1.0f, 1.0f, -1.0f,
 
          //Right
-         0.5f, 0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, 0.5f, -0.5f,
+         1.0f, 1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, 1.0f, -1.0f,
 
          //Left
-         -0.5f, 0.5f, -0.5f,
-         -0.5f, -0.5f, -0.5f,
-         -0.5f, -0.5f, 0.5f,
-         -0.5f, 0.5f, 0.5f,
+         -1.0f, 1.0f, -1.0f,
+         -1.0f, -1.0f, -1.0f,
+         -1.0f, -1.0f, 1.0f,
+         -1.0f, 1.0f, 1.0f,
 
          //UP
-         -0.5f, 0.5f, -0.5f,
-         -0.5f, 0.5f, 0.5f,
-          0.5f, 0.5f, 0.5f,
-          0.5f, 0.5f, -0.5f
+         -1.0f, 1.0f, -1.0f,
+         -1.0f, 1.0f, 1.0f,
+          1.0f, 1.0f, 1.0f,
+          1.0f, 1.0f, -1.0f
     };
 
     data->normal_data = {
       //Front
-          0.0f, 0.0f, 0.5f,
-          0.0f, 0.0f, 0.5f,
-          0.0f, 0.0f, 0.5f,
-          0.0f, 0.0f, 0.5f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
 
           //Bottom
-          0.0f, -0.5f, 0.0f,
-          0.0f, -0.5f, 0.0f,
-          0.0f, -0.5f, 0.0f,
-          0.0f, -0.5f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
 
           //Back
-          0.0f, 0.0f, -0.5f,
-          0.0f, 0.0f, -0.5f,
-          0.0f, 0.0f, -0.5f,
-          0.0f, 0.0f, -0.5f,
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
 
           //Right
-          0.5f, 0.0f, 0.0f,
-          0.5f, 0.0f, 0.0f,
-          0.5f, 0.0f, 0.0f,
-          0.5f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
 
           //Left
-          -0.5f, 0.0f, 0.0f,
-          -0.5f, 0.0f, 0.0f,
-          -0.5f, 0.0f, 0.0f,
-          -0.5f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
 
           //Up
-          0.0f, 0.5f, 0.0f,
-          0.0f, 0.5f, 0.0f,
-          0.0f, 0.5f, 0.0f,
-          0.0f, 0.5f, 0.0f
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f
     };
 
     data->uv_data = {
@@ -451,129 +443,19 @@ void MeshComponent::Cube(){
            1.0f, 1.0f,
            1.0f, 0.0f
     };
-    /*
-    data->vertex_data = {
-      //Front
-      -0.5f, 0.5f, 0.5f,
-      -0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f,
 
-      //Bottom
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, -0.5f,
-
-      //Back
-      -0.5f, 0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-
-      //Right
-      0.5f, 0.5f, 0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-
-      //Left
-      -0.5f, 0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f,
-
-      //UP
-      -0.5f, 0.5f, -0.5f,
-      -0.5f, 0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f,
-      0.5f, 0.5f, -0.5f, 
-
-      //Front
-      0.0f, 0.0f, 0.5f,
-      0.0f, 0.0f, 0.5f,
-      0.0f, 0.0f, 0.5f,
-      0.0f, 0.0f, 0.5f,
-
-      //Bottom
-      0.0f, -0.5f, 0.0f,
-      0.0f, -0.5f, 0.0f,
-      0.0f, -0.5f, 0.0f,
-      0.0f, -0.5f, 0.0f,
-
-      //Back
-      0.0f, 0.0f, -0.5f,
-      0.0f, 0.0f, -0.5f,
-      0.0f, 0.0f, -0.5f,
-      0.0f, 0.0f, -0.5f,
-
-      //Right
-      0.5f, 0.0f, 0.0f,
-      0.5f, 0.0f, 0.0f,
-      0.5f, 0.0f, 0.0f,
-      0.5f, 0.0f, 0.0f,
-
-      //Left
-      -0.5f, 0.0f, 0.0f,
-      -0.5f, 0.0f, 0.0f,
-      -0.5f, 0.0f, 0.0f,
-      -0.5f, 0.0f, 0.0f,
-
-      //Up
-      0.0f, 0.5f, 0.0f,
-      0.0f, 0.5f, 0.0f,
-      0.0f, 0.5f, 0.0f,
-      0.0f, 0.5f, 0.0f,
-
-      //Front
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-
-      //Bottom
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-
-      //Back
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-
-      //Right
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-
-      //Left
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-
-      //Up
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-    };
-*/
-    data->index_data = {
+    data->index_data = { //counter clockwise
       //Front 0, 1, 2, 3
         0,1,3,
         1,2,3,
 
         //Bottom 4, 5, 6, 7
-        7,6,5,
-        7,5,4,
+        4,5,7,
+        5,6,7,
 
         //Back 8, 9, 10, 11
-        11,9,8,
-        11,10,9,
+        8,9,11,
+        9,10,11,
 
         //Right 12, 13, 14, 15
         12,13,15,
@@ -594,9 +476,318 @@ void MeshComponent::Cube(){
   }
 }
 
-void MeshComponent::LoadOBJ(const std::string& path){
-  //TODO: Implement with tiny obj loader
+void MeshComponent::Cube(){
+  if(data != nullptr){
+    if(data->vertex_data.size() != 0) { data->vertex_data.clear(); }
+    data->vertex_data = {
+      //Front
+         -1.0f, 1.0f, 1.0f,
+         -1.0f, -1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f,
+         1.0f, 1.0f, 1.0f,
 
+         //Bottom
+         -1.0f, -1.0f, 1.0f,
+         -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, 1.0f,
+
+         //Back
+         1.0f, 1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         -1.0f, -1.0f, -1.0f,
+         -1.0f, 1.0f, -1.0f,
+
+         //Right
+         1.0f, 1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, 1.0f, -1.0f,
+
+         //Left
+         -1.0f, 1.0f, -1.0f,
+         -1.0f, -1.0f, -1.0f,
+         -1.0f, -1.0f, 1.0f,
+         -1.0f, 1.0f, 1.0f,
+
+         //UP
+         -1.0f, 1.0f, -1.0f,
+         -1.0f, 1.0f, 1.0f,
+          1.0f, 1.0f, 1.0f,
+          1.0f, 1.0f, -1.0f
+    };
+
+    data->normal_data = {
+      //Front
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+          0.0f, 0.0f, 1.0f,
+
+          //Bottom
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+          0.0f, -1.0f, 0.0f,
+
+          //Back
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
+          0.0f, 0.0f, -1.0f,
+
+          //Right
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+          1.0f, 0.0f, 0.0f,
+
+          //Left
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+          -1.0f, 0.0f, 0.0f,
+
+          //Up
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f,
+          0.0f, 1.0f, 0.0f
+    };
+
+    data->uv_data = {
+      //Front
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f,
+
+           //Bottom
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f,
+
+           //Back
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f,
+
+           //Right
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f,
+
+           //Left
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f,
+
+           //Up
+           0.0f, 0.0f,
+           0.0f, 1.0f,
+           1.0f, 1.0f,
+           1.0f, 0.0f
+    };
+
+    data->index_data = { //Clockwise
+      //Front 0, 1, 2, 3
+        1,0,3,
+        3,2,1,
+
+        //Bottom 4, 5, 6, 7
+        5,4,7,
+        7,6,5,
+
+        //Back 8, 9, 10, 11
+        9,8,11,
+        11,10,9,
+
+        //Right 12, 13, 14, 15
+        13,12,15,
+        15,14,13,
+
+        //Left 16, 17, 18, 19
+        17,16,19,
+        19,18,17,
+
+        //Up 20, 21, 22, 23
+        21,20,23,
+        23,22,21
+    };
+
+    data->n_vertex = 24;
+
+    data->Bind();
+  }
+}
+
+void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int stackCount) {
+  double M_PI = 3.14159265358979323846;
+  if (data != nullptr) {
+    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
+    if (data->normal_data.size() != 0) { data->normal_data.clear(); }
+    if (data->uv_data.size() != 0) { data->uv_data.clear(); }
+    if (data->index_data.size() != 0) { data->index_data.clear(); }
+
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> texCoords;
+    std::vector<unsigned int> indices;
+
+    float x, y, z, xy;                              // vertex position
+    float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
+    float s, t;                                     // texCoord
+
+    float sectorStep = 2 * M_PI / sectorCount;
+    float stackStep = M_PI / stackCount;
+    float sectorAngle, stackAngle;
+
+    for (unsigned int i = 0; i <= stackCount; ++i) {
+      stackAngle = M_PI / 2 - i * stackStep;        // from pi/2 to -pi/2
+      xy = radius * cosf(stackAngle);             // r * cos(u)
+      z = radius * sinf(stackAngle);              // r * sin(u)
+
+      for (unsigned int j = 0; j <= sectorCount; ++j) {
+        sectorAngle = j * sectorStep;           // from 0 to 2pi
+
+        // vertex position (x, y, z)
+        x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+        y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(z);
+
+        // normalized vertex normal (nx, ny, nz)
+        nx = x * lengthInv;
+        ny = y * lengthInv;
+        nz = z * lengthInv;
+        normals.push_back(nx);
+        normals.push_back(ny);
+        normals.push_back(nz);
+
+        // vertex tex coord (s, t)
+        s = (float)j / sectorCount;
+        t = (float)i / stackCount;
+        texCoords.push_back(s);
+        texCoords.push_back(t);
+      }
+    }
+
+    // indices
+    unsigned int k1, k2;
+    for (unsigned int i = 0; i < stackCount; ++i) {
+      k1 = i * (sectorCount + 1);     // start of current stack
+      k2 = k1 + sectorCount + 1;      // start of next stack
+
+      for (unsigned int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+        // 2 triangles per sector except at the top and bottom
+        if (i != 0) {
+          indices.push_back(k1);
+          indices.push_back(k2);
+          indices.push_back(k1 + 1);
+        }
+
+        if (i != (stackCount - 1)) {
+          indices.push_back(k1 + 1);
+          indices.push_back(k2);
+          indices.push_back(k2 + 1);
+        }
+      }
+    }
+
+    // Store data in MeshComponent object
+    data->vertex_data = vertices;
+    data->normal_data = normals;
+    data->uv_data = texCoords;
+    data->index_data = indices;
+    data->n_vertex = static_cast<unsigned int>(vertices.size() / 3);
+
+    data->Bind();
+  }
+}
+
+bool MeshComponent::LoadOBJ(const std::string& path){
+  objl::Loader Loader;
+  bool loadout = Loader.LoadFile(path);
+  if (loadout) {
+    for (int i = 0; i < Loader.LoadedVertices.size(); i++) {
+      data->vertex_data.push_back(Loader.LoadedVertices[i].Position.X);
+      data->vertex_data.push_back(Loader.LoadedVertices[i].Position.Y);
+      data->vertex_data.push_back(Loader.LoadedVertices[i].Position.Z);
+
+      data->normal_data.push_back(Loader.LoadedVertices[i].Normal.X);
+      data->normal_data.push_back(Loader.LoadedVertices[i].Normal.Y);
+      data->normal_data.push_back(Loader.LoadedVertices[i].Normal.Z);
+
+      data->uv_data.push_back(Loader.LoadedVertices[i].TextureCoordinate.X);
+      data->uv_data.push_back(Loader.LoadedVertices[i].TextureCoordinate.Y);
+    }
+
+    for (int i = 0; i < Loader.LoadedIndices.size(); i++) {
+      data->index_data.push_back(Loader.LoadedIndices[i]);
+    }
+
+    data->n_vertex = Loader.LoadedVertices.size();
+    data->Bind();
+    return true;
+  }
+  
+}
+
+void MaterialComponent::LoadBMP_custom(const std::string& imagepath)
+{
+  unsigned char header[54]; // Each BMP file begins by a 54-bytes header
+  unsigned int dataPos;     // Position in the file where the actual data begins
+  unsigned int width, height;
+  unsigned int imageSize;   // = width*height*3
+  // Actual RGB data
+  unsigned char* data;
+
+  //Open the file
+  FILE* file = fopen(imagepath.c_str(), "rb");
+  if (!file) {
+    LOG_F(ERROR, "Image could not be opened");
+    return;
+  }
+
+  if (fread(header, 1, 54, file) != 54) { // If not 54 bytes read : problem
+    LOG_F(ERROR, "Not a correct BMP file");
+    return;
+  }
+
+  if (header[0] != 'B' || header[1] != 'M') {
+    LOG_F(ERROR, "Not a correct BMP file");
+    return;
+  }
+
+  // Read ints from the byte array
+  dataPos = *(int*)&(header[0x0A]);
+  imageSize = *(int*)&(header[0x22]);
+  width = *(int*)&(header[0x12]);
+  height = *(int*)&(header[0x16]);
+
+  if (imageSize == 0) {
+    imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component
+  }
+
+  if (dataPos == 0) {
+    dataPos = 54; // The BMP header is done that way
+  }
+
+  // Create a buffer
+  data = new unsigned char[imageSize];
+
+  // Read the actual data from the file into the buffer
+  fread(data, 1, imageSize, file);
+
+  //Everything is in memory now, the file can be closed
+  fclose(file);
+
+  return;
 }
 
 float* MeshComponent::GetVertexData() {

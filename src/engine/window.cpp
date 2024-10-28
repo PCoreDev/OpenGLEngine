@@ -48,6 +48,10 @@ namespace OpenGLEngine
       //Adding viewport
       glViewport(0, 0, width, height);
 
+      glEnable(GL_CULL_FACE);
+      glEnable(GL_DEPTH_TEST);
+      glCullFace(GL_FRONT);
+
       return true;
     }
   };
