@@ -49,7 +49,9 @@ project "Engine"
 
   files { "..deps/GLFW/glfw/src/*.c",
 	        "../src/engine/*.cpp",
+          "../src/engine/components/*.cpp",
 	        "../include/engine/*.h",
+          "../include/engine/components/*.h",
 	        "../deps/GLFW/src/win32_*.c",
 	        "../deps/GLFW/src/context.c",
 	        "../deps/GLFW/src/egl_context.c",

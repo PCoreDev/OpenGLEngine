@@ -2,7 +2,6 @@
 #define __ENTITY_H__ 1
 
 #include <memory>
-#include "engine/component.h"
 
 class Entity : public std::enable_shared_from_this<Entity>{
 

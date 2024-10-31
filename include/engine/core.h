@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "engine/entity_manager.h"
-#include "engine/component.h"
+#include "engine/components/camera_component.h"
 #include "engine/engine_input.h"
 
 static float delta_time;

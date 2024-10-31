@@ -11,6 +11,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "engine/core.h"
 
+#include "engine/components/render_component.h"
+
 //ClearCommand
 void ClearCommand::Execute() {
     glClearColor(r, g, b, a);

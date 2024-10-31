@@ -1,5 +1,12 @@
 #include "engine/entity.h"
 #include "engine/component.h"
+#include "engine/components/render_component.h"
+#include "engine/components/transform_component.h"
+#include "engine/components/mesh_component.h"
+#include "engine/components/shader_component.h"
+#include "engine/components/camera_component.h"
+#include "engine/components/material_component.h"
+
 
 #include <vector>
 
@@ -53,7 +60,7 @@ int Entity::ID() {
 
 std::shared_ptr<MeshComponent> Entity::GetMeshComponent() {
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Mesh) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Mesh) {
       return std::static_pointer_cast<MeshComponent>(component);
     }
   }
@@ -62,50 +69,50 @@ std::shared_ptr<MeshComponent> Entity::GetMeshComponent() {
 
 std::shared_ptr<ShaderComponent> Entity::GetShaderComponent() {
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Shader) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Shader) {
       return std::static_pointer_cast<ShaderComponent>(component);
     }
   }
   return nullptr;
 }
 
-std::shared_ptr<class TransformComponent> Entity::GetTransformComponent()
+std::shared_ptr<TransformComponent> Entity::GetTransformComponent()
 {
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Transform) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Transform) {
       return std::static_pointer_cast<TransformComponent>(component);
     }
   }
-  return std::shared_ptr<class TransformComponent>();
+  return std::shared_ptr<TransformComponent>();
 }
 
-std::shared_ptr<class CameraComponent> Entity::GetCameraComponent()
+std::shared_ptr<CameraComponent> Entity::GetCameraComponent()
 {
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Camera) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Camera) {
       return std::static_pointer_cast<CameraComponent>(component);
     }
   }
-  return nullptr;
+  return std::shared_ptr<CameraComponent>();
 }
 
-std::shared_ptr<class MaterialComponent> Entity::GetMaterialComponent(){
+std::shared_ptr<MaterialComponent> Entity::GetMaterialComponent(){
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Material) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Material) {
       return std::static_pointer_cast<MaterialComponent>(component);
     }
   }
-  return nullptr;
+  return std::shared_ptr<MaterialComponent>();
 }
 
 std::shared_ptr<class RenderComponent> Entity::GetRenderComponent()
 {
   for (auto& component : data_->components_) {
-    if (component->GetType() == ComponentType::ComponentType_Render) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Render) {
       return std::static_pointer_cast<RenderComponent>(component);
     }
   }
-  return nullptr;
+  return std::shared_ptr<RenderComponent>();
 }
 
 void Entity::AddRenderComponent() {

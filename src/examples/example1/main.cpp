@@ -6,6 +6,13 @@
 #include "engine/core.h"
 #include "engine/entity.h"
 #include "engine/window.h"
+#include "engine/components/camera_component.h"
+#include "engine/components/mesh_component.h"
+#include "engine/components/material_component.h"
+#include "engine/components/shader_component.h"
+#include "engine/components/transform_component.h"
+#include "engine/components/render_component.h"
+
 
 
 int OpenGLEngine::main(int argc, char** argv)
@@ -55,9 +62,11 @@ int OpenGLEngine::main(int argc, char** argv)
   entity2->AddMeshComponent();
   entity2->AddRenderComponent();
   entity2->AddTransformComponent();
-  entity2->GetMeshComponent()->LoadOBJ("../../data/models/gomorrah/gomorrah.obj");
-  entity2->AddShaderComponent();
   entity2->AddMaterialComponent();
+  entity2->GetMeshComponent()->LoadOBJ("../../data/models/Overlord/Overlord.obj");
+  //entity2->GetMeshComponent()->SetBack(true);
+  //entity2->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+  entity2->AddShaderComponent();
   entity2->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
   entity2->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
   entity2->GetShaderComponent()->ProcessShader();
