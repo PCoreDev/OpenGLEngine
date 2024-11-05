@@ -6,6 +6,8 @@
 #include "glad/glad.h"
 
 #include "engine/entity.h"
+#include "engine/components/material_component.h"
+
 #include "OBJ_Loader/OBJ_Loader.h"
 
 struct MeshData {
@@ -54,103 +56,105 @@ void MeshData::Bind() {
   glVertexArrayAttribBinding(vao, 0, 0);
   glVertexArrayAttribBinding(vao, 1, 1);
   glVertexArrayAttribBinding(vao, 2, 2);
+
+  glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), &vertex_data[0], GL_STATIC_DRAW);
 }
 
 MeshComponent::MeshComponent(std::weak_ptr<Entity> e) {
   this->entity = e;
   this->id = entity.lock()->ID();
   this->type = ComponentType_Mesh;
-  data = std::make_unique<MeshData>();
+  data_ = std::make_unique<MeshData>();
 }
 
 MeshComponent::MeshComponent(const MeshComponent& other){
   this->id = other.id;
   this->type = other.type;
-  data = std::make_unique<MeshData>(*other.data);
+  data_ = std::make_unique<MeshData>(*other.data_);
 }
 
-MeshComponent::MeshComponent(MeshComponent&& other) {
+MeshComponent::MeshComponent(MeshComponent&& other) noexcept  {
   this->id = other.id;
   this->type = other.type;
-  data = std::move(other.data);
+  data_ = std::move(other.data_);
 }
 
-MeshComponent& MeshComponent::operator=(MeshComponent&& other)
+MeshComponent& MeshComponent::operator=(MeshComponent&& other) noexcept
 {
   this->id = other.id;
   this->type = other.type;
-  data = std::move(other.data);
+  data_ = std::move(other.data_);
   return *this;
 }
 
 void MeshComponent::operator=(const MeshComponent& other) {
   this->id = other.id;
   this->type = other.type;
-  data = std::make_unique<MeshData>(*other.data);
+  data_ = std::make_unique<MeshData>(*other.data_);
 }
 
 void MeshComponent::Triangle() {
-  if (data != nullptr) {
-    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
+  if (data_ != nullptr) {
+    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
 
-    data->vertex_data = {
+    data_->vertex_data = {
       -0.5f, -0.5f, 0.0f, // bottom left
       0.5f, -0.5f, 0.0f, // bottom right
       0.0f, 0.5f, 0.0f // top
     };
 
-    data->normal_data = {
+    data_->normal_data = {
       0.0f, 0.0f, 1.0f,
       0.0f, 0.0f, 1.0f,
       0.0f, 0.0f, 1.0f
     };
 
-    data->index_data = {
+    data_->index_data = {
       0, 1, 2
     };
   }
-  data->n_vertex = 3;
-  data->Bind();
+  data_->n_vertex = 3;
+  data_->Bind();
 }
 
 void MeshComponent::Square() {
-  if (data != nullptr) {
-    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
-    data->vertex_data = {
+  if (data_ != nullptr) {
+    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+    data_->vertex_data = {
          -1.0f, 1.0f, 1.0f,
          -1.0f, -1.0f, 1.0f,
          1.0f, -1.0f, 1.0f,
          1.0f, 1.0f, 1.0f
     };
 
-    data->index_data = {
+    data_->index_data = {
         1,0,3,
         3,2,1
     };
 
-    data->normal_data = {
+    data_->normal_data = {
           0.0f, 0.0f, 1.0f,
           0.0f, 0.0f, 1.0f,
           0.0f, 0.0f, 1.0f,
           0.0f, 0.0f, 1.0f
     };
-    data->uv_data = {
+    data_->uv_data = {
            0.0f, 0.0f,
            0.0f, 1.0f,
            1.0f, 1.0f,
            1.0f, 0.0f
     };
 
-    data->n_vertex = 6;
+    data_->n_vertex = 6;
 
   }
-  data->Bind();
+  data_->Bind();
 }
 
 void MeshComponent::SkyBox() {
-  if (data != nullptr) {
-    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
-    data->vertex_data = {
+  if (data_ != nullptr) {
+    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+    data_->vertex_data = {
       //Front
          -1.0f, 1.0f, 1.0f,
          -1.0f, -1.0f, 1.0f,
@@ -188,7 +192,7 @@ void MeshComponent::SkyBox() {
           1.0f, 1.0f, -1.0f
     };
 
-    data->normal_data = {
+    data_->normal_data = {
       //Front
           0.0f, 0.0f, 1.0f,
           0.0f, 0.0f, 1.0f,
@@ -226,7 +230,7 @@ void MeshComponent::SkyBox() {
           0.0f, 1.0f, 0.0f
     };
 
-    data->uv_data = {
+    data_->uv_data = {
       //Front
            0.0f, 0.0f,
            0.0f, 1.0f,
@@ -264,7 +268,7 @@ void MeshComponent::SkyBox() {
            1.0f, 0.0f
     };
 
-    data->index_data = { //counter clockwise
+    data_->index_data = { //counter clockwise
       //Front 0, 1, 2, 3
         0,1,3,
         1,2,3,
@@ -290,16 +294,16 @@ void MeshComponent::SkyBox() {
         21,22,23
     };
 
-    data->n_vertex = 24;
+    data_->n_vertex = 24;
 
-    data->Bind();
+    data_->Bind();
   }
 }
 
 void MeshComponent::Cube() {
-  if (data != nullptr) {
-    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
-    data->vertex_data = {
+  if (data_ != nullptr) {
+    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+    data_->vertex_data = {
       //Front
          -1.0f, 1.0f, 1.0f,
          -1.0f, -1.0f, 1.0f,
@@ -337,7 +341,7 @@ void MeshComponent::Cube() {
           1.0f, 1.0f, -1.0f
     };
 
-    data->normal_data = {
+    data_->normal_data = {
       //Front
           0.0f, 0.0f, 1.0f,
           0.0f, 0.0f, 1.0f,
@@ -375,7 +379,7 @@ void MeshComponent::Cube() {
           0.0f, 1.0f, 0.0f
     };
 
-    data->uv_data = {
+    data_->uv_data = {
       //Front
            0.0f, 0.0f,
            0.0f, 1.0f,
@@ -413,7 +417,7 @@ void MeshComponent::Cube() {
            1.0f, 0.0f
     };
 
-    data->index_data = { //Clockwise
+    data_->index_data = { //Clockwise
       //Front 0, 1, 2, 3
         1,0,3,
         3,2,1,
@@ -439,19 +443,19 @@ void MeshComponent::Cube() {
         23,22,21
     };
 
-    data->n_vertex = 24;
+    data_->n_vertex = 24;
 
-    data->Bind();
+    data_->Bind();
   }
 }
 
 void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int stackCount) {
   double M_PI = 3.14159265358979323846;
-  if (data != nullptr) {
-    if (data->vertex_data.size() != 0) { data->vertex_data.clear(); }
-    if (data->normal_data.size() != 0) { data->normal_data.clear(); }
-    if (data->uv_data.size() != 0) { data->uv_data.clear(); }
-    if (data->index_data.size() != 0) { data->index_data.clear(); }
+  if (data_ != nullptr) {
+    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+    if (data_->normal_data.size() != 0) { data_->normal_data.clear(); }
+    if (data_->uv_data.size() != 0) { data_->uv_data.clear(); }
+    if (data_->index_data.size() != 0) { data_->index_data.clear(); }
 
     std::vector<float> vertices;
     std::vector<float> normals;
@@ -520,137 +524,187 @@ void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int 
     }
 
     // Store data in MeshComponent object
-    data->vertex_data = vertices;
-    data->normal_data = normals;
-    data->uv_data = texCoords;
-    data->index_data = indices;
-    data->n_vertex = static_cast<unsigned int>(vertices.size() / 3);
+    data_->vertex_data = vertices;
+    data_->normal_data = normals;
+    data_->uv_data = texCoords;
+    data_->index_data = indices;
+    data_->n_vertex = static_cast<unsigned int>(vertices.size() / 3);
 
-    data->Bind();
+    data_->Bind();
   }
 }
 
-bool MeshComponent::LoadOBJ(const std::string& path) {
-  FILE* file = fopen(path.c_str(), "r");
-  if (file == NULL) {
-    LOG_F(ERROR, "Impossible to open the file !");
+bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& texture_path) {
+    
+  objl::Loader loader;
+
+  if (!loader.LoadFile(obj_path)) {
+    std::cerr << "Failed to load OBJ file: " << obj_path << std::endl;
     return false;
   }
 
-  int res = 0;
-  do {
-    char lineHeader[128];
-    res = fscanf(file, "%s", lineHeader);
+  // Process loaded vertices, normals, texture coordinates
+  for (const auto& vertex : loader.LoadedVertices) {
+    data_->vertex_data.push_back(vertex.Position.X);
+    data_->vertex_data.push_back(vertex.Position.Y);
+    data_->vertex_data.push_back(vertex.Position.Z);
 
-    if (strcmp(lineHeader, "v") == 0) {
-      glm::vec3 vertex;
-      fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-      data->vertex_data.push_back(vertex.x);
-      data->vertex_data.push_back(vertex.y);
-      data->vertex_data.push_back(vertex.z);
+    data_->normal_data.push_back(vertex.Normal.X);
+    data_->normal_data.push_back(vertex.Normal.Y);
+    data_->normal_data.push_back(vertex.Normal.Z);
+       
+    data_->uv_data.push_back(vertex.TextureCoordinate.X);
+    data_->uv_data.push_back(vertex.TextureCoordinate.Y);
+  }
+
+  // Process indices
+  for (const auto& index : loader.LoadedIndices) {
+    data_->index_data.push_back(index);
+  }
+
+  // Process materials
+
+  if (loader.LoadedMaterials.empty()) {
+    LOG_F(INFO, "No materials loaded");
+  }else{
+    std::shared_ptr<MaterialComponent> material_component = entity.lock()->GetMaterialComponent();
+    if (material_component == nullptr) {
+      LOG_F(ERROR, "Material component not found");
     }
-    else if (strcmp(lineHeader, "vt") == 0) {
-      glm::vec2 uv;
-      fscanf(file, "%f %f\n", &uv.x, &uv.y);
-      data->uv_data.push_back(uv.x);
-      data->uv_data.push_back(uv.y);
+    else {
+      entity.lock()->AddMaterialComponent();
+      material_component = entity.lock()->GetMaterialComponent();
     }
-    else if (strcmp(lineHeader, "vn") == 0) {
-      glm::vec3 normal;
-      fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-      data->normal_data.push_back(normal.x);
-      data->normal_data.push_back(normal.y);
-      data->normal_data.push_back(normal.z);
+
+    if (material_component == nullptr) {
+      LOG_F(ERROR, "Material component not found");
     }
-    else if (strcmp(lineHeader, "f") == 0) {
-      std::string vertex1, vertex2, vertex3;
-      unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-      int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-      if (matches != 9) {
-        printf("File can't be read by our simple parser : ( Try exporting with other options\n");
-        return false;
+    else {
+      for (const auto& material : loader.LoadedMaterials) {
+
+        //remove C:/ a material.map_Ka
+        std::string path = material.map_Ka;
+        path.erase(0, 3);
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
+
+        path = material.map_Kd;
+        path.erase(0, 3);
+
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
+
+        path = material.map_Ks;
+        path.erase(0, 3);
+
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
+
+        path = material.map_Ns;
+        path.erase(0, 3);
+
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
+
+        path = material.map_d;
+        path.erase(0, 3);
+
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
+
+       path = material.map_bump;
+        path.erase(0, 3);
+
+        if (!path.empty()) {
+          material_component->AddNewMaterial(
+            texture_path + path,
+            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
+            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
+            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
+            material.Ns
+          );
+        }
       }
-
-      data->index_data.push_back(vertexIndex[0]);
-      data->index_data.push_back(vertexIndex[1]);
-      data->index_data.push_back(vertexIndex[2]);
-      data->index_uv.push_back(uvIndex[0]);
-      data->index_uv.push_back(uvIndex[1]);
-      data->index_uv.push_back(uvIndex[2]);
-      data->index_normals.push_back(normalIndex[0]);
-      data->index_normals.push_back(normalIndex[1]);
-      data->index_normals.push_back(normalIndex[2]);
     }
-  } while (res != EOF);
+  }
 
-  data->Bind();
-
+  data_->n_vertex = loader.LoadedVertices.size();
+  data_->Bind();
   return true;
-
-  //objl::Loader Loader;
-  //bool loadout = Loader.LoadFile(path);
-  //if (loadout) {
-  //  for (int i = 0; i < Loader.LoadedVertices.size(); i++) {
-  //    data->vertex_data.push_back(Loader.LoadedVertices[i].Position.X);
-  //    data->vertex_data.push_back(Loader.LoadedVertices[i].Position.Y);
-  //    data->vertex_data.push_back(Loader.LoadedVertices[i].Position.Z);
-
-  //    data->normal_data.push_back(Loader.LoadedVertices[i].Normal.X);
-  //    data->normal_data.push_back(Loader.LoadedVertices[i].Normal.Y);
-  //    data->normal_data.push_back(Loader.LoadedVertices[i].Normal.Z);
-
-  //    data->uv_data.push_back(Loader.LoadedVertices[i].TextureCoordinate.X);
-  //    data->uv_data.push_back(Loader.LoadedVertices[i].TextureCoordinate.Y);
-
-  //    data->index_data.push_back(Loader.LoadedIndices[i]);
-
-  //  }
-  //  //entity.lock()->GetMaterialComponent()->LoadTexture("../../data/models/Overlord/lord_head_and_back_BaseColor.jpeg");
-
-  //  data->n_vertex = Loader.LoadedVertices.size();
-  //  data->Bind();
-  //  return true;
-  //}
-
 }
 
 float* MeshComponent::GetVertexData() {
-  if (data->vertex_data.size() > 0) {
+  if (data_->vertex_data.size() > 0) {
     LOG_F(INFO, "Vertex data retrieved");
-    return data->vertex_data.data();
+    return data_->vertex_data.data();
   }
   return nullptr;
 }
 
 size_t MeshComponent::GetVertexSizeb() {
-  if (data->vertex_data.size() > 0) {
+  if (data_->vertex_data.size() > 0) {
     LOG_F(INFO, "Vertex data size retrieved");
-    return data->vertex_data.size() * sizeof(float);
+    return data_->vertex_data.size() * sizeof(float);
   }
   return 0;
 }
 
 size_t MeshComponent::GetVertexCount() {
-  return data->n_vertex;
+  return data_->n_vertex;
 }
 
 unsigned int MeshComponent::GetVAO() {
-  return data->vao;
+  return data_->vao;
 }
 
 unsigned int MeshComponent::GetVBO() {
-  return data->vbo;
+  return data_->vbo;
 }
 
 unsigned int MeshComponent::GetIBO() {
-  return data->ibo;
+  return data_->ibo;
 }
 
 void MeshComponent::SetBack(bool back)
 {
-  data->back = back;
+  data_->back = back;
 }
 
 bool MeshComponent::RenderMode(){
-  return data->back;
+  return data_->back;
 }

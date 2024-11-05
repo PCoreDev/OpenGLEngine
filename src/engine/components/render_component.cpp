@@ -55,12 +55,12 @@ void RenderComponent::Render() {
     //std::shared_ptr<MaterialComponent> material = entity.lock()->GetMaterialComponent();
     std::shared_ptr<MeshComponent> mesh = entity.lock()->GetMeshComponent();
 
-    //if (entity.lock()->GetMeshComponent()->RenderMode()) {
-    //  glCullFace(GL_BACK);
-    //}
-    //else {
-    //  glCullFace(GL_FRONT);
-    //}
+    if (entity.lock()->GetMeshComponent()->RenderMode()) {
+      glCullFace(GL_BACK);
+    }
+    else {
+      glCullFace(GL_FRONT);
+    }
 
     if (shader != nullptr) {
       if (shader->UseShader()) {
@@ -72,6 +72,10 @@ void RenderComponent::Render() {
     /*if (material != nullptr) {
       glBindTexture(GL_TEXTURE_2D, material->GetTexture(material->GetTextureLength()));
     }*/
+
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Set to wireframe
+    // Render your model here
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to normal fill
 
     if (mesh != nullptr) {
       glBindVertexArray(mesh->GetVAO());

@@ -10,16 +10,16 @@ public:
   MeshComponent() = default;
   MeshComponent(std::weak_ptr<Entity> entity);
   MeshComponent(const MeshComponent& other);
-  MeshComponent(MeshComponent&& other);
+  MeshComponent(MeshComponent&& other) noexcept;
   ~MeshComponent() = default;
-  MeshComponent& operator=(MeshComponent&& other);
+  MeshComponent& operator=(MeshComponent&& other) noexcept;
   void operator=(const MeshComponent& other);
   void Triangle();
   void Square();
   void Cube();
   void SkyBox();
   void Sphere(float radius, unsigned int sectorCount, unsigned int stackCount);
-  bool LoadOBJ(const std::string& path);
+  bool LoadOBJ(const std::string& obj_path, const std::string& texture_path);
   float* GetVertexData();
   size_t GetVertexSizeb();
   size_t GetVertexCount();
@@ -30,7 +30,7 @@ public:
   bool RenderMode();
 
 private:
-  std::unique_ptr<class MeshData> data;
+  std::unique_ptr<class MeshData> data_;
 };
 
 
