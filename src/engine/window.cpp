@@ -7,8 +7,12 @@
 #include <iostream>
 
 
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
+
+
 
 #include "loguru/loguru.hpp"
 
@@ -19,20 +23,22 @@ namespace OpenGLEngine
   void framebuffer_size_callback(GLFWwindow* window, int width, int height)
   {
     glViewport(0, 0, width, height);
-    LOG_F(INFO, "Window size changed to %d x %d", width, height);
+    //LOG_F(INFO, "FrameBuffer size changed to %d x %d", width, height);
   }
 
-  void window_size_callback(GLFWwindow* window, int width, int height)
-  {
-    glfwSetWindowSize(window, width, height);
-    LOG_F(INFO, "Window size changed to %d x %d", width, height);
-  }
+  //void window_size_callback(GLFWwindow* window, int width, int height)
+  //{
+  //  glfwSetWindowSize(window, width, height);
+  //  //LOG_F(INFO, "Window size changed to %d x %d", width, height);
+  //}
 
   struct WData {
 
     std::string name;
-    unsigned int width;
-    unsigned int height;
+    int width, height;
+
+    int framebuffer_width, framebuffer_height;
+
     GLFWwindow* window;
     bool close = false;
 
@@ -45,13 +51,6 @@ namespace OpenGLEngine
         return false;
       }
 
-      //Adding viewport
-      glViewport(0, 0, width, height);
-
-      glEnable(GL_CULL_FACE);
-      glEnable(GL_DEPTH_TEST);
-      glCullFace(GL_FRONT);
-
       return true;
     }
   };
@@ -62,6 +61,8 @@ namespace OpenGLEngine
     wdata_->name = "OpenGL Engine";
     wdata_->width = 800;
     wdata_->height = 600;
+    wdata_->framebuffer_width = 0;
+    wdata_->framebuffer_width = 0;
   }
 
   Window::Window(std::string name, int width, int height)
@@ -90,18 +91,40 @@ namespace OpenGLEngine
     if (wdata_->window == NULL)
     {
       //std::cout << "Failed to create GLFW window" << std::endl;
-      LOG_F(INFO, "Failed to create GLFW window");
+      LOG_F(ERROR, "Failed to create GLFW window");
       glfwTerminate();
       return false;
     }
 
     LOG_F(INFO, "Succeed to create GLFW window");
+
     glfwSetInputMode(wdata_->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
+    //glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
     glfwSetFramebufferSizeCallback(wdata_->window, framebuffer_size_callback);
 
-    return wdata_->CreateOpenGLContext();
+    glfwMakeContextCurrent(wdata_->window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+      LOG_F(ERROR, "Failed to initialize GLAD");
+      return false;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  
+
+    return true;
   }
 
   void* Window::GetWindow() const

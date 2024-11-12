@@ -5,6 +5,7 @@
 
 #include "engine/core.h"
 #include "engine/window.h"
+#include "engine/shader.h"
 #include "engine/command.h"
 #include "engine/component.h"
 
@@ -24,7 +25,8 @@ namespace OpenGLEngine {
   namespace Engine {
 
     std::unique_ptr<EntityManager> Core::entity_manager_ = nullptr;
-    std::shared_ptr<CameraComponent> Core::camera_;
+    std::shared_ptr<CameraComponent> Core::camera_ = nullptr;
+    std::shared_ptr<Shader> Core::shader_ = nullptr;
     
 
     struct Core::CoreData {
@@ -40,16 +42,17 @@ namespace OpenGLEngine {
       std::shared_ptr<EngineInput> input;
       void InitGLFW() {
         glfwInit();
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        
       }
     };
 
     Core::Core() {
       data_ = std::make_unique<CoreData>();
       data_->window = std::make_unique<Window>();
+      shader_ = std::make_shared<Shader>();
       entity_manager_ = std::make_unique<EntityManager>();
       data_->display_list = std::make_unique<DisplayList>();
       data_->input = std::make_shared<EngineInput>();
@@ -61,16 +64,23 @@ namespace OpenGLEngine {
     Core::~Core() {}
 
     bool Core::InitializeCore() {
+      bool state = true;
       data_->InitGLFW();
       data_->window->SetWindowData("OpenGL Engine", 1280, 720); //TODO: Change this to a config file
       if (!data_->window->InitWindow()) {
-        return false;
+        state = false;
       }
       data_->input->BindCallbacks(data_->window->GetWindow());
-      return true;
+
+      if (!shader_->LoadShader()) {
+        state = false;
+      }
+
+      return state;
     }
 
     void Core::DeinitializeCore() {
+      glfwDestroyWindow(static_cast<GLFWwindow*>(data_->window->GetWindow()));
       glfwTerminate();
     }
 
@@ -88,6 +98,7 @@ namespace OpenGLEngine {
 
     void Core::BufferHandler() {
       data_->window->SwapBuffers();
+      glFlush();
     }
 
     void Core::EventsHandler() {

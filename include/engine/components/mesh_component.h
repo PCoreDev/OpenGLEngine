@@ -20,6 +20,8 @@ public:
   void SkyBox();
   void Sphere(float radius, unsigned int sectorCount, unsigned int stackCount);
   bool LoadOBJ(const std::string& obj_path, const std::string& texture_path);
+
+
   float* GetVertexData();
   size_t GetVertexSizeb();
   size_t GetVertexCount();
@@ -28,6 +30,8 @@ public:
   unsigned int GetIBO();
   void SetBack(bool back);
   bool RenderMode();
+
+  void CleanUp();
 
 private:
   std::unique_ptr<class MeshData> data_;

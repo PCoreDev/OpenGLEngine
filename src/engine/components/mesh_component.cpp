@@ -534,6 +534,61 @@ void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int 
   }
 }
 
+/*void loadOBJ(const std::string& filename, std::vector<Mesh>& meshes, std::vector<Material>& materials) {
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> objMaterials;
+
+    std::string err;
+    if (!tinyobj::LoadObj(&attrib, &shapes, &objMaterials, &err, filename.c_str())) {
+        std::cerr << "Error loading OBJ file: " << err << std::endl;
+        return;
+    }
+
+    // Load each shape as a mesh
+    for (size_t s = 0; s < shapes.size(); s++) {
+        Mesh mesh;
+
+        // Load vertex data (positions, normals, texcoords)
+        for (size_t v = 0; v < shapes[s].mesh.indices.size(); v++) {
+            tinyobj::index_t idx = shapes[s].mesh.indices[v];
+
+            // Extract vertices, normals, texture coords, and create the Mesh
+            mesh.vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
+            mesh.vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
+            mesh.vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+
+            // If texture coords exist
+            if (idx.texcoord_index >= 0) {
+                mesh.vertices.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
+                mesh.vertices.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
+            }
+
+            // Add index
+            mesh.indices.push_back(v);
+        }
+
+        // Setup mesh buffers (VAO, VBO, EBO)
+        mesh.setupMesh();
+        meshes.push_back(mesh);
+        
+        // Load the material for this mesh
+        tinyobj::material_t mat = objMaterials[s]; // Get the corresponding material
+
+        // Check if the material has a diffuse texture
+        if (!mat.diffuse_texname.empty()) {
+            Texture tex;
+            tex.id = loadTexture(mat.diffuse_texname);  // Load the texture using stb_image
+            tex.type = "diffuse";
+            tex.path = mat.diffuse_texname;
+            
+            Material material(glm::vec3(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]), tex);
+            materials.push_back(material);
+        }
+    }
+}*/
+
+
 bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& texture_path) {
     
   objl::Loader loader;
@@ -582,89 +637,42 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
     else {
       for (const auto& material : loader.LoadedMaterials) {
 
-        //remove C:/ a material.map_Ka
         std::string path = material.map_Ka;
         path.erase(0, 3);
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
+        material_component->AddTexture(texture_path + path);
 
         path = material.map_Kd;
         path.erase(0, 3);
-
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
+        material_component->AddTexture(texture_path + path);
 
         path = material.map_Ks;
         path.erase(0, 3);
-
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
+        material_component->AddTexture(texture_path + path);
 
         path = material.map_Ns;
         path.erase(0, 3);
-
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
+        material_component->AddTexture(texture_path + path);
 
         path = material.map_d;
         path.erase(0, 3);
+        material_component->AddTexture(texture_path + path);
 
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
-
-       path = material.map_bump;
+        path = material.map_bump;
         path.erase(0, 3);
-
-        if (!path.empty()) {
-          material_component->AddNewMaterial(
-            texture_path + path,
-            glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z),
-            glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z),
-            glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z),
-            material.Ns
-          );
-        }
+        material_component->AddTexture(texture_path + path);
+        
+        material_component->SetAmbient(glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z));
+        material_component->SetDiffuse(glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z));
+        material_component->SetSpecular(glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z));
+        material_component->SetShininess(material.Ns);
       }
+      material_component->Process();
     }
   }
 
   data_->n_vertex = loader.LoadedVertices.size();
   data_->Bind();
+
   return true;
 }
 
@@ -707,4 +715,13 @@ void MeshComponent::SetBack(bool back)
 
 bool MeshComponent::RenderMode(){
   return data_->back;
+}
+
+void MeshComponent::CleanUp(){
+  glDeleteBuffers(1, &data_->vbo);
+  glDeleteBuffers(1, &data_->nbo);
+  glDeleteBuffers(1, &data_->ubo);
+  glDeleteBuffers(1, &data_->ibo);
+  glDeleteVertexArrays(1, &data_->vao);
+  data_.reset();
 }

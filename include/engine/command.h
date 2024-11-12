@@ -24,6 +24,8 @@ struct ClearCommand : public Command {
   float r, g, b, a;
 };
 
+
+
 struct DrawCommand : public Command{
   DrawCommand(Entity& e);
   void Execute() override;

@@ -6,4 +6,7 @@ echo "">..\bin\.ignore.me
 echo "">..\build\.ignore.me
 premake5.exe vs2022
 copy ..\deps\openal-soft\OpenAL\bin\Win64\soft_oal.dll ..\bin\example\example1\
+copy ..\deps\glew-2.1.0\bin\Release\x64\glew32.dll ..\bin\example\example1\
+
+
 start ..\build\solution\Engine.sln

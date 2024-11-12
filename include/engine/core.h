@@ -11,6 +11,7 @@
 #include "engine/entity_manager.h"
 #include "engine/components/camera_component.h"
 #include "engine/engine_input.h"
+#include "engine/shader.h"
 
 static float delta_time;
 
@@ -39,6 +40,7 @@ namespace OpenGLEngine {
 
       static std::unique_ptr<EntityManager> entity_manager_;
       static std::shared_ptr<CameraComponent> camera_;
+      static std::shared_ptr<Shader> shader_;
 
     private:             
       struct CoreData;

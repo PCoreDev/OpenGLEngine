@@ -5,18 +5,40 @@
 
 
 struct ShaderComponent : public Component {
-  //ShaderComponent() = default;
+
+  enum ShaderType {
+    Vertex,
+    Fragment,
+    Geometry,
+    MAX
+  };
+
+  ShaderComponent() = default;
   ShaderComponent(std::weak_ptr<Entity> entity);
-  //ShaderComponent(const ShaderComponent&);
-  //void operator=(const ShaderComponent& other);
-  void SetVertexShaderPath(const std::string& path);
-  void SetFragmentShaderPath(const std::string& path);
-  void SetGeometryShaderPath(const std::string& path);
-  std::string LoadShader(const std::string& path, std::string& shader_code);
-  int ProcessShader();
-  void SetUniforms();
-  int GetShaderProgram();
-  bool UseShader();
+  ShaderComponent(const ShaderComponent& other);
+  ShaderComponent(ShaderComponent&& other) noexcept;
+  void operator=(const ShaderComponent& other);
+  ShaderComponent& operator=(ShaderComponent&& other) noexcept;
+
+  void SetEnable(bool enable);
+  void SetBool(const std::string& name, bool value) const;
+  void SetInt(const std::string& name, int value) const;
+  void SetFloat(const std::string& name, float value) const;
+  void SetVec3(const std::string& name, glm::vec3 value) const;
+  void SetMat4(const std::string& name, glm::mat4 value) const;
+  void SetTexture(const std::string& name, int value) const;
+
+  int GetProgram();
+
+  bool Enable();
+
+  void UseProgram();
+
+
+  bool LoadShader(std::string path, ShaderType type);
+  std::string ReadFile(const std::string& path);
+  unsigned int CompileShader(std::string& shader_code, ShaderType type); 
+  bool LinkProgram(bool core = false);
 
   std::unique_ptr<class ShaderData> data;
 };

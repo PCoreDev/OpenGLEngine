@@ -30,13 +30,15 @@ int OpenGLEngine::main(int argc, char** argv)
   entity1->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
   entity1->GetTransformComponent()->SetScale(glm::vec3(100.0f, 100.0f, 100.0f));
   entity1->GetMeshComponent()->Square();
-  entity1->AddShaderComponent();
-  entity1->AddMaterialComponent();
-  entity1->GetMaterialComponent()->AddNewMaterial("../../data/textures/wood.jpg", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 0.0f);
-  entity1->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-  entity1->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-  entity1->GetShaderComponent()->ProcessShader();
-
+  //entity1->AddShaderComponent();
+  //entity1->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.vert", ShaderComponent::Vertex);
+  //entity1->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.frag", ShaderComponent::Fragment);
+  //entity1->AddMaterialComponent();
+  //entity1->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+  //entity1->GetShaderComponent()->SetTexture("texture_sampler", 0);
+  //entity1->GetShaderComponent()->SetMat4("model_matrix", entity1->GetTransformComponent()->GetModelMatrix());
+  //entity1->GetShaderComponent()->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+  //entity1->GetShaderComponent()->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
   
   int num_cubes = 3;
   for (int i = 0; i < num_cubes; i++) {
@@ -48,12 +50,15 @@ int OpenGLEngine::main(int argc, char** argv)
         entity->AddTransformComponent();
         entity->GetTransformComponent()->SetPosition(glm::vec3(i * 10.0f, j * 10.0f, z * 10.0f));
         entity->GetMeshComponent()->Cube();
-        entity->AddShaderComponent();
         entity->AddMaterialComponent();
-        entity->GetMaterialComponent()->AddNewMaterial("../../data/textures/wood.jpg", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 0.0f);
-        entity->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-        entity->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-        entity->GetShaderComponent()->ProcessShader();
+        entity->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+        entity->AddShaderComponent();
+        entity->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.vert", ShaderComponent::Vertex);
+        entity->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.frag", ShaderComponent::Fragment);
+        //entity->GetShaderComponent()->SetTexture("texture_sampler", 0);
+        //entity->GetShaderComponent()->SetMat4("model_matrix", entity->GetTransformComponent()->GetModelMatrix());
+        //entity->GetShaderComponent()->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+        //entity->GetShaderComponent()->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
       }
     }
   }
@@ -67,11 +72,15 @@ int OpenGLEngine::main(int argc, char** argv)
   entity2->AddMaterialComponent();
   entity2->GetMeshComponent()->LoadOBJ("../../data/models/Overlord/Overlord.obj", "../../data/models/Overlord/textures/");
   entity2->GetMeshComponent()->SetBack(true);
-  entity2->GetMaterialComponent()->LoadTexture(0, "../../data/textures/wood.jpg");
-  entity2->AddShaderComponent();
-  entity2->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-  entity2->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-  entity2->GetShaderComponent()->ProcessShader();
+  entity2->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+  /*entity2->AddShaderComponent();
+  
+  entity2->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.vert", ShaderComponent::Vertex);
+  entity2->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.frag", ShaderComponent::Fragment);*/
+  //entity2->GetShaderComponent()->SetTexture("texture_sampler", 0);
+  //entity2->GetShaderComponent()->SetMat4("model_matrix", entity2->GetTransformComponent()->GetModelMatrix());
+  //entity2->GetShaderComponent()->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+  //entity2->GetShaderComponent()->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
 
   std::shared_ptr<Entity> entity3 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   entity3->AddMeshComponent();
@@ -82,12 +91,14 @@ int OpenGLEngine::main(int argc, char** argv)
   entity3->AddMaterialComponent();
   entity3->GetMeshComponent()->LoadOBJ("../../data/models/gomorrah/gomorrah.obj", "../../data/models/gomorrah/");
   entity3->GetMeshComponent()->SetBack(true);
-  entity3->GetMaterialComponent()->LoadTexture(0, "../../data/textures/wood.jpg");
-  entity3->AddShaderComponent();
-  entity3->GetShaderComponent()->SetVertexShaderPath("../../src/engine/shaders/default3D.vert");
-  entity3->GetShaderComponent()->SetFragmentShaderPath("../../src/engine/shaders/default3D.frag");
-  entity3->GetShaderComponent()->ProcessShader();
-
+  entity3->GetMaterialComponent()->LoadTexture("../../data/textures/wood.jpg");
+ /* entity3->AddShaderComponent();
+  entity3->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.vert", ShaderComponent::Vertex);
+  entity3->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.frag", ShaderComponent::Fragment);*/
+  //entity3->GetShaderComponent()->SetTexture("texture_sampler", 0);
+  //entity3->GetShaderComponent()->SetMat4("model_matrix", entity3->GetTransformComponent()->GetModelMatrix());
+  //entity3->GetShaderComponent()->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+  //entity3->GetShaderComponent()->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
 
   return 0;
 }

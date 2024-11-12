@@ -2,7 +2,7 @@ workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
 location "../build/solution"
-libdirs{"../deps/openAL/libs/Win64"}
+libdirs{"../deps/openAL/libs/Win64", "../deps/glew-2.1.0/lib/Release/x64"}
 includedirs {
 --GLFW
 "../deps/GLFW/include",
@@ -30,7 +30,9 @@ includedirs {
 --Tiny OBJ
 "../deps/tinyObjLoader",
 --Minitrace
-"../deps/minitrace"}
+"../deps/minitrace",
+--GLEW
+"../deps/glew-2.1.0/include"}
 
 platforms { "Win32", "Win64", "Unix32", "Unix64", "MacOS" }
 startproject "Example1"
@@ -100,30 +102,30 @@ filter "configurations:Release"
     symbols "Off"
     optimize "On"
 
-filter{"platforms:Win32"}
-    system "windows"
-    architecture "x86"
-    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
+--filter{"platforms:Win32"}
+--    system "windows"
+--    architecture "x86"
+--    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
 
 filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
     defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
 
-filter{"platforms:Unix32"}
-    system "linux"
-    architecture "x86"
-    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
+--filter{"platforms:Unix32"}
+--    system "linux"
+--    architecture "x86"
+--    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
 
-filter{"platforms:Unix64"}
-    system "linux"
-    architecture "x64"
-    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
+--filter{"platforms:Unix64"}
+--    system "linux"
+--    architecture "x64"
+--    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
 
-filter{"platforms:MacOS"}
-    system "macosx"
-    architecture "x64"
-    defines { "_GLFW_COCOA"}
+--filter{"platforms:MacOS"}
+--    system "macosx"
+--    architecture "x64"
+--    defines { "_GLFW_COCOA"}
 
 project "Engine"
     configmap{
@@ -158,27 +160,27 @@ filter "configurations:Release"
     symbols "Off"
     optimize "On"
 
-filter{"platforms:Win32"}
-    system "windows"
-    architecture "x86"
-    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
+--filter{"platforms:Win32"}
+--    system "windows"
+--    architecture "x86"
+--    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
 
 filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
     defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
 
-filter{"platforms:Unix32"}
-    system "linux"
-    architecture "x86"
+--filter{"platforms:Unix32"}
+--    system "linux"
+--    architecture "x86"
 
-filter{"platforms:Win64"}
-    system "linux"
-    architecture "x64"
+--filter{"platforms:Win64"}
+--    system "linux"
+--    architecture "x64"
 
-filter{"platforms:MacOS"}
-    system "macosx"
-    architecture "x64"
+--filter{"platforms:MacOS"}
+--    system "macosx"
+--    architecture "x64"
 
 project "Example1"
     configmap{
