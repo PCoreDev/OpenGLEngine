@@ -99,6 +99,12 @@ namespace OpenGLEngine {
     void Core::BufferHandler() {
       data_->window->SwapBuffers();
       glFlush();
+
+      //TODO Change this to a function
+      glBindVertexArray(0);
+      glUseProgram(0);
+      glActiveTexture(0);
+      glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void Core::EventsHandler() {

@@ -74,7 +74,6 @@ void Shader::SetMat4(const std::string& name, glm::mat4 value) const{
 void Shader::SetTexture(const std::string& name, int value) const {
   int found = glGetUniformLocation(data_->shader_program, name.c_str());
   if (found != -1) {
-    glActiveTexture(GL_TEXTURE0 + value);
     glUniform1i(found, value);
   }
   else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }

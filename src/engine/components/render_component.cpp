@@ -67,16 +67,28 @@ void RenderComponent::Render() {
     //}
 
     if (shader != nullptr && shader->Enable()) {
-      shader->UseProgram();
+
+       shader->UseProgram();
+
+       entity.lock()->GetMaterialComponent()->BindTextures();
+
+      for (int i = 0; i < entity.lock()->GetMaterialComponent()->GetNumberOfTextures(); i++) {
+       shader->SetTexture("texture_sampler_" + std::to_string(i), i);
+      }
+       shader->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
+       shader->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+       shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
     }
     else {
       OpenGLEngine::Engine::Core::shader_->UseProgram();
+      entity.lock()->GetMaterialComponent()->BindTextures();
+      for (int i = 0; i < entity.lock()->GetMaterialComponent()->GetNumberOfTextures(); i++) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("texture_sampler_" + std::to_string(i), i);
+      }
+      OpenGLEngine::Engine::Core::shader_->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
+      OpenGLEngine::Engine::Core::shader_->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+      OpenGLEngine::Engine::Core::shader_->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
     }
-
-    //OpenGLEngine::Engine::Core::shader_->SetTexture("texture_sampler", 0);
-    OpenGLEngine::Engine::Core::shader_->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
-    OpenGLEngine::Engine::Core::shader_->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
-    OpenGLEngine::Engine::Core::shader_->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
 
     if (EngineInput::IsKeyPressed(EngineInput::kKeyNames_F13)) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

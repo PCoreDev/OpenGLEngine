@@ -5,28 +5,6 @@
 #include <vector>
 #include <memory>
 
-
-//class MaterialComponent : public Component {
-//public:
-//  MaterialComponent() = default;
-//  MaterialComponent(std::weak_ptr<class Entity> entity);
-//  ~MaterialComponent() = default;
-//  MaterialComponent(const MaterialComponent&);
-//  MaterialComponent& operator=(const MaterialComponent& other);
-//  MaterialComponent(MaterialComponent&& other) noexcept;
-//  MaterialComponent& operator=(MaterialComponent&&) noexcept;
-//  void LoadTexture(const std::string& path);
-//  void LoadBMP_custom(const std::string& imagepath);
-//  unsigned int GetTexture(int n);
-//  unsigned int GetTextureLength();
-//  void Process(class MaterialData* data);
-//
-//private:
-//  std::vector<std::unique_ptr<class MaterialData>> textures;
-//};
-//
-//
-
 class MaterialComponent : public Component {
 public:
   MaterialComponent() = default;
@@ -43,7 +21,7 @@ public:
   //int LoadBPM(const std::string& path);
 
   //size_t GetNumbersOfTextures();
-  unsigned int GetTexture();
+  unsigned int GetTexture(int n);
 
   void SetAmbient(const float ambient_x, float ambient_y, float ambient_z);
   void SetAmbient(const float ambient[3]);
@@ -59,15 +37,17 @@ public:
 
   void SetShininess(float shininess);
 
- // void AddNewMaterial(std::string path, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shinisses);
-
   void ProcessAllMaterials();
 
   void LoadTexture(const std::string& path);
 
-  void AddTexture(const std::string& path);
+  int GetNumberOfTextures();
 
-  void Process();
+  void BindTextures();
+
+  //void AddTexture(const std::string& path);
+
+  
 
 private:
   std::unique_ptr<class MaterialData> data_;

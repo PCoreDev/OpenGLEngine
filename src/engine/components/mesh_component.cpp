@@ -636,37 +636,23 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
     }
     else {
       for (const auto& material : loader.LoadedMaterials) {
-
         std::string path = material.map_Ka;
+        std::string full_path = texture_path + path;
         path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-
-        path = material.map_Kd;
-        path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-
-        path = material.map_Ks;
-        path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-
-        path = material.map_Ns;
-        path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-
-        path = material.map_d;
-        path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-
-        path = material.map_bump;
-        path.erase(0, 3);
-        material_component->AddTexture(texture_path + path);
-        
-        material_component->SetAmbient(glm::vec3(material.Ka.X, material.Ka.Y, material.Ka.Z));
-        material_component->SetDiffuse(glm::vec3(material.Kd.X, material.Kd.Y, material.Kd.Z));
-        material_component->SetSpecular(glm::vec3(material.Ks.X, material.Ks.Y, material.Ks.Z));
-        material_component->SetShininess(material.Ns);
+        if (path != "") {
+         // int n = material_component->AddNewMaterial();
+          material_component->LoadTexture(full_path);
+          
+          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
+          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
+          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
+          material_component->SetShininess(material.Ns);
+          
+          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+        }
       }
-      material_component->Process();
+      material_component->ProcessAllMaterials();
     }
   }
 
