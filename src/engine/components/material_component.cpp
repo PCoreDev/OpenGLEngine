@@ -9,24 +9,41 @@
 #include "stb_image/stb_image.h"
 
 #include "engine/entity.h"
+#include "engine/components/shader_component.h"
+#include "engine/core.h"
+
+#include <map>
 
 struct Texture {
-  GLuint tex_id;
+  GLuint id;
   int width, height, n_channels;
-  unsigned char* tex_data;
+  unsigned int type;
+  GLint texture_unit;
+  unsigned char* data;
+  std::map<MaterialComponent::TextureType, int> texture_map = {
+    {MaterialComponent::TextureType::Texture1D, GL_TEXTURE_1D},
+    {MaterialComponent::TextureType::Texture2D, GL_TEXTURE_2D},
+    {MaterialComponent::TextureType::Texture3D, GL_TEXTURE_3D},
+    {MaterialComponent::TextureType::Texture1DArray, GL_TEXTURE_1D_ARRAY},
+    {MaterialComponent::TextureType::Texture2DArray, GL_TEXTURE_2D_ARRAY},
+    {MaterialComponent::TextureType::TextureRectangle, GL_TEXTURE_RECTANGLE},
+    {MaterialComponent::TextureType::TextureCubeMap, GL_TEXTURE_CUBE_MAP},
+    {MaterialComponent::TextureType::TextureCubeMapArray, GL_TEXTURE_CUBE_MAP_ARRAY},
+    {MaterialComponent::TextureType::TextureBuffer, GL_TEXTURE_BUFFER},
+    {MaterialComponent::TextureType::Texture2DMultisample, GL_TEXTURE_2D_MULTISAMPLE},
+    {MaterialComponent::TextureType::Texture2DMultisampleArray, GL_TEXTURE_2D_MULTISAMPLE_ARRAY}
+  };
   void Process();
 };
 
 struct MaterialData {
-  //GLuint tex_id;
-  //int width, height, n_channels;
-  //unsigned char* tex_data;
   std::vector<std::shared_ptr<Texture>> textures;
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
   float shininess;
 };
+
 
 MaterialComponent::MaterialComponent(std::weak_ptr<class Entity> entity) {
   this->entity = entity;
@@ -72,9 +89,34 @@ MaterialComponent& MaterialComponent::operator=(MaterialComponent&& other) noexc
   return *this;
 }
 
-unsigned int MaterialComponent::GetTexture(int n) {
-  return data_->textures[n]->tex_id;
+void MaterialComponent::SendToShader()
+{
+  std::shared_ptr<ShaderComponent> shader = entity.lock()->GetShaderComponent();
+  if (shader != nullptr) {
+    shader->SetVec3("material.ambient", data_->ambient);
+    shader->SetVec3("material.diffuse", data_->diffuse);
+    shader->SetVec3("material.specular", data_->specular);
+    //shader->SetFloat("material.shininess", data_->shininess);
+    if (data_->textures.size() > 0 && data_->textures[0] != nullptr)
+    shader->SetTexture("material.tex_diffuse", GetTextureID(0));
+    if (data_->textures.size() > 1 && data_->textures[1] != nullptr)
+      shader->SetTexture("material.tex_specular", GetTextureID(1));
+  }
+  else {
+    OpenGLEngine::Engine::Core::shader_->SetVec3("material.ambient", data_->ambient);
+    OpenGLEngine::Engine::Core::shader_->SetVec3("material.diffuse", data_->diffuse);
+    OpenGLEngine::Engine::Core::shader_->SetVec3("material.specular", data_->specular);
+    //OpenGLEngine::Engine::Core::shader_->SetFloat("material.shininess", data_->shininess);
+    if (data_->textures.size() > 0 && data_->textures[0] != nullptr)
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.tex_diffuse", GetTextureID(0));
+    if (data_->textures.size() > 1 && data_->textures[1] != nullptr)
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.tex_specular", GetTextureID(1));
+  }
+
+  BindTextures();
 }
+
+//Setters
 
 void MaterialComponent::SetAmbient(const float ambient_x, float ambient_y, float ambient_z){
   data_->ambient = glm::vec3(ambient_x, ambient_y, ambient_z);
@@ -104,32 +146,64 @@ void MaterialComponent::SetShininess(float shininess) {
   data_->shininess = shininess;
 }
 
-void MaterialComponent::ProcessAllMaterials(){
+//Getters
 
+glm::vec3 MaterialComponent::GetAmbient() const {
+  return data_->ambient;
 }
 
-void MaterialComponent::LoadTexture(const std::string& path) {
+glm::vec3 MaterialComponent::GetDiffuse() const {
+  return data_->diffuse;
+}
+
+glm::vec3 MaterialComponent::GetSpecular() const {
+  return data_->specular;
+}
+
+float MaterialComponent::GetShininess() const {
+  return data_->shininess;
+}
+
+//Texture
+
+unsigned int MaterialComponent::GetTextureID(int n)
+{
+  return data_->textures[n]->id;
+}
+
+void MaterialComponent::LoadTexture(const std::string& path, TextureType type) {
   Texture texture;
-  texture.tex_data = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.n_channels, 0);
-  data_->textures.push_back(std::make_shared<Texture>(texture));
-    if (data_->textures.back()->tex_data) {
-      LOG_F(INFO, "Texture loaded correctly: %s", path.c_str());
-      data_->textures.back()->Process();
-    }
-    else {
-      LOG_F(ERROR, "Failed to load texture: %s", path.c_str());
-    }
+  texture.texture_unit = data_->textures.size() + 1;
+
+  auto it = texture.texture_map.find(type);
+  if (it != texture.texture_map.end()) {
+    texture.type = it->second;
+  }
+  else {
+    LOG_F(ERROR, "Texture type not found");
+  }
+
+  texture.data = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.n_channels, 0);
+
+  if (texture.data != nullptr) {
+    texture.Process();
+    data_->textures.push_back(std::make_shared<Texture>(texture));
+    
+    LOG_F(INFO, "Texture loaded correctly: %s", path.c_str());
+  }
+  else {
+    LOG_F(ERROR, "Failed to load texture: %s", path.c_str());
+  }
 }
 
 int MaterialComponent::GetNumberOfTextures() {
   return data_->textures.size();
 }
 
-void MaterialComponent::BindTextures()
-{
-  for (int i = 0; i < data_->textures.size(); i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
-    glBindTexture(GL_TEXTURE_2D, data_->textures[i]->tex_id);
+void MaterialComponent::BindTextures() {
+  for each (std::shared_ptr<Texture> tex in data_->textures){
+    glActiveTexture(GL_TEXTURE0 + tex->texture_unit);
+    glBindTexture(GL_TEXTURE_2D, tex->id);
   }
 }
 
@@ -208,18 +282,51 @@ void MaterialComponent::BindTextures()
 //  }
 //}
 
-void Texture::Process() {
-  glGenTextures(1, &tex_id);
-  glBindTexture(GL_TEXTURE_2D, tex_id);
+//void Texture::Process() {
+//  glGenTextures(1, &tex_id);
+//  glBindTexture(GL_TEXTURE_2D, tex_id);
+//
+//  if (n_channels == 2) {
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, tex_data);
+//  }
+//  else if (n_channels == 3) {
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+//  }
+//  else if (n_channels == 4) {
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+//  }
+//  glGenerateMipmap(GL_TEXTURE_2D);
+//
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+// 
+// 
+// 
+//  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+// 
+// 
+//  glActiveTexture(0);
+//  glBindTexture(GL_TEXTURE_2D, 0);
+//
+//  stbi_image_free(tex_data);
+//}
+
+void Texture::Process()
+{
+  glGenTextures(1, &id);
+  glBindTexture(GL_TEXTURE_2D, id);
 
   if (n_channels == 2) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, tex_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
   }
   else if (n_channels == 3) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
   }
   else if (n_channels == 4) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -227,15 +334,15 @@ void Texture::Process() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- 
- 
- 
+
+
+
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
- 
- 
+
+
   glActiveTexture(0);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  stbi_image_free(tex_data);
+  stbi_image_free(data);
 }

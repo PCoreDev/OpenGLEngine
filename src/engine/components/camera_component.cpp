@@ -194,5 +194,9 @@ float CameraComponent::GetFOV() { return data->fov; }
 glm::mat4 CameraComponent::GetViewMatrix() { return data->camera_view_matrix; }
 
 glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matrix; }
+glm::vec3 CameraComponent::GetPosition()
+{
+    return data->camera_position;
+}
 //
 //glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }

@@ -69,26 +69,32 @@ void RenderComponent::Render() {
     if (shader != nullptr && shader->Enable()) {
 
        shader->UseProgram();
-
-       entity.lock()->GetMaterialComponent()->BindTextures();
-
-      for (int i = 0; i < entity.lock()->GetMaterialComponent()->GetNumberOfTextures(); i++) {
-       shader->SetTexture("texture_sampler_" + std::to_string(i), i);
-      }
+       //entity.lock()->GetMaterialComponent()->BindTextures();
        shader->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
+
        shader->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
        shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
+
+       entity.lock()->GetMaterialComponent()->SendToShader();
+
+       OpenGLEngine::Engine::Core::shader_->SetVec3("light_position", glm::vec3(0.0f, 0.0f, 1.0f));
+       OpenGLEngine::Engine::Core::shader_->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
     }
     else {
       OpenGLEngine::Engine::Core::shader_->UseProgram();
-      entity.lock()->GetMaterialComponent()->BindTextures();
-      for (int i = 0; i < entity.lock()->GetMaterialComponent()->GetNumberOfTextures(); i++) {
-        OpenGLEngine::Engine::Core::shader_->SetTexture("texture_sampler_" + std::to_string(i), i);
-      }
+      //entity.lock()->GetMaterialComponent()->BindTextures();
+
       OpenGLEngine::Engine::Core::shader_->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
+
       OpenGLEngine::Engine::Core::shader_->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
       OpenGLEngine::Engine::Core::shader_->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
+
+      OpenGLEngine::Engine::Core::shader_->SetVec3("light_position", glm::vec3(0.0f, 0.0f, 1.0f));
+      OpenGLEngine::Engine::Core::shader_->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
+
+      entity.lock()->GetMaterialComponent()->SendToShader();
     }
+
 
     if (EngineInput::IsKeyPressed(EngineInput::kKeyNames_F13)) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

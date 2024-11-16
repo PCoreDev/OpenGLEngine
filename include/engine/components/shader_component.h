@@ -4,8 +4,8 @@
 #include "engine/component.h"
 
 
-struct ShaderComponent : public Component {
-
+class ShaderComponent : public Component {
+public:
   enum ShaderType {
     Vertex,
     Fragment,
@@ -36,6 +36,7 @@ struct ShaderComponent : public Component {
 
 
   bool LoadShader(std::string path, ShaderType type);
+private:
   std::string ReadFile(const std::string& path);
   unsigned int CompileShader(std::string& shader_code, ShaderType type); 
   bool LinkProgram(bool core = false);

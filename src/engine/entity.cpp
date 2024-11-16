@@ -6,7 +6,7 @@
 #include "engine/components/shader_component.h"
 #include "engine/components/camera_component.h"
 #include "engine/components/material_component.h"
-
+#include "engine/components/light_component.h"
 
 #include <vector>
 
@@ -115,6 +115,16 @@ std::shared_ptr<class RenderComponent> Entity::GetRenderComponent()
   return std::shared_ptr<RenderComponent>();
 }
 
+std::shared_ptr<class LightComponent> Entity::GetLightComponent()
+{
+  for (auto& component : data_->components_) {
+    if (component->GetType() == Component::ComponentType::ComponentType_Light) {
+      return std::static_pointer_cast<LightComponent>(component);
+    }
+  }
+  return std::shared_ptr<LightComponent>();
+}
+
 void Entity::AddRenderComponent() {
     data_->components_.push_back(std::make_shared<RenderComponent>(weak_from_this()));
 }
@@ -144,8 +154,11 @@ void Entity::AddCameraComponent() {
 }
 */
 
-void Entity::AddCameraComponent()
-{
+void Entity::AddLightComponent() {
+  data_->components_.push_back(std::make_shared<LightComponent>(weak_from_this()));
+}
+
+void Entity::AddCameraComponent() {
   data_->components_.push_back(std::make_shared<CameraComponent>(weak_from_this()));
 }
 

@@ -641,7 +641,7 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
         path.erase(0, 3);
         if (path != "") {
          // int n = material_component->AddNewMaterial();
-          material_component->LoadTexture(full_path);
+          material_component->LoadTexture(full_path, MaterialComponent::TextureType::Texture2D);
           
           material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
           material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
@@ -652,7 +652,7 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
           LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
         }
       }
-      material_component->ProcessAllMaterials();
+      material_component->BindTextures();
     }
   }
 

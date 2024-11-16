@@ -3,8 +3,8 @@
 
 #include "engine/component.h"
 
-struct RenderComponent : public Component {
-
+class RenderComponent: public Component{
+public:
   RenderComponent() = default;
   RenderComponent(std::weak_ptr<Entity> entity);
   RenderComponent(const RenderComponent& other);
@@ -16,7 +16,7 @@ struct RenderComponent : public Component {
   void SetEnabled(bool enabled);
 
   void Render();
-
+private:
   std::unique_ptr<class RenderData> data;
 };
 

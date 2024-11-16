@@ -7,6 +7,21 @@
 
 class MaterialComponent : public Component {
 public:
+
+  enum TextureType {
+    Texture1D = 0,
+    Texture2D,
+    Texture3D,
+    Texture1DArray,
+    Texture2DArray,
+    TextureRectangle,
+    TextureCubeMap,
+    TextureCubeMapArray,
+    TextureBuffer,
+    Texture2DMultisample,
+    Texture2DMultisampleArray
+  };
+
   MaterialComponent() = default;
   MaterialComponent(std::weak_ptr<class Entity> entity);
   ~MaterialComponent() = default;
@@ -15,14 +30,11 @@ public:
   MaterialComponent(MaterialComponent&& other) noexcept;
   MaterialComponent& operator=(MaterialComponent&& other) noexcept;
 
-  //int LoadTexture(int n, const std::string& path);
-  //void Process(class MaterialData* data);
-  
-  //int LoadBPM(const std::string& path);
 
-  //size_t GetNumbersOfTextures();
-  unsigned int GetTexture(int n);
+  void SendToShader();
 
+
+  //Setters
   void SetAmbient(const float ambient_x, float ambient_y, float ambient_z);
   void SetAmbient(const float ambient[3]);
   void SetAmbient(const glm::vec3& ambient);
@@ -37,17 +49,18 @@ public:
 
   void SetShininess(float shininess);
 
-  void ProcessAllMaterials();
+  //Getters
+  glm::vec3 GetAmbient() const;
+  glm::vec3 GetDiffuse() const;
+  glm::vec3 GetSpecular() const;
+  float GetShininess() const;
 
-  void LoadTexture(const std::string& path);
 
+  //Texture
+  unsigned int GetTextureID(int n);
+  void LoadTexture(const std::string& path, TextureType type);
   int GetNumberOfTextures();
-
   void BindTextures();
-
-  //void AddTexture(const std::string& path);
-
-  
 
 private:
   std::unique_ptr<class MaterialData> data_;
