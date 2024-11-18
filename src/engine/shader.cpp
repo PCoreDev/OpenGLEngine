@@ -151,8 +151,8 @@ unsigned int Shader::CompileShader(std::string& shader_code, int shader_type){
 bool Shader::LinkProgram(unsigned int &vertex, unsigned int &fragment) {
   GLint success;
   bool correct = true;
-  GLint program = glCreateProgram();
-  data_->shader_program = program;
+  //GLint program = glCreateProgram();
+  data_->shader_program = glCreateProgram();;
 
   glAttachShader(data_->shader_program, vertex);
   glAttachShader(data_->shader_program, fragment);

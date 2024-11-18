@@ -5,10 +5,11 @@
 #include <vector>
 #include <memory>
 
+
 class MaterialComponent : public Component {
 public:
 
-  enum TextureType {
+  enum TextureFormat {
     Texture1D = 0,
     Texture2D,
     Texture3D,
@@ -22,6 +23,18 @@ public:
     Texture2DMultisampleArray
   };
 
+  enum TextureTarget {
+    BaseColor = 0,
+    Metallic,
+    Specular,
+    Diffuse,
+    Roughness,
+    Emissive,
+    Normal,
+    AmbientOcclusion,
+    MAX
+  };
+
   MaterialComponent() = default;
   MaterialComponent(std::weak_ptr<class Entity> entity);
   ~MaterialComponent() = default;
@@ -30,20 +43,18 @@ public:
   MaterialComponent(MaterialComponent&& other) noexcept;
   MaterialComponent& operator=(MaterialComponent&& other) noexcept;
 
-
   void SendToShader();
 
-
   //Setters
-  void SetAmbient(const float ambient_x, float ambient_y, float ambient_z);
+  void SetAmbient(float ambient_x, float ambient_y, float ambient_z);
   void SetAmbient(const float ambient[3]);
   void SetAmbient(const glm::vec3& ambient);
 
-  void SetDiffuse(const float diffuse_x, float diffuse_y, float diffuse_z);
+  void SetDiffuse(float diffuse_x, float diffuse_y, float diffuse_z);
   void SetDiffuse(const float diffuse[3]);
   void SetDiffuse(const glm::vec3& diffuse);
 
-  void SetSpecular(const float specular_x, float specular_y, float specular_z);
+  void SetSpecular(float specular_x, float specular_y, float specular_z);
   void SetSpecular(const float specular[3]);
   void SetSpecular(const glm::vec3& specular);
 
@@ -55,11 +66,17 @@ public:
   glm::vec3 GetSpecular() const;
   float GetShininess() const;
 
-
   //Texture
-  unsigned int GetTextureID(int n);
-  void LoadTexture(const std::string& path, TextureType type);
-  int GetNumberOfTextures();
+  unsigned int GetBaseColorTexture();
+  unsigned int GetMetallicTexture();
+  unsigned int GetSpecularColorTexture();
+  unsigned int GetRoughnessTexture();
+  unsigned int GetDiffuseTexture();
+  unsigned int GetEmissiveTexture();
+  unsigned int GetNormalTexture();
+  unsigned int GetAmbientOcclusionTexture();
+
+  void LoadTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
   void BindTextures();
 
 private:

@@ -609,7 +609,7 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
     data_->normal_data.push_back(vertex.Normal.Z);
        
     data_->uv_data.push_back(vertex.TextureCoordinate.X);
-    data_->uv_data.push_back(vertex.TextureCoordinate.Y);
+    data_->uv_data.push_back(-vertex.TextureCoordinate.Y);
   }
 
   // Process indices
@@ -635,27 +635,28 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
       LOG_F(ERROR, "Material component not found");
     }
     else {
+      std::string path = texture_path + "textures/";
+
       for (const auto& material : loader.LoadedMaterials) {
-        std::string path = material.map_Ka;
-        std::string full_path = texture_path + path;
-        path.erase(0, 3);
-        if (path != "") {
-         // int n = material_component->AddNewMaterial();
-          material_component->LoadTexture(full_path, MaterialComponent::TextureType::Texture2D);
+        std::string diffuse_path = path + material.map_Kd;
+        std::string specular_path = path + material.map_Ks;
+        std::string normal_path = path + material.map_bump;
+
+        material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+        material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+        material_component->LoadTexture(normal_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Normal);
           
-          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
-          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
-          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
-          material_component->SetShininess(material.Ns);
+        material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
+        material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
+        material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
+        material_component->SetShininess(material.Ns);
           
-          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
-          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+        LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+        LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
         }
       }
-      material_component->BindTextures();
-    }
+    material_component->BindTextures();
   }
-
   data_->n_vertex = loader.LoadedVertices.size();
   data_->Bind();
 

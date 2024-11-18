@@ -1081,7 +1081,7 @@ static inline bool parseOnOff(const char **token, bool default_value = true) {
   return ret;
 }
 
-static inline texture_type_t parseTextureType(
+static inline texture_type_t parseTextureFormat(
     const char **token, texture_type_t default_value = TEXTURE_TYPE_NONE) {
   (*token) += strspn((*token), " \t");
   const char *end = (*token) + strcspn((*token), " \t\r");
@@ -1258,7 +1258,7 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
                  &(texopt->turbulence[2]), &token);
     } else if ((0 == strncmp(token, "-type", 5)) && IS_SPACE((token[5]))) {
       token += 5;
-      texopt->type = parseTextureType((&token), TEXTURE_TYPE_NONE);
+      texopt->type = parseTextureFormat((&token), TEXTURE_TYPE_NONE);
     } else if ((0 == strncmp(token, "-texres", 7)) && IS_SPACE((token[7]))) {
       token += 7;
       // TODO(syoyo): Check if arg is int type.

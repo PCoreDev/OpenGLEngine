@@ -15,35 +15,44 @@
 #include <map>
 
 struct Texture {
+  bool set = false;
   GLuint id;
   int width, height, n_channels;
   unsigned int type;
   GLint texture_unit;
   unsigned char* data;
-  std::map<MaterialComponent::TextureType, int> texture_map = {
-    {MaterialComponent::TextureType::Texture1D, GL_TEXTURE_1D},
-    {MaterialComponent::TextureType::Texture2D, GL_TEXTURE_2D},
-    {MaterialComponent::TextureType::Texture3D, GL_TEXTURE_3D},
-    {MaterialComponent::TextureType::Texture1DArray, GL_TEXTURE_1D_ARRAY},
-    {MaterialComponent::TextureType::Texture2DArray, GL_TEXTURE_2D_ARRAY},
-    {MaterialComponent::TextureType::TextureRectangle, GL_TEXTURE_RECTANGLE},
-    {MaterialComponent::TextureType::TextureCubeMap, GL_TEXTURE_CUBE_MAP},
-    {MaterialComponent::TextureType::TextureCubeMapArray, GL_TEXTURE_CUBE_MAP_ARRAY},
-    {MaterialComponent::TextureType::TextureBuffer, GL_TEXTURE_BUFFER},
-    {MaterialComponent::TextureType::Texture2DMultisample, GL_TEXTURE_2D_MULTISAMPLE},
-    {MaterialComponent::TextureType::Texture2DMultisampleArray, GL_TEXTURE_2D_MULTISAMPLE_ARRAY}
+  std::map<MaterialComponent::TextureFormat, int> texture_map = {
+    {MaterialComponent::TextureFormat::Texture1D, GL_TEXTURE_1D},
+    {MaterialComponent::TextureFormat::Texture2D, GL_TEXTURE_2D},
+    {MaterialComponent::TextureFormat::Texture3D, GL_TEXTURE_3D},
+    {MaterialComponent::TextureFormat::Texture1DArray, GL_TEXTURE_1D_ARRAY},
+    {MaterialComponent::TextureFormat::Texture2DArray, GL_TEXTURE_2D_ARRAY},
+    {MaterialComponent::TextureFormat::TextureRectangle, GL_TEXTURE_RECTANGLE},
+    {MaterialComponent::TextureFormat::TextureCubeMap, GL_TEXTURE_CUBE_MAP},
+    {MaterialComponent::TextureFormat::TextureCubeMapArray, GL_TEXTURE_CUBE_MAP_ARRAY},
+    {MaterialComponent::TextureFormat::TextureBuffer, GL_TEXTURE_BUFFER},
+    {MaterialComponent::TextureFormat::Texture2DMultisample, GL_TEXTURE_2D_MULTISAMPLE},
+    {MaterialComponent::TextureFormat::Texture2DMultisampleArray, GL_TEXTURE_2D_MULTISAMPLE_ARRAY}
   };
   void Process();
 };
 
 struct MaterialData {
-  std::vector<std::shared_ptr<Texture>> textures;
+  //std::vector<std::shared_ptr<Texture>> textures;
+  Texture base_color_texture;
+  Texture metallic_texture;
+  Texture specular_texture;
+  Texture roughness_texture;
+  Texture emissive_texture;
+  Texture diffuse_texture;
+  Texture normal_texture;
+  Texture ambient_oclusion_texture;
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
   float shininess;
+  int current_textures;
 };
-
 
 MaterialComponent::MaterialComponent(std::weak_ptr<class Entity> entity) {
   this->entity = entity;
@@ -96,21 +105,74 @@ void MaterialComponent::SendToShader()
     shader->SetVec3("material.ambient", data_->ambient);
     shader->SetVec3("material.diffuse", data_->diffuse);
     shader->SetVec3("material.specular", data_->specular);
-    //shader->SetFloat("material.shininess", data_->shininess);
-    if (data_->textures.size() > 0 && data_->textures[0] != nullptr)
-    shader->SetTexture("material.tex_diffuse", GetTextureID(0));
-    if (data_->textures.size() > 1 && data_->textures[1] != nullptr)
-      shader->SetTexture("material.tex_specular", GetTextureID(1));
+
+    if(data_->base_color_texture.set == true) {
+      shader->SetTexture("material.base_color_texture", data_->base_color_texture.id);
+    }
+
+    if(data_->metallic_texture.set == true){
+      shader->SetTexture("material.metallic_texture", data_->metallic_texture.id);
+    }
+
+    if(data_->specular_texture.set == true){
+      shader->SetTexture("material.specular_texture", data_->specular_texture.id);
+    }
+
+    if(data_->roughness_texture.set == true){
+      shader->SetTexture("material.roughness_texture", data_->roughness_texture.id);
+    }
+
+    if(data_->emissive_texture.set == true){
+      shader->SetTexture("material.emissive_texture", data_->emissive_texture.id);
+    }
+
+    if(data_->diffuse_texture.set == true){
+      shader->SetTexture("material.diffuse_texture", data_->diffuse_texture.id);
+    }
+
+    if(data_->normal_texture.set == true){
+      shader->SetTexture("material.normal_texture", data_->normal_texture.id);
+    }
+
+    if(data_->ambient_oclusion_texture.set == true){
+      shader->SetTexture("material.ambient_oclusion_texture", data_->ambient_oclusion_texture.id);
+    }
   }
   else {
     OpenGLEngine::Engine::Core::shader_->SetVec3("material.ambient", data_->ambient);
     OpenGLEngine::Engine::Core::shader_->SetVec3("material.diffuse", data_->diffuse);
     OpenGLEngine::Engine::Core::shader_->SetVec3("material.specular", data_->specular);
-    //OpenGLEngine::Engine::Core::shader_->SetFloat("material.shininess", data_->shininess);
-    if (data_->textures.size() > 0 && data_->textures[0] != nullptr)
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.tex_diffuse", GetTextureID(0));
-    if (data_->textures.size() > 1 && data_->textures[1] != nullptr)
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.tex_specular", GetTextureID(1));
+    if (data_->base_color_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.base_color_texture", data_->base_color_texture.id);
+    }
+
+    if (data_->metallic_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.metallic_texture", data_->metallic_texture.id);
+    }
+
+    if (data_->specular_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_texture", data_->specular_texture.id);
+    }
+
+    if (data_->roughness_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.roughness_texture", data_->roughness_texture.id);
+    }
+
+    if (data_->emissive_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.emissive_texture", data_->emissive_texture.id);
+    }
+
+    if (data_->diffuse_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.diffuse_texture", data_->diffuse_texture.id);
+    }
+
+    if (data_->normal_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.normal_texture", data_->normal_texture.id);
+    }
+
+    if (data_->ambient_oclusion_texture.set == true) {
+      OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_oclusion_texture", data_->ambient_oclusion_texture.id);
+    }
   }
 
   BindTextures();
@@ -164,46 +226,149 @@ float MaterialComponent::GetShininess() const {
   return data_->shininess;
 }
 
-//Texture
-
-unsigned int MaterialComponent::GetTextureID(int n)
-{
-  return data_->textures[n]->id;
+unsigned int MaterialComponent::GetBaseColorTexture() {
+  return data_->base_color_texture.id;
 }
 
-void MaterialComponent::LoadTexture(const std::string& path, TextureType type) {
-  Texture texture;
-  texture.texture_unit = data_->textures.size() + 1;
+unsigned int MaterialComponent::GetMetallicTexture() {
+  return data_->metallic_texture.id;
+}
 
-  auto it = texture.texture_map.find(type);
-  if (it != texture.texture_map.end()) {
-    texture.type = it->second;
+unsigned int MaterialComponent::GetSpecularColorTexture() {
+  return data_->specular_texture.id;
+}
+
+unsigned int MaterialComponent::GetRoughnessTexture() {
+  return data_->roughness_texture.id;
+}
+
+unsigned int MaterialComponent::GetDiffuseTexture(){
+  return data_->diffuse_texture.id;
+}
+
+unsigned int MaterialComponent::GetEmissiveTexture() {
+  return data_->emissive_texture.id;
+}
+
+unsigned int MaterialComponent::GetNormalTexture() {
+  return data_->normal_texture.id;
+}
+
+unsigned int MaterialComponent::GetAmbientOcclusionTexture() {
+  return data_->ambient_oclusion_texture.id;
+}
+
+void MaterialComponent::LoadTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target){
+  Texture new_texture;
+
+  auto it = new_texture.texture_map.find(type);
+  if (it != new_texture.texture_map.end()) {
+    new_texture.type = it->second;
   }
   else {
     LOG_F(ERROR, "Texture type not found");
   }
+  new_texture.texture_unit = data_->current_textures + 1;
+  new_texture.data = stbi_load(path.c_str(), &new_texture.width, &new_texture.height, &new_texture.n_channels, 0);
 
-  texture.data = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.n_channels, 0);
+  if (new_texture.data != nullptr) {
+    new_texture.set = true;
+    new_texture.Process();
+    switch (target) {
 
-  if (texture.data != nullptr) {
-    texture.Process();
-    data_->textures.push_back(std::make_shared<Texture>(texture));
-    
+    case TextureTarget::BaseColor:
+      data_->base_color_texture = new_texture;
+      break;
+
+    case TextureTarget::Metallic:
+      data_->metallic_texture = new_texture;
+      break;
+
+    case TextureTarget::Specular:
+      data_->specular_texture = new_texture;
+      break;
+
+    case TextureTarget::Diffuse:
+      data_->diffuse_texture = new_texture;
+      break;
+
+    case TextureTarget::Roughness:
+      data_->roughness_texture = new_texture;
+      break;
+
+    case TextureTarget::Emissive:
+      data_->emissive_texture = new_texture;
+      break;
+
+    case TextureTarget::Normal:
+      data_->normal_texture = new_texture;
+      break;
+
+    case TextureTarget::AmbientOcclusion:
+      data_->ambient_oclusion_texture = new_texture;
+      break;
+
+    default:
+      break;
+    }
+
+    data_->current_textures++;
+
     LOG_F(INFO, "Texture loaded correctly: %s", path.c_str());
   }
   else {
     LOG_F(ERROR, "Failed to load texture: %s", path.c_str());
   }
-}
 
-int MaterialComponent::GetNumberOfTextures() {
-  return data_->textures.size();
 }
 
 void MaterialComponent::BindTextures() {
-  for each (std::shared_ptr<Texture> tex in data_->textures){
-    glActiveTexture(GL_TEXTURE0 + tex->texture_unit);
-    glBindTexture(GL_TEXTURE_2D, tex->id);
+  //BaseColor
+  if (data_->base_color_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->base_color_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->base_color_texture.id);
+  }
+
+  //Metallic
+  if (data_->metallic_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->metallic_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->metallic_texture.id);
+  }
+
+  //Specular
+  if (data_->specular_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->specular_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->specular_texture.id);
+  }
+
+  //Roughness
+  if (data_->roughness_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->roughness_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->roughness_texture.id);
+  }
+
+  //Emissive
+  if (data_->emissive_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->emissive_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->emissive_texture.id);
+  }
+
+  //Diffuse
+  if (data_->diffuse_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->diffuse_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->diffuse_texture.id);
+  }
+
+  //Normal
+  if (data_->normal_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->normal_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->normal_texture.id);
+  }
+
+  //AmbientOcclusion
+  if (data_->ambient_oclusion_texture.set == true) {
+    glActiveTexture(GL_TEXTURE0 + data_->ambient_oclusion_texture.texture_unit);
+    glBindTexture(GL_TEXTURE_2D, data_->ambient_oclusion_texture.id);
   }
 }
 
