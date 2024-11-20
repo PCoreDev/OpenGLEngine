@@ -114,7 +114,8 @@ namespace OpenGLEngine {
 
     void Core::Update() {
       data_->display_list->Clear();
-      data_->display_list->AddClearCommand(0.2f, 0.3f, 0.3f, 1.0f);
+      //data_->display_list->AddClearCommand(0.2f, 0.3f, 0.3f, 1.0f);
+      data_->display_list->AddClearCommand(0.0f, 0.0f, 0.0f, 1.0f);
 
       //TODO: Uncomment and check where is the error.
       for (auto& entity : entity_manager_->GetEntities()) {
@@ -137,7 +138,7 @@ namespace OpenGLEngine {
     }
 
     void Core::FPS() {
-      //LOG_F(INFO, "FPS: %f", 1.0f / data_->delta_time);
+      LOG_F(INFO, "FPS: %f", 1.0f / data_->delta_time);
         
       float currentFrame = static_cast<float>(glfwGetTime());
       data_->delta_time = currentFrame - data_->last_frame;

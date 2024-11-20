@@ -55,6 +55,14 @@ void Shader::SetFloat(const std::string& name, float value) const{
   else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
+void Shader::SetVec2(const std::string& name, glm::vec2 value) const{
+  int found = glGetUniformLocation(data_->shader_program, name.c_str());
+  if (found != -1) {
+    glUniform2fv(found, 1, &value[0]);
+  }
+  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+}
+
 void Shader::SetVec3(const std::string& name, glm::vec3 value) const{
   int found = glGetUniformLocation(data_->shader_program, name.c_str());
   if (found != -1) {

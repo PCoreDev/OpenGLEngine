@@ -21,7 +21,6 @@ public:
   void Sphere(float radius, unsigned int sectorCount, unsigned int stackCount);
   bool LoadOBJ(const std::string& obj_path, const std::string& texture_path);
 
-
   float* GetVertexData();
   size_t GetVertexSizeb();
   size_t GetVertexCount();

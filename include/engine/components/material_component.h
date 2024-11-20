@@ -24,14 +24,21 @@ public:
   };
 
   enum TextureTarget {
-    BaseColor = 0,
-    Metallic,
+    Diffuse = 0,
+    Ambient,
     Specular,
-    Diffuse,
-    Roughness,
     Emissive,
+    Alpha,
+    Bump,
     Normal,
+    Displacement,
+    SpecularExponent,
+    Reflection,
+    Roughness,
+    Metallic,
     AmbientOcclusion,
+    Height,
+    Glossiness,
     MAX
   };
 
@@ -60,27 +67,12 @@ public:
 
   void SetShininess(float shininess);
 
-  //Getters
-  glm::vec3 GetAmbient() const;
-  glm::vec3 GetDiffuse() const;
-  glm::vec3 GetSpecular() const;
-  float GetShininess() const;
-
-  //Texture
-  unsigned int GetBaseColorTexture();
-  unsigned int GetMetallicTexture();
-  unsigned int GetSpecularColorTexture();
-  unsigned int GetRoughnessTexture();
-  unsigned int GetDiffuseTexture();
-  unsigned int GetEmissiveTexture();
-  unsigned int GetNormalTexture();
-  unsigned int GetAmbientOcclusionTexture();
-
   void LoadTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
+
   void BindTextures();
 
 private:
-  std::unique_ptr<class MaterialData> data_;
+  std::shared_ptr<class MaterialData> data_;
 };
 
 

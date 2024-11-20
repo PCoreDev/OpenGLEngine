@@ -24,15 +24,13 @@ RenderComponent::RenderComponent(std::weak_ptr<Entity> e) {
   data->enabled = true;
 }
 
-RenderComponent::RenderComponent(RenderComponent&& other)
-{
+RenderComponent::RenderComponent(RenderComponent&& other) {
   this->id = other.id;
   this->type = other.type;
   data = std::move(other.data);
 }
 
-RenderComponent& RenderComponent::operator=(RenderComponent&& other)
-{
+RenderComponent& RenderComponent::operator=(RenderComponent&& other) {
   this->id = other.id;
   this->type = other.type;
   data = std::move(other.data);
@@ -76,9 +74,10 @@ void RenderComponent::Render() {
        shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
 
        entity.lock()->GetMaterialComponent()->SendToShader();
+       entity.lock()->GetMaterialComponent()->BindTextures();
 
-       OpenGLEngine::Engine::Core::shader_->SetVec3("light_position", glm::vec3(0.0f, 0.0f, 1.0f));
-       OpenGLEngine::Engine::Core::shader_->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
+       shader->SetVec3("light_position", glm::vec3(0.0f, 100.0f, 0.0f));
+       shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
     }
     else {
       OpenGLEngine::Engine::Core::shader_->UseProgram();
@@ -93,6 +92,7 @@ void RenderComponent::Render() {
       OpenGLEngine::Engine::Core::shader_->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
 
       entity.lock()->GetMaterialComponent()->SendToShader();
+      entity.lock()->GetMaterialComponent()->BindTextures();
     }
 
 

@@ -9,6 +9,7 @@
 #include "engine/components/material_component.h"
 
 #include "OBJ_Loader/OBJ_Loader.h"
+#include "stb_image/stb_image.h"
 
 struct MeshData {
   std::vector<float> vertex_data;
@@ -22,6 +23,7 @@ struct MeshData {
   void Bind();
   bool cube;
   bool back = false;
+
 };
 
 void MeshData::Bind() {
@@ -621,7 +623,8 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
 
   if (loader.LoadedMaterials.empty()) {
     LOG_F(INFO, "No materials loaded");
-  }else{
+  }
+  else {
     std::shared_ptr<MaterialComponent> material_component = entity.lock()->GetMaterialComponent();
     if (material_component == nullptr) {
       LOG_F(ERROR, "Material component not found");
@@ -637,26 +640,80 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
     else {
       std::string path = texture_path + "textures/";
 
-      for (const auto& material : loader.LoadedMaterials) {
-        std::string diffuse_path = path + material.map_Kd;
-        std::string specular_path = path + material.map_Ks;
-        std::string normal_path = path + material.map_bump;
+      if (loader.LoadedMaterials.size() < 2) { //if there is only one material
+        for (const auto& material : loader.LoadedMaterials) {
+          std::string diffuse_path;
+          std::string specular_path;
+          std::string ambient_path;
+          std::string bump_path;
+          if (!material.map_Kd.empty()) {
+            diffuse_path = path + material.map_Kd;
+            material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+          }
 
-        material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-        material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-        material_component->LoadTexture(normal_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Normal);
-          
-        material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
-        material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
-        material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
-        material_component->SetShininess(material.Ns);
-          
-        LOG_F(INFO, "Material loaded: %s", material.name.c_str());
-        LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+          if (!material.map_Ks.empty()) {
+            specular_path = path + material.map_Ks;
+            material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+          }
+
+          if (!material.map_Ka.empty()) {
+            ambient_path = path + material.map_Ka;
+            material_component->LoadTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
+          }
+
+          if (!material.map_bump.empty()) {
+            bump_path = path + material.map_bump;
+            material_component->LoadTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
+          }
+
+          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
+          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
+          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
+          material_component->SetShininess(material.Ns);
+
+          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
         }
       }
-    material_component->BindTextures();
+      else if (loader.LoadedMaterials.size() >= 2) {
+        for (const auto& material : loader.LoadedMaterials) {
+          std::string diffuse_path;
+          std::string specular_path;
+          std::string ambient_path;
+          std::string bump_path;
+          if (!material.map_Kd.empty()) {
+            diffuse_path = path + material.map_Kd;
+            material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+          }
+
+          if (!material.map_Ks.empty()) {
+            specular_path = path + material.map_Ks;
+            material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+          }
+
+          if (!material.map_Ka.empty()) {
+            ambient_path = path + material.map_Ka;
+            material_component->LoadTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
+          }
+
+          if (!material.map_bump.empty()) {
+            bump_path = path + material.map_bump;
+            material_component->LoadTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
+          }
+
+          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
+          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
+          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
+          material_component->SetShininess(material.Ns);
+
+          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+        }
+      }
+      material_component->BindTextures();
+    }
   }
+
   data_->n_vertex = loader.LoadedVertices.size();
   data_->Bind();
 
