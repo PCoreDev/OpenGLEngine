@@ -18,6 +18,7 @@
 
 int OpenGLEngine::main(int argc, char** argv)
 {
+
   std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   //camera->AddTransformComponent();
   camera->AddCameraComponent();
@@ -100,7 +101,5 @@ int OpenGLEngine::main(int argc, char** argv)
   entity3->AddMaterialComponent();
   entity3->GetMeshComponent()->LoadOBJ("../../data/models/Pikachu/pikachu.obj", "../../data/models/Pikachu/");
  
-
-
   return 0;
 }

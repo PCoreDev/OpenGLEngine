@@ -69,7 +69,25 @@ public:
 
   void LoadTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
 
+  void AddMultiTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
+
+  void AddAmbientColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
+  void AddAmbientColorMultiTexture(const glm::vec3 color);
+
+  void AddDiffuseColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
+  void AddDiffuseColorMultiTexture(const glm::vec3 color);
+
+  void AddSpecularColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
+  void AddSpecularColorMultiTexture(const glm::vec3 color);
+
+  void AddShininessMultiTexture(const float shininess);
+  void AddDissolveMultiTexture(const float dissolve);
+
+
   void BindTextures();
+  void BindMultiTextures();
+
+  void SetMultiMaterial(bool multi);
 
 private:
   std::shared_ptr<class MaterialData> data_;

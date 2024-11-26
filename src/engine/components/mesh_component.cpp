@@ -674,6 +674,7 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
           LOG_F(INFO, "Material loaded: %s", material.name.c_str());
           LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
         }
+        material_component->BindTextures();
       }
       else if (loader.LoadedMaterials.size() >= 2) {
         for (const auto& material : loader.LoadedMaterials) {
@@ -683,34 +684,37 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
           std::string bump_path;
           if (!material.map_Kd.empty()) {
             diffuse_path = path + material.map_Kd;
-            material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+            material_component->AddMultiTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
           }
 
           if (!material.map_Ks.empty()) {
             specular_path = path + material.map_Ks;
-            material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+            material_component->AddMultiTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
           }
 
           if (!material.map_Ka.empty()) {
             ambient_path = path + material.map_Ka;
-            material_component->LoadTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
+            material_component->AddMultiTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
           }
 
           if (!material.map_bump.empty()) {
             bump_path = path + material.map_bump;
-            material_component->LoadTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
+            material_component->AddMultiTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
           }
 
-          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
-          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
-          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
-          material_component->SetShininess(material.Ns);
+          material_component->AddAmbientColorMultiTexture(material.Ka.X, material.Ka.Y, material.Ka.Z);
+          material_component->AddDiffuseColorMultiTexture(material.Kd.X, material.Kd.Y, material.Kd.Z);
+          material_component->AddSpecularColorMultiTexture(material.Ks.X, material.Ks.Y, material.Ks.Z);
+          material_component->AddShininessMultiTexture(material.Ns);
+
+          material_component->SetMultiMaterial(true);
 
           LOG_F(INFO, "Material loaded: %s", material.name.c_str());
           LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
         }
+        material_component->BindMultiTextures();
       }
-      material_component->BindTextures();
+      
     }
   }
 

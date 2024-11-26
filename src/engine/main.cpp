@@ -4,8 +4,8 @@
 //Main file of the engine.
 
 #include <memory>
-#include <fstream>
-#include <string>
+//#include <fstream>
+//#include <string>
 
 #include "engine/core.h"
 #include "engine/entity_manager.h"

@@ -37,7 +37,39 @@ struct Texture {
   void Process();
 };
 
+struct MultiMaterialData {
+  std::vector<Texture> diffuse_texture; // map_Kd
+  std::vector<Texture> ambient_texture; // map_Ka
+  std::vector<Texture> specular_texture; // map_Ks
+  std::vector<Texture> emissive_texture; // map_Ke
+  std::vector<Texture> alpha_texture; // map_d 
+  std::vector<Texture> bump_texture; // map_bump
+  std::vector<Texture> normal_texture; // map_Ns
+  std::vector<Texture> displacement_texture; // disp
+  std::vector<Texture> specular_exponent_texture; // map_Ns
+  std::vector<Texture> reflection_texture; // map_refl
+  std::vector<Texture> roughness_texture; // map_Pr
+  std::vector<Texture> metallic_texture; // map_Pm
+  std::vector<Texture> ambient_occlusion_texture; // map_AO
+
+  std::vector<Texture> height_texture; // map_h
+  std::vector<Texture> glossiness_texture; // map_G
+
+  std::vector<glm::vec3> ambient_color;
+  std::vector<glm::vec3> diffuse_color;
+  std::vector<glm::vec3> specular_color;
+
+  std::vector<float> shininess;
+  std::vector<float> dissolve;
+  int n_textures = 0;
+};
+
+struct SkyBox {
+  std::vector<Texture> textures;
+};
+
 struct MaterialData {
+  bool multi_material = false;
   std::string name;
 
   Texture diffuse_texture; // map_Kd
@@ -60,11 +92,17 @@ struct MaterialData {
   glm::vec3 ambient_color;
   glm::vec3 diffuse_color;
   glm::vec3 specular_color;
+
   float shininess;
   float dissolve;
 
+  MultiMaterialData multi_material_data;
+
   static int current_textures;
 };
+
+
+
 
 int MaterialData::current_textures = 0;
 
@@ -112,181 +150,442 @@ MaterialComponent& MaterialComponent::operator=(MaterialComponent&& other) noexc
   return *this;
 }
 
+
 void MaterialComponent::SendToShader()
 {
   std::shared_ptr<ShaderComponent> shader = entity.lock()->GetShaderComponent();
   if (shader != nullptr) {
-    //Textures
+    if (!data_->multi_material) {
+      //Textures
 
-    //diffuse
-    if (data_->diffuse_texture.set == true) {
-      shader->SetTexture("material.diffuse_texture", data_->diffuse_texture.id);
+      //diffuse
+      if (data_->diffuse_texture.set == true) {
+        shader->SetTexture("material.diffuse_texture[0]", data_->diffuse_texture.id);
+      }
+
+      //ambient
+      if (data_->ambient_texture.set == true) {
+        shader->SetTexture("material.ambient_texture[0]", data_->ambient_texture.id);
+      }
+
+      //specular
+      if (data_->specular_texture.set == true) {
+        shader->SetTexture("material.specular_texture[0]", data_->specular_texture.id);
+      }
+
+      //emissive
+      if (data_->emissive_texture.set == true) {
+        shader->SetTexture("material.emissive_texture[0]", data_->emissive_texture.id);
+      }
+
+      //alpha
+      if (data_->alpha_texture.set == true) {
+        shader->SetTexture("material.alpha_texture[0]", data_->alpha_texture.id);
+      }
+
+      //bump
+      if (data_->bump_texture.set == true) {
+        shader->SetTexture("material.bump_texture[0]", data_->bump_texture.id);
+      }
+
+      //normal
+      if (data_->normal_texture.set == true) {
+        shader->SetTexture("material.normal_texture[0]", data_->normal_texture.id);
+      }
+
+      //displacement
+      if (data_->displacement_texture.set == true) {
+        shader->SetTexture("material.displacement_texture[0]", data_->displacement_texture.id);
+      }
+
+      //specular_exponent
+      if (data_->specular_exponent_texture.set == true) {
+        shader->SetTexture("material.specular_exponent_texture[0]", data_->specular_exponent_texture.id);
+      }
+
+      //reflection
+      if (data_->reflection_texture.set == true) {
+        shader->SetTexture("material.reflection_texture[0]", data_->reflection_texture.id);
+      }
+
+      //roughness
+      if (data_->roughness_texture.set == true) {
+        shader->SetTexture("material.roughness_texture[0]", data_->roughness_texture.id);
+      }
+
+      //metallic
+      if (data_->metallic_texture.set == true) {
+        shader->SetTexture("material.metallic_texture[0]", data_->metallic_texture.id);
+      }
+
+      //ambient_occlusion
+      if (data_->ambient_occlusion_texture.set == true) {
+        shader->SetTexture("material.ambient_occlusion_texture[0]", data_->ambient_occlusion_texture.id);
+      }
+
+      //height
+      if (data_->height_texture.set == true) {
+        shader->SetTexture("material.height_texture[0]", data_->height_texture.id);
+      }
+
+      //glossiness
+      if (data_->glossiness_texture.set == true) {
+        shader->SetTexture("material.glossiness_texture[0]", data_->glossiness_texture.id);
+      }
+
+      //Colors
+      shader->SetVec3("material.ambient_color[0]", data_->ambient_color);
+      shader->SetVec3("material.diffuse_color[0]", data_->diffuse_color);
+      shader->SetVec3("material.specular_color[0]", data_->specular_color);
+      //shader->SetFloat("material.shininess[0]", data_->shininess);
+      //shader->SetFloat("material.dissolve[0]", data_->dissolve);
+
+      shader->SetInt("texture_index", 1);
     }
+    else {
+      for (int i = 0; i < data_->multi_material_data.n_textures; ++i) {
+        //Textures
 
-    //ambient
-    if (data_->ambient_texture.set == true) {
-      shader->SetTexture("material.ambient_texture", data_->ambient_texture.id);
+        //diffuse
+        if (i < data_->multi_material_data.diffuse_texture.size()) {
+          if (data_->multi_material_data.diffuse_texture[i].set == true) {
+            shader->SetTexture("material.diffuse_texture[" + std::to_string(i) + "]", data_->multi_material_data.diffuse_texture[i].id);
+          }
+        }
+
+        //ambient
+        if (i < data_->multi_material_data.ambient_texture.size()){
+          if (data_->multi_material_data.ambient_texture[i].set == true) {
+            shader->SetTexture("material.ambient_texture" + std::to_string(i) + "]", data_->multi_material_data.ambient_texture[i].id);
+          }
+        }
+
+        //specular
+        if (i < data_->multi_material_data.specular_texture.size()) {
+          if (data_->multi_material_data.specular_texture[i].set == true) {
+            shader->SetTexture("material.specular_texture" + std::to_string(i) + "]", data_->multi_material_data.specular_texture[i].id);
+          }
+        }
+
+        //emissive
+        if (i < data_->multi_material_data.emissive_texture.size()) {
+          if (data_->multi_material_data.emissive_texture[i].set == true) {
+            shader->SetTexture("material.emissive_texture" + std::to_string(i) + "]", data_->multi_material_data.emissive_texture[i].id);
+          }
+        }
+
+        //alpha
+        if (i < data_->multi_material_data.alpha_texture.size()) {
+          if (data_->multi_material_data.alpha_texture[i].set == true) {
+            shader->SetTexture("material.alpha_texture" + std::to_string(i) + "]", data_->multi_material_data.alpha_texture[i].id);
+          }
+        }
+
+        //bump
+        if (i < data_->multi_material_data.bump_texture.size()) {
+          if (data_->multi_material_data.bump_texture[i].set == true) {
+            shader->SetTexture("material.bump_texture" + std::to_string(i) + "]", data_->multi_material_data.bump_texture[i].id);
+          }
+        }
+
+        //normal
+        if (i < data_->multi_material_data.normal_texture.size()) {
+          if (data_->multi_material_data.normal_texture[i].set == true) {
+            shader->SetTexture("material.normal_texture" + std::to_string(i) + "]", data_->multi_material_data.normal_texture[i].id);
+          }
+        }
+
+        //displacement
+        if (i < data_->multi_material_data.displacement_texture.size()) {
+          if (data_->multi_material_data.displacement_texture[i].set == true) {
+            shader->SetTexture("material.displacement_texture" + std::to_string(i) + "]", data_->multi_material_data.displacement_texture[i].id);
+          }
+        }
+
+        //specular_exponent
+        if (i < data_->multi_material_data.specular_exponent_texture.size()) {
+          if (data_->multi_material_data.specular_exponent_texture[i].set == true) {
+            shader->SetTexture("material.specular_exponent_texture" + std::to_string(i) + "]", data_->multi_material_data.specular_exponent_texture[i].id);
+          }
+        }
+
+        //reflection
+        if (i < data_->multi_material_data.reflection_texture.size()) {
+          if (data_->multi_material_data.reflection_texture[i].set == true) {
+            shader->SetTexture("material.reflection_texture" + std::to_string(i) + "]", data_->multi_material_data.reflection_texture[i].id);
+          }
+        }
+
+        //roughness
+        if (i < data_->multi_material_data.roughness_texture.size()) {
+          if (data_->multi_material_data.roughness_texture[i].set == true) {
+            shader->SetTexture("material.roughness_texture" + std::to_string(i) + "]", data_->multi_material_data.roughness_texture[i].id);
+          }
+        }
+
+        //metallic
+        if (i < data_->multi_material_data.metallic_texture.size()) {
+          if (data_->multi_material_data.metallic_texture[i].set == true) {
+            shader->SetTexture("material.metallic_texture" + std::to_string(i) + "]", data_->multi_material_data.metallic_texture[i].id);
+          }
+        }
+
+        //ambient_occlusion
+        if (i < data_->multi_material_data.ambient_occlusion_texture.size()) {
+          if (data_->multi_material_data.ambient_occlusion_texture[i].set == true) {
+            shader->SetTexture("material.ambient_occlusion_texture" + std::to_string(i) + "]", data_->multi_material_data.ambient_occlusion_texture[i].id);
+          }
+        }
+
+        //height
+        if (i < data_->multi_material_data.height_texture.size()) {
+          if (data_->multi_material_data.height_texture[i].set == true) {
+            shader->SetTexture("material.height_texture" + std::to_string(i) + "]", data_->multi_material_data.height_texture[i].id);
+          }
+        }
+
+        //glossiness
+        if (i < data_->multi_material_data.glossiness_texture.size()) {
+          if (data_->multi_material_data.glossiness_texture[i].set == true) {
+            shader->SetTexture("material.glossiness_texture" + std::to_string(i) + "]", data_->multi_material_data.glossiness_texture[i].id);
+          }
+        }
+
+        //Colors
+        if (i < data_->multi_material_data.ambient_color.size())
+          shader->SetVec3("material.ambient_color[" + std::to_string(i) + "]", data_->multi_material_data.ambient_color[i]);
+
+        if (i < data_->multi_material_data.diffuse_color.size())
+          shader->SetVec3("material.diffuse_color[" + std::to_string(i) + "]", data_->multi_material_data.diffuse_color[i]);
+
+        if (i < data_->multi_material_data.specular_color.size())
+          shader->SetVec3("material.specular_color[" + std::to_string(i) + "]", data_->multi_material_data.specular_color[i]);
+
+
+        //shader->SetFloat("material.shininess[" + std::to_string(i) + "]", data_->multi_material_data.shininess[i]);
+        //shader->SetFloat("material.dissolve[" + std::to_string(i) + "]", data_->multi_material_data.dissolve[i]);
+
+
+      }
+      shader->SetInt("texture_index", data_->multi_material_data.n_textures);
     }
-
-    //specular
-    if (data_->specular_texture.set == true) {
-      shader->SetTexture("material.specular_texture", data_->specular_texture.id);
-    }
-
-    //emissive
-    if (data_->emissive_texture.set == true) {
-      shader->SetTexture("material.emissive_texture", data_->emissive_texture.id);
-    }
-
-    //alpha
-    if (data_->alpha_texture.set == true) {
-      shader->SetTexture("material.alpha_texture", data_->alpha_texture.id);
-    }
-
-    //bump
-    if (data_->bump_texture.set == true) {
-      shader->SetTexture("material.bump_texture", data_->bump_texture.id);
-    }
-
-    //normal
-    if (data_->normal_texture.set == true) {
-      shader->SetTexture("material.normal_texture", data_->normal_texture.id);
-    }
-
-    //displacement
-    if (data_->displacement_texture.set == true) {
-      shader->SetTexture("material.displacement_texture", data_->displacement_texture.id);
-    }
-
-    //specular_exponent
-    if (data_->specular_exponent_texture.set == true) {
-      shader->SetTexture("material.specular_exponent_texture", data_->specular_exponent_texture.id);
-    }
-
-    //reflection
-    if (data_->reflection_texture.set == true) {
-      shader->SetTexture("material.reflection_texture", data_->reflection_texture.id);
-    }
-
-    //roughness
-    if (data_->roughness_texture.set == true) {
-      shader->SetTexture("material.roughness_texture", data_->roughness_texture.id);
-    }
-
-    //metallic
-    if (data_->metallic_texture.set == true) {
-      shader->SetTexture("material.metallic_texture", data_->metallic_texture.id);
-    }
-
-    //ambient_occlusion
-    if (data_->ambient_occlusion_texture.set == true) {
-      shader->SetTexture("material.ambient_occlusion_texture", data_->ambient_occlusion_texture.id);
-    }
-
-    //height
-    if (data_->height_texture.set == true) {
-      shader->SetTexture("material.height_texture", data_->height_texture.id);
-    }
-
-    //glossiness
-    if (data_->glossiness_texture.set == true) {
-      shader->SetTexture("material.glossiness_texture", data_->glossiness_texture.id);
-    }
-
-    //Colors
-    shader->SetVec3("material.ambient_color", data_->ambient_color);
-    shader->SetVec3("material.diffuse_color", data_->diffuse_color);
-    shader->SetVec3("material.specular_color", data_->specular_color);
-    //shader->SetFloat("material.shininess", data_->shininess);
-    //shader->SetFloat("material.dissolve", data_->dissolve);
-
   }
   else {
-    //Textures
+    if (!data_->multi_material) {
+      //Textures
 
-//diffuse
-    if (data_->diffuse_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.diffuse_texture", data_->diffuse_texture.id);
+      //diffuse
+      if (data_->diffuse_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.diffuse_texture[0]", data_->diffuse_texture.id);
+      }
+
+      //ambient
+      if (data_->ambient_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_texture[0]", data_->ambient_texture.id);
+      }
+
+      //specular
+      if (data_->specular_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_texture[0]", data_->specular_texture.id);
+      }
+
+      //emissive
+      if (data_->emissive_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.emissive_texture[0]", data_->emissive_texture.id);
+      }
+
+      //alpha
+      if (data_->alpha_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.alpha_texture[0]", data_->alpha_texture.id);
+      }
+
+      //bump
+      if (data_->bump_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.bump_texture[0]", data_->bump_texture.id);
+      }
+
+      //normal
+      if (data_->normal_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.normal_texture[0]", data_->normal_texture.id);
+      }
+
+      //displacement
+      if (data_->displacement_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.displacement_texture[0]", data_->displacement_texture.id);
+      }
+
+      //specular_exponent
+      if (data_->specular_exponent_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_exponent_texture[0]", data_->specular_exponent_texture.id);
+      }
+
+      //reflection
+      if (data_->reflection_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.reflection_texture[0]", data_->reflection_texture.id);
+      }
+
+      //roughness
+      if (data_->roughness_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.roughness_texture[0]", data_->roughness_texture.id);
+      }
+
+      //metallic
+      if (data_->metallic_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.metallic_texture[0]", data_->metallic_texture.id);
+      }
+
+      //ambient_occlusion
+      if (data_->ambient_occlusion_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_occlusion_texture[0]", data_->ambient_occlusion_texture.id);
+      }
+
+      //height
+      if (data_->height_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.height_texture[0]", data_->height_texture.id);
+      }
+
+      //glossiness
+      if (data_->glossiness_texture.set == true) {
+        OpenGLEngine::Engine::Core::shader_->SetTexture("material.glossiness_texture[0]", data_->glossiness_texture.id);
+      }
+
+      //Colors
+      OpenGLEngine::Engine::Core::shader_->SetVec3("material.ambient_color[0]", data_->ambient_color);
+      OpenGLEngine::Engine::Core::shader_->SetVec3("material.diffuse_color[0]", data_->diffuse_color);
+      OpenGLEngine::Engine::Core::shader_->SetVec3("material.specular_color[0]", data_->specular_color);
+      //OpenGLEngine::Engine::Core::shader_->SetFloat("material.shininess[0]", data_->shininess);
+      //OpenGLEngine::Engine::Core::shader_->SetFloat("material.dissolve[0]", data_->dissolve);
+
+      OpenGLEngine::Engine::Core::shader_->SetInt("texture_index", 1);
     }
+    else {
+      for (int i = 0; i < data_->multi_material_data.n_textures; ++i) {
+        //Textures
 
-    //ambient
-    if (data_->ambient_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_texture", data_->ambient_texture.id);
+        //diffuse
+        if (i < data_->multi_material_data.diffuse_texture.size()) {
+          if (data_->multi_material_data.diffuse_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.diffuse_texture[" + std::to_string(i) + "]", data_->multi_material_data.diffuse_texture[i].id);
+          }
+        }
+
+        //ambient
+        if (i < data_->multi_material_data.ambient_texture.size()) {
+          if (data_->multi_material_data.ambient_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_texture" + std::to_string(i) + "]", data_->multi_material_data.ambient_texture[i].id);
+          }
+        }
+
+        //specular
+        if (i < data_->multi_material_data.specular_texture.size()) {
+          if (data_->multi_material_data.specular_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_texture" + std::to_string(i) + "]", data_->multi_material_data.specular_texture[i].id);
+          }
+        }
+
+        //emissive
+        if (i < data_->multi_material_data.emissive_texture.size()) {
+          if (data_->multi_material_data.emissive_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.emissive_texture" + std::to_string(i) + "]", data_->multi_material_data.emissive_texture[i].id);
+          }
+        }
+
+        //alpha
+        if (i < data_->multi_material_data.alpha_texture.size()) {
+          if (data_->multi_material_data.alpha_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.alpha_texture" + std::to_string(i) + "]", data_->multi_material_data.alpha_texture[i].id);
+          }
+        }
+
+        //bump
+        if (i < data_->multi_material_data.bump_texture.size()) {
+          if (data_->multi_material_data.bump_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.bump_texture" + std::to_string(i) + "]", data_->multi_material_data.bump_texture[i].id);
+          }
+        }
+
+        //normal
+        if (i < data_->multi_material_data.normal_texture.size()) {
+          if (data_->multi_material_data.normal_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.normal_texture" + std::to_string(i) + "]", data_->multi_material_data.normal_texture[i].id);
+          }
+        }
+
+        //displacement
+        if (i < data_->multi_material_data.displacement_texture.size()) {
+          if (data_->multi_material_data.displacement_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.displacement_texture" + std::to_string(i) + "]", data_->multi_material_data.displacement_texture[i].id);
+          }
+        }
+
+        //specular_exponent
+        if (i < data_->multi_material_data.specular_exponent_texture.size()) {
+          if (data_->multi_material_data.specular_exponent_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_exponent_texture" + std::to_string(i) + "]", data_->multi_material_data.specular_exponent_texture[i].id);
+          }
+        }
+
+        //reflection
+        if (i < data_->multi_material_data.reflection_texture.size()) {
+          if (data_->multi_material_data.reflection_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.reflection_texture" + std::to_string(i) + "]", data_->multi_material_data.reflection_texture[i].id);
+          }
+        }
+
+        //roughness
+        if (i < data_->multi_material_data.roughness_texture.size()) {
+          if (data_->multi_material_data.roughness_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.roughness_texture" + std::to_string(i) + "]", data_->multi_material_data.roughness_texture[i].id);
+          }
+        }
+
+        //metallic
+        if (i < data_->multi_material_data.metallic_texture.size()) {
+          if (data_->multi_material_data.metallic_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.metallic_texture" + std::to_string(i) + "]", data_->multi_material_data.metallic_texture[i].id);
+          }
+        }
+
+        //ambient_occlusion
+        if (i < data_->multi_material_data.ambient_occlusion_texture.size()) {
+          if (data_->multi_material_data.ambient_occlusion_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_occlusion_texture" + std::to_string(i) + "]", data_->multi_material_data.ambient_occlusion_texture[i].id);
+          }
+        }
+
+        //height
+        if (i < data_->multi_material_data.height_texture.size()) {
+          if (data_->multi_material_data.height_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.height_texture" + std::to_string(i) + "]", data_->multi_material_data.height_texture[i].id);
+          }
+        }
+
+        //glossiness
+        if (i < data_->multi_material_data.glossiness_texture.size()) {
+          if (data_->multi_material_data.glossiness_texture[i].set == true) {
+            OpenGLEngine::Engine::Core::shader_->SetTexture("material.glossiness_texture" + std::to_string(i) + "]", data_->multi_material_data.glossiness_texture[i].id);
+          }
+        }
+
+        //Colors
+        if (i < data_->multi_material_data.ambient_color.size())
+          OpenGLEngine::Engine::Core::shader_->SetVec3("material.ambient_color[" + std::to_string(i) + "]", data_->multi_material_data.ambient_color[i]);
+
+        if (i < data_->multi_material_data.diffuse_color.size())
+          OpenGLEngine::Engine::Core::shader_->SetVec3("material.diffuse_color[" + std::to_string(i) + "]", data_->multi_material_data.diffuse_color[i]);
+
+        if (i < data_->multi_material_data.specular_color.size())
+          OpenGLEngine::Engine::Core::shader_->SetVec3("material.specular_color[" + std::to_string(i) + "]", data_->multi_material_data.specular_color[i]);
+
+
+        //OpenGLEngine::Engine::Core::shader_->SetFloat("material.shininess[" + std::to_string(i) + "]", data_->multi_material_data.shininess[i]);
+        //OpenGLEngine::Engine::Core::shader_->SetFloat("material.dissolve[" + std::to_string(i) + "]", data_->multi_material_data.dissolve[i]);
+
+
+      }
+      OpenGLEngine::Engine::Core::shader_->SetInt("texture_index", data_->multi_material_data.n_textures);
     }
-
-    //specular
-    if (data_->specular_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_texture", data_->specular_texture.id);
-    }
-
-    //emissive
-    if (data_->emissive_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.emissive_texture", data_->emissive_texture.id);
-    }
-
-    //alpha
-    if (data_->alpha_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.alpha_texture", data_->alpha_texture.id);
-    }
-
-    //bump
-    if (data_->bump_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.bump_texture", data_->bump_texture.id);
-    }
-
-    //normal
-    if (data_->normal_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.normal_texture", data_->normal_texture.id);
-    }
-
-    //displacement
-    if (data_->displacement_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.displacement_texture", data_->displacement_texture.id);
-    }
-
-    //specular_exponent
-    if (data_->specular_exponent_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.specular_exponent_texture", data_->specular_exponent_texture.id);
-    }
-
-    //reflection
-    if (data_->reflection_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.reflection_texture", data_->reflection_texture.id);
-    }
-
-    //roughness
-    if (data_->roughness_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.roughness_texture", data_->roughness_texture.id);
-    }
-
-    //metallic
-    if (data_->metallic_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.metallic_texture", data_->metallic_texture.id);
-    }
-
-    //ambient_occlusion
-    if (data_->ambient_occlusion_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.ambient_occlusion_texture", data_->ambient_occlusion_texture.id);
-    }
-
-    //height
-    if (data_->height_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.height_texture", data_->height_texture.id);
-    }
-
-    //glossiness
-    if (data_->glossiness_texture.set == true) {
-      OpenGLEngine::Engine::Core::shader_->SetTexture("material.glossiness_texture", data_->glossiness_texture.id);
-    }
-
-    //Colors
-    OpenGLEngine::Engine::Core::shader_->SetVec3("material.ambient_color", data_->ambient_color);
-    OpenGLEngine::Engine::Core::shader_->SetVec3("material.diffuse_color", data_->diffuse_color);
-    OpenGLEngine::Engine::Core::shader_->SetVec3("material.specular_color", data_->specular_color);
-    //OpenGLEngine::Engine::Core::shader_->SetFloat("material.shininess", data_->shininess);
-    //OpenGLEngine::Engine::Core::shader_->SetFloat("material.dissolve", data_->dissolve);
   }
-
   //BindTextures();
 }
 
@@ -462,6 +761,130 @@ void MaterialComponent::LoadTexture(const std::string& path, MaterialComponent::
 
 }
 
+void MaterialComponent::AddMultiTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target){
+  Texture new_texture;
+  auto it = new_texture.texture_map.find(type);
+  if (it != new_texture.texture_map.end()) {
+    new_texture.type = it->second;
+  }
+  else {
+    LOG_F(ERROR, "Texture type not found");
+  }
+  new_texture.texture_unit = MaterialData::current_textures + 1;
+  new_texture.data = stbi_load(path.c_str(), &new_texture.width, &new_texture.height, &new_texture.n_channels, 0);
+
+  if (new_texture.data != nullptr) {
+    new_texture.set = true;
+    new_texture.Process();
+    data_->multi_material_data.n_textures++;
+    switch (target) {
+
+    case MaterialComponent::TextureTarget::Diffuse:
+      data_->multi_material_data.diffuse_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Ambient:
+      data_->multi_material_data.ambient_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Specular:
+      data_->multi_material_data.specular_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Emissive:
+      data_->multi_material_data.emissive_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Alpha:
+      data_->multi_material_data.alpha_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Bump:
+      data_->multi_material_data.bump_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Normal:
+      data_->multi_material_data.normal_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Displacement:
+      data_->multi_material_data.displacement_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::SpecularExponent:
+      data_->multi_material_data.specular_exponent_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Reflection:
+      data_->multi_material_data.reflection_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Roughness:
+      data_->multi_material_data.roughness_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Metallic:
+      data_->multi_material_data.metallic_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::AmbientOcclusion:
+      data_->multi_material_data.ambient_occlusion_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Height:
+      data_->multi_material_data.height_texture.push_back(new_texture);
+      break;
+
+    case MaterialComponent::TextureTarget::Glossiness:
+      data_->multi_material_data.glossiness_texture.push_back(new_texture);
+      break;
+
+    default:
+      break;
+    }
+
+    MaterialData::current_textures++;
+
+    //LOG_F(INFO, "Texture loaded correctly: %s", path.c_str());
+  }
+  else {
+    LOG_F(ERROR, "Failed to load texture: %s", path.c_str());
+  }
+}
+
+void MaterialComponent::AddAmbientColorMultiTexture(float ambient_x, float ambient_y, float ambient_z){
+  AddAmbientColorMultiTexture(glm::vec3(ambient_x, ambient_y, ambient_z));
+}
+
+void MaterialComponent::AddAmbientColorMultiTexture(const glm::vec3 color){
+  data_->multi_material_data.ambient_color.push_back(color);
+
+}
+
+void MaterialComponent::AddDiffuseColorMultiTexture(float ambient_x, float ambient_y, float ambient_z){
+  AddDiffuseColorMultiTexture(glm::vec3(ambient_x, ambient_y, ambient_z));
+}
+
+void MaterialComponent::AddDiffuseColorMultiTexture(const glm::vec3 color){
+  data_->multi_material_data.diffuse_color.push_back(color);
+}
+
+void MaterialComponent::AddSpecularColorMultiTexture(float ambient_x, float ambient_y, float ambient_z){
+  AddSpecularColorMultiTexture(glm::vec3(ambient_x, ambient_y, ambient_z));
+}
+
+void MaterialComponent::AddSpecularColorMultiTexture(const glm::vec3 color){
+  data_->multi_material_data.specular_color.push_back(color);
+}
+
+void MaterialComponent::AddShininessMultiTexture(const float shininess){
+  data_->multi_material_data.shininess.push_back(shininess);
+}
+
+void MaterialComponent::AddDissolveMultiTexture(const float dissolve){
+  data_->multi_material_data.dissolve.push_back(dissolve);
+}
+
 void MaterialComponent::BindTextures() {
     //Diffuse
     if (data_->diffuse_texture.set == true) {
@@ -552,6 +975,137 @@ void MaterialComponent::BindTextures() {
       glActiveTexture(GL_TEXTURE0 + data_->glossiness_texture.texture_unit);
       glBindTexture(data_->glossiness_texture.type, data_->glossiness_texture.id);
     }
+}
+
+void MaterialComponent::BindMultiTextures(){
+  for (int i = 0; i < data_->multi_material_data.n_textures; i++) {
+
+    if(i < data_->multi_material_data.diffuse_texture.size()){
+      if (data_->multi_material_data.diffuse_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.diffuse_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.diffuse_texture[i].type, data_->multi_material_data.diffuse_texture[i].id);
+      }
+    }
+
+    //Ambient
+    if (i < data_->multi_material_data.ambient_texture.size()) {
+      if (data_->multi_material_data.ambient_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.ambient_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.ambient_texture[i].type, data_->multi_material_data.ambient_texture[i].id);
+      }
+    }
+
+    //Specular
+    if (i < data_->multi_material_data.specular_texture.size()) {
+      if (data_->multi_material_data.specular_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.specular_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.specular_texture[i].type, data_->multi_material_data.specular_texture[i].id);
+      }
+    }
+
+    //Emissive
+
+    if (i < data_->multi_material_data.emissive_texture.size()) {
+      if (data_->multi_material_data.emissive_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.emissive_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.emissive_texture[i].type, data_->multi_material_data.emissive_texture[i].id);
+      }
+    }
+
+    //Alpha
+
+    if (i < data_->multi_material_data.alpha_texture.size()) {
+      if (data_->multi_material_data.alpha_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.alpha_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.alpha_texture[i].type, data_->multi_material_data.alpha_texture[i].id);
+      }
+    }
+
+    //Bump
+    if (i < data_->multi_material_data.bump_texture.size()) {
+      if (data_->multi_material_data.bump_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.bump_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.bump_texture[i].type, data_->multi_material_data.bump_texture[i].id);
+      }
+    }
+
+    //Normal
+    
+    if (i < data_->multi_material_data.normal_texture.size()) {
+      if (data_->multi_material_data.normal_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.normal_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.normal_texture[i].type, data_->multi_material_data.normal_texture[i].id);
+      }
+    }
+
+    //Displacement
+    if (i < data_->multi_material_data.displacement_texture.size()) {
+      if (data_->multi_material_data.displacement_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.displacement_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.displacement_texture[i].type, data_->multi_material_data.displacement_texture[i].id);
+      }
+    }
+
+    //Specular Exponent
+    if (i < data_->multi_material_data.specular_exponent_texture.size()) {
+      if (data_->multi_material_data.specular_exponent_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.specular_exponent_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.specular_exponent_texture[i].type, data_->multi_material_data.specular_exponent_texture[i].id);
+      }
+    }
+
+    //Reflection
+    if (i < data_->multi_material_data.reflection_texture.size()) {
+      if (data_->multi_material_data.reflection_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.reflection_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.reflection_texture[i].type, data_->multi_material_data.reflection_texture[i].id);
+      }
+    }
+
+    //Roughness
+    if (i < data_->multi_material_data.roughness_texture.size()) {
+      if (data_->multi_material_data.roughness_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.roughness_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.roughness_texture[i].type, data_->multi_material_data.roughness_texture[i].id);
+      }
+    }
+
+    //Metallic
+    if (i < data_->multi_material_data.metallic_texture.size()) {
+      if (data_->multi_material_data.metallic_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.metallic_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.metallic_texture[i].type, data_->multi_material_data.metallic_texture[i].id);
+      }
+    }
+
+    //Ambient Occlusion
+    if (i < data_->multi_material_data.ambient_occlusion_texture.size()) {
+      if (data_->multi_material_data.ambient_occlusion_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.ambient_occlusion_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.ambient_occlusion_texture[i].type, data_->multi_material_data.ambient_occlusion_texture[i].id);
+      }
+    }
+
+    //Height
+    if (i < data_->multi_material_data.height_texture.size()) {
+      if (data_->multi_material_data.height_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.height_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.height_texture[i].type, data_->multi_material_data.height_texture[i].id);
+      }
+    }
+
+    //Glossiness
+    if (i < data_->multi_material_data.glossiness_texture.size()) {
+      if (data_->multi_material_data.glossiness_texture[i].set == true) {
+        glActiveTexture(GL_TEXTURE0 + data_->multi_material_data.glossiness_texture[i].texture_unit);
+        glBindTexture(data_->multi_material_data.glossiness_texture[i].type, data_->multi_material_data.glossiness_texture[i].id);
+      }
+    }
+  }
+}
+
+void MaterialComponent::SetMultiMaterial(bool multi){
+  data_->multi_material = multi;
 }
 
 

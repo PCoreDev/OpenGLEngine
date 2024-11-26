@@ -19,14 +19,12 @@ struct EntityData {
 Entity::Entity() {
 }
 
-Entity::Entity(int id)
-{
+Entity::Entity(int id){
   data_ = std::make_unique<EntityData>();
   data_->id_ = id;
 }
 
-Entity::Entity(const Entity& entity)
-{
+Entity::Entity(const Entity& entity){
   data_ = std::make_unique<EntityData>();
   data_->id_ = entity.data_->id_;
   for (auto& component : entity.data_->components_) {
@@ -34,13 +32,11 @@ Entity::Entity(const Entity& entity)
   }
 }
 
-Entity::Entity(Entity&& entity)
-{
+Entity::Entity(Entity&& entity){
   data_ = std::move(entity.data_);
 }
 
-Entity& Entity::operator=(const Entity& entity)
-{
+Entity& Entity::operator=(const Entity& entity){
   data_ = std::make_unique<EntityData>();
   data_->id_ = entity.data_->id_;
   for (auto& component : entity.data_->components_) {
