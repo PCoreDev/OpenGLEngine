@@ -74,6 +74,7 @@ for(int i = 0; i < texture_index; i++){
   specular += CalculateSpecular(material, position, normal, light_position, camera_position, i) * vec3(texture(material.specular_texture[i], texCoords));
 }
 
+
   vec3 lights = ambient + diffuse + specular;
      
   FragColor = vec4(lights, 1.0); 

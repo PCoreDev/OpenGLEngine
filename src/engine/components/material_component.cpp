@@ -679,7 +679,7 @@ void MaterialComponent::LoadTexture(const std::string& path, MaterialComponent::
   else {
     LOG_F(ERROR, "Texture type not found");
   }
-  new_texture.texture_unit = MaterialData::current_textures + 1;
+  new_texture.texture_unit = MaterialData::current_textures + 1 + 1;
   new_texture.data = stbi_load(path.c_str(), &new_texture.width, &new_texture.height, &new_texture.n_channels, 0);
 
   if (new_texture.data != nullptr) {

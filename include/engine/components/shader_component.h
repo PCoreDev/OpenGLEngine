@@ -17,6 +17,7 @@ public:
   ShaderComponent(std::weak_ptr<Entity> entity);
   ShaderComponent(const ShaderComponent& other);
   ShaderComponent(ShaderComponent&& other) noexcept;
+  ~ShaderComponent() =  default;
   void operator=(const ShaderComponent& other);
   ShaderComponent& operator=(ShaderComponent&& other) noexcept;
 
@@ -36,6 +37,7 @@ public:
 
 
   bool LoadShader(std::string path, ShaderType type);
+  bool LoadShaderAndAttach(std::string path, ShaderType type);
 private:
   std::string ReadFile(const std::string& path);
   unsigned int CompileShader(std::string& shader_code, ShaderType type); 

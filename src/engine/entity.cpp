@@ -7,6 +7,7 @@
 #include "engine/components/camera_component.h"
 #include "engine/components/material_component.h"
 #include "engine/components/light_component.h"
+#include "engine/components/skybox_component.h"
 
 #include <vector>
 
@@ -121,6 +122,15 @@ std::shared_ptr<class LightComponent> Entity::GetLightComponent()
   return std::shared_ptr<LightComponent>();
 }
 
+std::shared_ptr<class SkyBoxComponent> Entity::GetSkyBoxComponent(){
+  for (auto& component : data_->components_) {
+    if (component->GetType() == Component::ComponentType::ComponentType_SkyBox) {
+      return std::static_pointer_cast<SkyBoxComponent>(component);
+    }
+  }
+  return std::shared_ptr<SkyBoxComponent>();
+}
+
 void Entity::AddRenderComponent() {
     data_->components_.push_back(std::make_shared<RenderComponent>(weak_from_this()));
 }
@@ -168,6 +178,10 @@ void Entity::AddShaderComponent() {
 
 void Entity::AddMaterialComponent(){
   data_->components_.push_back(std::make_shared<MaterialComponent>(weak_from_this()));
+}
+
+void Entity::AddSkyBoxComponent(){
+  data_->components_.push_back(std::make_shared<SkyBoxComponent>(weak_from_this()));
 }
 
 //Getters

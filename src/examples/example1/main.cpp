@@ -13,6 +13,7 @@
 #include "engine/components/transform_component.h"
 #include "engine/components/render_component.h"
 #include "engine/components/light_component.h"
+#include "engine/components/skybox_component.h"
 
 
 
@@ -23,6 +24,27 @@ int OpenGLEngine::main(int argc, char** argv)
   //camera->AddTransformComponent();
   camera->AddCameraComponent();
   camera->GetCameraComponent()->SetMainCamera();
+
+  std::shared_ptr<Entity> skybox = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  skybox->AddMeshComponent();
+  skybox->GetMeshComponent()->SkyBox();
+  skybox->AddRenderComponent();
+  skybox->AddSkyBoxComponent();
+  skybox->AddShaderComponent();
+  skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.vert", ShaderComponent::Vertex);
+  skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.frag", ShaderComponent::Fragment);
+  std::vector<std::string> faces
+  {
+    "../../data/textures/skybox/skybox_4k_right.jpg",
+    "../../data/textures/skybox/skybox_4k_left.jpg",
+    "../../data/textures/skybox/skybox_4k_top.jpg",
+    "../../data/textures/skybox/skybox_4k_bottom.jpg",
+    "../../data/textures/skybox/skybox_4k_back.jpg",
+    "../../data/textures/skybox/skybox_4k_front.jpg",
+  };
+  skybox->GetSkyBoxComponent()->LoadSkyBox(faces);
+
+
   
   std::shared_ptr<Entity> entity1 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   entity1->AddMeshComponent();
@@ -99,7 +121,7 @@ int OpenGLEngine::main(int argc, char** argv)
   //entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
   entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
   entity3->AddMaterialComponent();
-  entity3->GetMeshComponent()->LoadOBJ("../../data/models/Pikachu/pikachu.obj", "../../data/models/Pikachu/");
+  entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
  
   return 0;
 }

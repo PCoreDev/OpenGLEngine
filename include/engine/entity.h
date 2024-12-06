@@ -23,6 +23,7 @@ public:
   std::shared_ptr<class MaterialComponent> GetMaterialComponent();
   std::shared_ptr<class RenderComponent> GetRenderComponent();
   std::shared_ptr<class LightComponent> GetLightComponent();
+  std::shared_ptr<class SkyBoxComponent> GetSkyBoxComponent();
 
 
   //Setters
@@ -36,6 +37,7 @@ public:
   void AddMeshComponent();
   void AddShaderComponent();
   void AddMaterialComponent();
+  void AddSkyBoxComponent();
 
 private:
   std::unique_ptr<class EntityData> data_;

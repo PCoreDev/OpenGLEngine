@@ -4,6 +4,7 @@
 #include "engine/components/shader_component.h"
 #include "engine/components/material_component.h"
 #include "engine/components/transform_component.h"
+#include "engine/components/skybox_component.h"
 #include "glad/glad.h"
 
 #include "engine/entity.h"
@@ -68,13 +69,29 @@ void RenderComponent::Render() {
 
        shader->UseProgram();
        //entity.lock()->GetMaterialComponent()->BindTextures();
-       shader->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
 
-       shader->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
+       if (entity.lock()->GetTransformComponent() != nullptr) {
+        shader->SetMat4("model_matrix", entity.lock()->GetTransformComponent()->GetModelMatrix());
+       }
+
+       glm::mat4 view = OpenGLEngine::Engine::Core::camera_->GetViewMatrix();
+
+       if (entity.lock()->GetSkyBoxComponent() != nullptr) {
+         shader->SetInt("skybox", 0);
+         glActiveTexture(GL_TEXTURE0);
+         glBindTexture(GL_TEXTURE_CUBE_MAP, entity.lock()->GetSkyBoxComponent()->GetSkyBoxID());
+         view = glm::mat4(glm::mat3(OpenGLEngine::Engine::Core::camera_->GetViewMatrix()));
+       }
+
+
+       shader->SetMat4("view_matrix", view);
        shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
 
-       entity.lock()->GetMaterialComponent()->SendToShader();
-       entity.lock()->GetMaterialComponent()->BindTextures();
+       if (entity.lock()->GetMaterialComponent() != nullptr) {
+        entity.lock()->GetMaterialComponent()->SendToShader();
+        entity.lock()->GetMaterialComponent()->BindTextures();
+       }
+
 
        shader->SetVec3("light_position", glm::vec3(0.0f, 100.0f, 0.0f));
        shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
@@ -104,6 +121,12 @@ void RenderComponent::Render() {
     }
 
     if (mesh != nullptr) {
+      if (entity.lock()->GetSkyBoxComponent() != nullptr) {
+        glDepthFunc(GL_LEQUAL);
+      }
+      else {
+        glDepthFunc(GL_LESS);
+      }
       glBindVertexArray(mesh->GetVAO());
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->GetIBO());
       glDrawElements(GL_TRIANGLES, mesh->GetVertexCount() * 3, GL_UNSIGNED_INT, nullptr);

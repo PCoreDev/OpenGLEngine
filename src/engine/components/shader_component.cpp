@@ -156,6 +156,26 @@ bool ShaderComponent::LoadShader(std::string path, ShaderType type) {
   return LinkProgram();
 }
 
+bool ShaderComponent::LoadShaderAndAttach(std::string path, ShaderType type)
+{
+  switch (type)
+  {
+  case Vertex:
+    data->vertex = CompileShader(ReadFile(path), type);
+    break;
+  case Fragment:
+    data->fragment = CompileShader(ReadFile(path), type);
+    break;
+  case Geometry:
+    data->geometry = CompileShader(ReadFile(path), type);
+    break;
+  default:
+    break;
+  }
+
+  return LinkProgram(true);
+}
+
 std::string ShaderComponent::ReadFile(const std::string& path) {
   std::string code;
   std::ifstream file;

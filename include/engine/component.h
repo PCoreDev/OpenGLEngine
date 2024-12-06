@@ -29,6 +29,7 @@
       ComponentType_Camera,
       ComponentType_Mesh,
       ComponentType_Material,
+      ComponentType_SkyBox,
       ComponentType_MAX,
     };
 
