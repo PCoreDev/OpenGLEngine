@@ -18,6 +18,8 @@
 
 #include "loguru/loguru.hpp"
 
+#include "imgui.h"
+
 
 #define PX_SCHED_IMPLEMENTATION 1
 
@@ -46,6 +48,18 @@ int main(int argc, char** argv){
 
   while (core->RunningState())
   {
+    //Poll events
+
+    //Update application/game state
+
+    //Render content into a framebuffer
+
+    //Swap/Present framebuffer to the screen
+
+    //Wait for next frame (1/60th of a second)
+
+
+
     if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_Key9)) { core->camera_->SetFOV(++fov); }
     if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_Key0)) { core->camera_->SetFOV(--fov); }
     //Update
