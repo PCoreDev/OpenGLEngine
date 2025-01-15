@@ -2,7 +2,12 @@ workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
 location "../build/solution"
-libdirs{"../deps/openAL/libs/Win64", "../deps/glew-2.1.0/lib/Release/x64"}
+libdirs{"../deps/openAL/libs/Win64", "../deps/glew-2.1.0/lib/Release/x64", "opengl32.lib"}
+
+  links {
+    "opengl32",
+}
+
 includedirs {
 --GLFW
 "../deps/GLFW/include",
@@ -21,6 +26,7 @@ includedirs {
 "../deps/openal-soft/",
 --Imgui
 "../deps/imgui/",
+"../deps/imgui/backends/",
 --LUA
 "../deps/Lua",
 --OBJ LOADER (DELETE)
