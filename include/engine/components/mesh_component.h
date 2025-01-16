@@ -5,6 +5,21 @@
 
 #include "engine/entity.h"
 
+struct MeshData {
+  std::vector<float> vertex_data;
+  std::vector<float> normal_data;
+  std::vector<float> uv_data;
+  std::vector<unsigned int> index_data;
+  std::vector<unsigned int> index_uv;
+  std::vector<unsigned int> index_normals;
+  int n_vertex = 0;
+  unsigned int vao, vbo, ibo, nbo, ubo;
+  void Bind();
+  bool cube;
+  bool back = false;
+
+};
+
 class MeshComponent : public Component {
 public:
   MeshComponent() = default;
@@ -33,7 +48,7 @@ public:
   void CleanUp();
 
 private:
-  std::unique_ptr<class MeshData> data_;
+  std::unique_ptr<MeshData> data_;
 };
 
 

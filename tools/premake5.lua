@@ -2,43 +2,44 @@ workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
 location "../build/solution"
-libdirs{"../deps/openAL/libs/Win64", "../deps/glew-2.1.0/lib/Release/x64", "opengl32.lib"}
+libdirs{"../deps/openal-soft/build/RelWithDebInfo", "../deps/glew-2.1.0/lib/Release/x64", "opengl32.lib", "../deps/glfw/build/src/RelWithDebInfo",} 
 
-  links {
-    "opengl32",
+links {
+  "glfw3",
+  "opengl32",
 }
 
 includedirs {
---GLFW
-"../deps/GLFW/include",
-"../include",
---GLM
-"../deps/GLM",
---OpenGL
-"../deps/OpenGL/OpenGL/include",
---PX_Sched
-"../deps/PX_Sched/",
---Loguru
-"../deps/loguru/",
---STB
-"../deps/stb_image/",
---OpenAL
-"../deps/openal-soft/",
---Imgui
-"../deps/imgui/",
-"../deps/imgui/backends/",
---LUA
-"../deps/Lua",
---OBJ LOADER (DELETE)
-"../deps/OBJ_Loader",
---Guizmo
-"../deps/Guizmo",
---Tiny OBJ
-"../deps/tinyObjLoader",
---Minitrace
-"../deps/minitrace",
---GLEW
-"../deps/glew-2.1.0/include"}
+  --GLAD
+  "../deps/glad/include",
+  --GLEW
+  "../deps/glew-2.1.0/include",
+  --GLFW
+  "../deps/GLFW/include",
+  --GLM
+  "../deps/glm",
+  --PX_Sched
+  --"../deps/px",
+  --Loguru
+  --"../deps/loguru",
+  --STB
+  --"../deps/stb",
+  --OpenAL
+  "../deps/openal-soft/include/",
+  --Imgui
+  "../deps/imgui/",
+  "../deps/imgui/backends/",
+  --LUA
+  --"../deps/Lua",
+  --OBJ LOADER
+  "../deps/OBJ-Loader/Source",
+  --Minitrace
+  "../deps/minitrace",
+  --Include
+  "../include",
+  --Deps
+  "../deps/",
+}
 
 platforms { "Win32", "Win64", "Unix32", "Unix64", "MacOS" }
 startproject "Example1"
@@ -48,148 +49,122 @@ startproject "Example1"
 ----------------------------------------------------------
 project "Engine"
   kind "StaticLib"
-
   language "C++"
+  cppdialect "C++20"  -- Establece el estándar de C++ a C++20
   location "../build/engine"
   targetdir"../data/engine"
   objdir "../build/engine"
   libdirs ""
 
-  files { "..deps/GLFW/glfw/src/*.c",
-	        "../src/engine/*.cpp",
-          "../src/engine/components/*.cpp",
-	        "../include/engine/*.h",
-          "../include/engine/components/*.h",
-	        "../deps/GLFW/src/win32_*.c",
-	        "../deps/GLFW/src/context.c",
-	        "../deps/GLFW/src/egl_context.c",
-	        "../deps/GLFW/src/wgl_context.c",
-	        "../deps/GLFW/src/init.c",
-	        "../deps/GLFW/src/input.c",
-	        "../deps/GLFW/src/monitor.c",
-	        "../deps/GLFW/src/osmesa_context.c",
-	        "../deps/GLFW/src/window.c",
-	        "../deps/GLFW/src/vulkan.c",
-	        "../deps/GLM/glm/**.hpp",
-	        "../deps/GLM/glm/**.h",
-	        "../deps/GLM/glm/**.c",
-	        "../deps/GLM/glm/**.cpp",
-	        "../deps/GLM/glm/**.inl",
-	        "../deps/OpenGL/OpenGL/src/*.c",
-          "../deps/loguru/loguru/*.hpp",
-          "../deps/loguru/loguru/*.cpp",
-          "../deps/PX_Sched/px_sched/*.h",
-          "../deps/openal-soft/include/*.h",
-          "../deps/imgui/*.c",
-          "../deps/imgui/*.cc",
-          "../deps/imgui/*.cpp",
-          "../deps/imgui/backends/imgui_impl_glfw.cpp",
-          "../deps/imgui/backends/imgui_impl_opengl3.cpp",
-          "../deps/imgui/*.h",
-          "../deps/imgui/guizmo/*.h",
-          "../deps/imgui/guizmo/*.cpp",
-          "../deps/Guizmo/*.h",
-          "../deps/Lua/*.c",
-          "../deps/Lua/*.h",
-          "../deps/Lua/*.hpp",
-          "../deps/OBJ_Loader/OBJ_Loader/*.h",
-          "../deps/openal-soft/OpenAL/include/AL/*.h",
-          "../deps/tinyObjLoader/tinyObjLoader/*.h",
-          "../deps/tinyObjLoader/tinyObjLoader/*.cc",
-          "../deps/minitrace/minitrace.c",
-          "../deps/minitrace/minitrace.h",
-        }
-filter "configurations:Debug"
+  files {
+    "../src/engine/*.cpp",
+    "../src/engine/components/*.cpp",
+    "../include/engine/*.h",
+    "../include/engine/components/*.h",
+
+    "../deps/glfw/glfw/src/*.c",
+    "../deps/glfw/src/win32_*.c",
+    "../deps/glfw/src/context.c",
+    "../deps/glfw/src/egl_context.c",
+    "../deps/glfw/src/wgl_context.c",
+    "../deps/glfw/src/init.c",
+    "../deps/glfw/src/input.c",
+    "../deps/glfw/src/monitor.c",
+    "../deps/glfw/src/osmesa_context.c",
+    "../deps/glfw/src/window.c",
+    "../deps/glfw/src/vulkan.c",
+
+    "../deps/glm/glm/**.hpp",
+    "../deps/glm/glm/**.h",
+    "../deps/glm/glm/**.c",
+    "../deps/glm/glm/**.cpp",
+    "../deps/glm/glm/**.inl",
+
+    "../deps/glad/src/*.c",
+    "../deps/glad/include/*.h",
+
+    "../deps/loguru/*.hpp",
+    "../deps/loguru/*.cpp",
+
+    "../deps/px/*.h",
+
+    "../deps/openal-soft/include/*.h",
+    "../deps/openal-soft/OpenAL/include/AL/*.h",
+
+    "../deps/imgui/*.c",
+    "../deps/imgui/*.cc",
+    "../deps/imgui/*.cpp",
+    "../deps/imgui/backends/imgui_impl_glfw.cpp",
+    "../deps/imgui/backends/imgui_impl_opengl3.cpp",
+    "../deps/imgui/*.h",
+    "../deps/imgui/guizmo/*.h",
+    "../deps/imgui/guizmo/*.cpp",
+
+    "../deps/lua/*.c",
+    "../deps/lua/*.h",
+    "../deps/lua/*.hpp",
+
+    "../deps/OBJ_Loader/OBJ_Loader/*.h",
+
+    "../deps/minitrace/minitrace.c",
+    "../deps/minitrace/minitrace.h",
+  }
+
+  filter "configurations:Debug"
     defines{"DEBUG"}
     symbols "On"
 
-filter "configurations:Release"
+  filter "configurations:Release"
     defines{"NDEBUG"}
     symbols "Off"
     optimize "On"
 
---filter{"platforms:Win32"}
---    system "windows"
---    architecture "x86"
---    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
-
-filter{"platforms:Win64"}
+  filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
     defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY", "MTR_ENABLED"}
 
---filter{"platforms:Unix32"}
---    system "linux"
---    architecture "x86"
---    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
-
---filter{"platforms:Unix64"}
---    system "linux"
---    architecture "x64"
---    defines {"_GLFW_COCOA ", "_GLFW_X11", "_GLFW_WAYLAND", "_GLFW_OSMESA"}
-
---filter{"platforms:MacOS"}
---    system "macosx"
---    architecture "x64"
---    defines { "_GLFW_COCOA"}
-
 project "Engine"
-    configmap{
-        ["Development"] = "Debug",
-        ["Profile"] = "Release"
-    }
-
+  configmap{
+    ["Development"] = "Debug",
+    ["Profile"] = "Release"
+  }
 
 ----------------------------------------------------------
 --------------------PROJECT WINDOW------------------------
 ----------------------------------------------------------
 project "Example1"
-kind "ConsoleApp"
-language "C++"
-location "../build/example1"
-targetdir "../bin/example/example1"
+  kind "ConsoleApp"
+  language "C++"
+  cppdialect "C++20"  -- Establece el estándar de C++ a C++20
+  location "../build/example1"
+  targetdir "../bin/example/example1"
   libdirs { "../data/engine" }
-links { "Engine" }
+  links { "Engine" }
 
-files {   "../src/examples/example1/*.cpp",
-  "../include/engine/*.h"
-}
+  files {   
+    "../src/examples/example1/*.cpp",
+    "../include/engine/*.h"
+  }
 
-removefiles {}
+  removefiles {}
 
-filter "configurations:Debug"
+  filter "configurations:Debug"
     defines{"DEBUG"}
     symbols "On"
 
-filter "configurations:Release"
+  filter "configurations:Release"
     defines{"NDEBUG"}
     symbols "Off"
     optimize "On"
 
---filter{"platforms:Win32"}
---    system "windows"
---    architecture "x86"
---    defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
-
-filter{"platforms:Win64"}
+  filter{"platforms:Win64"}
     system "windows"
     architecture "x64"
     defines { "_WIN32", "_GLFW_WIN32", "_GLFW_WGL", "_GLFW_USE_OPENGL", "_GLFW_OPENGL_LIBRARY"}
 
---filter{"platforms:Unix32"}
---    system "linux"
---    architecture "x86"
-
---filter{"platforms:Win64"}
---    system "linux"
---    architecture "x64"
-
---filter{"platforms:MacOS"}
---    system "macosx"
---    architecture "x64"
-
 project "Example1"
-    configmap{
-        ["Development"] = "Debug",
-        ["Profile"] = "Release"
-    }
+  configmap{
+    ["Development"] = "Debug",
+    ["Profile"] = "Release"
+  }

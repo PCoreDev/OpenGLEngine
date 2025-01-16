@@ -12,9 +12,7 @@
 
 #include "engine/shader.h"
 
-struct RenderData {
-  bool enabled;
-};
+
 
 
 RenderComponent::RenderComponent(std::weak_ptr<Entity> e) {

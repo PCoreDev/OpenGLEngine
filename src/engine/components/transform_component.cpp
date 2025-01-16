@@ -8,22 +8,7 @@
 
 #include "engine/entity.h"
 
-struct TransformData {
-  int parent_id;
-  glm::vec3 position;
-  glm::vec3 rotation;
-  glm::vec3 scale;
 
-  glm::mat4 m_traslation;
-  glm::mat4 m_rotation;
-  glm::mat4 m_scale;
-  glm::mat4 m_model;
-
-  void UpdateTraslationMatrix();
-  void UpdateScaleMatrix();
-  void UpdateRotationMatrix();
-  void UpdateModelMatrix();
-};
 
 TransformComponent::TransformComponent(std::weak_ptr<Entity> e) {
   this->entity = e;

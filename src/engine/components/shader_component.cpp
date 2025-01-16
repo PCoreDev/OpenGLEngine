@@ -16,13 +16,7 @@
 #include "engine/entity.h"
 
 
-struct ShaderData {
-  int vertex;
-  int fragment;
-  int geometry;
-  int program;
-  bool enable;
-};
+
 
 
 
@@ -30,14 +24,14 @@ ShaderComponent::ShaderComponent(std::weak_ptr<Entity> e) {
   this->entity = e;
   this->id = entity.lock()->ID();
   this->type = ComponentType_Shader;
-  data = std::make_unique<ShaderData>();
+  data = std::make_unique<ShaderComponentData>();
   data->enable = true;
 }
 
 ShaderComponent::ShaderComponent(const ShaderComponent& other){
   this->id = other.id;
   this->type = other.type;
-  this->data = std::make_unique<ShaderData>();
+  this->data = std::make_unique<ShaderComponentData>();
   this->data->vertex = other.data->vertex;
   this->data->fragment = other.data->fragment;
   this->data->geometry = other.data->geometry;
@@ -55,7 +49,7 @@ ShaderComponent::ShaderComponent(ShaderComponent&& other) noexcept
 void ShaderComponent::operator=(const ShaderComponent& other){
   this->id = other.id;
   this->type = other.type;
-  this->data = std::make_unique<ShaderData>();
+  this->data = std::make_unique<ShaderComponentData>();
   this->data->vertex = other.data->vertex;
   this->data->fragment = other.data->fragment;
   this->data->geometry = other.data->geometry;
@@ -138,16 +132,17 @@ void ShaderComponent::UseProgram(){
 }
 
 bool ShaderComponent::LoadShader(std::string path, ShaderType type) {
+  std::string shaderCode = ReadFile(path);
   switch (type)
   {
   case Vertex:
-    data->vertex = CompileShader(ReadFile(path), type);
+    data->vertex = CompileShader(shaderCode, type);
     break;
   case Fragment:
-    data->fragment = CompileShader(ReadFile(path), type);
+    data->fragment = CompileShader(shaderCode, type);
     break;
   case Geometry:
-    data->geometry = CompileShader(ReadFile(path), type);
+    data->geometry = CompileShader(shaderCode, type);
     break;
   default:
     break;
@@ -158,16 +153,17 @@ bool ShaderComponent::LoadShader(std::string path, ShaderType type) {
 
 bool ShaderComponent::LoadShaderAndAttach(std::string path, ShaderType type)
 {
+  std::string shaderCode = ReadFile(path);
   switch (type)
   {
   case Vertex:
-    data->vertex = CompileShader(ReadFile(path), type);
+    data->vertex = CompileShader(shaderCode, type);
     break;
   case Fragment:
-    data->fragment = CompileShader(ReadFile(path), type);
+    data->fragment = CompileShader(shaderCode, type);
     break;
   case Geometry:
-    data->geometry = CompileShader(ReadFile(path), type);
+    data->geometry = CompileShader(shaderCode, type);
     break;
   default:
     break;

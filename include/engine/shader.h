@@ -6,6 +6,10 @@
 
 #include "glm/glm.hpp"
 
+struct ShaderData
+{
+  unsigned int shader_program;
+};
 
 class Shader
 {
@@ -22,12 +26,12 @@ public:
   void SetVec2(const std::string& name, glm::vec2 value) const;
   void SetVec3(const std::string& name, glm::vec3 value) const;
   void SetMat4(const std::string& name, glm::mat4 value) const;
-  void Shader::SetTexture(const std::string& name, int value) const;
+  void SetTexture(const std::string& name, int value) const;
 
   void UseProgram();
 
 private:
-  std::unique_ptr<class ShaderData> data_;
+  std::unique_ptr<ShaderData> data_;
   std::string ReadFile(const std::string& path);
   unsigned int CompileShader(std::string& shader_code, int shader_type); // 0 = vertex, 1 = fragment, 2 = program
   bool LinkProgram(unsigned int &vertex, unsigned int &fragment);

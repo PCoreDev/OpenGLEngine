@@ -8,23 +8,10 @@
 #include "engine/entity.h"
 #include "engine/components/material_component.h"
 
-#include "OBJ_Loader/OBJ_Loader.h"
-#include "stb_image/stb_image.h"
+#include "OBJ_Loader.h"
+#include "stb/stb_image.h"
 
-struct MeshData {
-  std::vector<float> vertex_data;
-  std::vector<float> normal_data;
-  std::vector<float> uv_data;
-  std::vector<unsigned int> index_data;
-  std::vector<unsigned int> index_uv;
-  std::vector<unsigned int> index_normals;
-  int n_vertex = 0;
-  unsigned int vao, vbo, ibo, nbo, ubo;
-  void Bind();
-  bool cube;
-  bool back = false;
 
-};
 
 void MeshData::Bind() {
   //TODO: Change all to one buffer (vertex, normal, uv)

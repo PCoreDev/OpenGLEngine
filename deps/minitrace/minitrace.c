@@ -175,6 +175,7 @@ void mtr_init_from_stream(void *stream) {
 #endif
 	event_buffer = (raw_event_t *)malloc(INTERNAL_MINITRACE_BUFFER_SIZE * sizeof(raw_event_t));
 	flush_buffer = (raw_event_t *)malloc(INTERNAL_MINITRACE_BUFFER_SIZE * sizeof(raw_event_t));
+	is_flushing = FALSE;
 	is_tracing = 1;
 	event_count = 0;
 	f = (FILE *)stream;
@@ -210,6 +211,8 @@ void mtr_shutdown() {
 	f = 0;
 	free(event_buffer);
 	event_buffer = 0;
+	free(flush_buffer);
+	flush_buffer = 0;
 	for (i = 0; i < STRING_POOL_SIZE; i++) {
 		if (str_pool[i]) {
 			free(str_pool[i]);
@@ -322,7 +325,7 @@ void mtr_flush_with_state(int is_last) {
 				snprintf(id_buf, ARRAY_SIZE(id_buf), ",\"id\":\"0x%08x\"", (uint32_t)(uintptr_t)raw->id);
 				break;
 			case 'X':
-				snprintf(id_buf, ARRAY_SIZE(id_buf), ",\"dur\":%i", (int)raw->a_double);
+				snprintf(id_buf, ARRAY_SIZE(id_buf), ",\"dur\":%" PRId64, (int64_t)raw->a_double);
 				break;
 			}
 		} else {

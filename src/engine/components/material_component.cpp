@@ -6,7 +6,7 @@
 #include "glad/glad.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
+#include "stb/stb_image.h"
 
 #include "engine/entity.h"
 #include "engine/components/shader_component.h"

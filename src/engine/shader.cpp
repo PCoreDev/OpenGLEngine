@@ -7,10 +7,10 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-struct ShaderData
-{
-  GLuint shader_program;
-};
+//struct ShaderData
+//{
+//  GLuint shader_program;
+//};
 
 Shader::Shader() {
   data_ = std::make_unique<ShaderData>();
@@ -21,8 +21,11 @@ Shader::~Shader()
 }
 
 bool Shader::LoadShader(){
-  unsigned int vertex = CompileShader(ReadFile("../../src/engine/shaders/core/vertex_core.glsl"), 0);
-  unsigned int fragment = CompileShader(ReadFile("../../src/engine/shaders/core/fragment_core.glsl"), 1);
+  std::string vertexCode = ReadFile("../../src/engine/shaders/core/vertex_core.glsl");
+  unsigned int vertex = CompileShader(vertexCode, 0);
+  
+  std::string fragmentCode = ReadFile("../../src/engine/shaders/core/fragment_core.glsl");
+  unsigned int fragment = CompileShader(fragmentCode, 1);
 
   return LinkProgram(vertex, fragment);
 }

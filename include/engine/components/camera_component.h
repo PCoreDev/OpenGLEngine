@@ -3,6 +3,40 @@
 
 #include "engine/component.h"
 
+struct CameraData {
+  std::shared_ptr<class TransformComponent> transform;
+  //camera attributes
+  glm::vec3 camera_position;
+  glm::vec3 camera_direction;
+  glm::vec3 camera_front;
+  glm::vec3 camera_up;
+  glm::vec3 camera_right;
+  glm::mat4 camera_view_matrix;
+  glm::vec3 up;
+  glm::mat4 projection_matrix;
+  glm::mat4 ortho_matrix;
+
+  //euler Angles
+  float camera_pitch;
+  float camera_yaw;
+  float camera_roll;
+
+  //camera options
+  float fov;
+  float aspect_ratio;
+  float near_plane;
+  float far_plane;
+  float camera_sensitivity;
+  float camera_speed;
+
+  //Mouse variables
+  double last_x, last_y;
+  bool first_mouse;
+
+  void UpdateVectors();
+};
+
+
 
 class CameraComponent : public Component {
 public:
@@ -31,13 +65,7 @@ public:
   //float GetNearPlane();
   //float GetFarPlane();
 private:
-  std::unique_ptr<class CameraData> data;
+  std::unique_ptr<CameraData> data;
 };
-
-
-
-
-
-
 
 #endif // !__CAMERA_COMPONENT_H__

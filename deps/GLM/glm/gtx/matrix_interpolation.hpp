@@ -16,12 +16,10 @@
 // Dependency:
 #include "../glm.hpp"
 
-#if GLM_MESSAGES == GLM_ENABLE && !defined(GLM_EXT_INCLUDED)
-#	ifndef GLM_ENABLE_EXPERIMENTAL
-#		pragma message("GLM: GLM_GTX_matrix_interpolation is an experimental extension and may change in the future. Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to use it.")
-#	else
-#		pragma message("GLM: GLM_GTX_matrix_interpolation extension included")
-#	endif
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#	error "GLM: GLM_GTX_matrix_interpolation is an experimental extension and may change in the future. Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to use it."
+#elif GLM_MESSAGES == GLM_ENABLE && !defined(GLM_EXT_INCLUDED)
+#	pragma message("GLM: GLM_GTX_matrix_interpolation extension included")
 #endif
 
 namespace glm
@@ -32,7 +30,7 @@ namespace glm
 	/// Get the axis and angle of the rotation from a matrix.
 	/// From GLM_GTX_matrix_interpolation extension.
 	template<typename T, qualifier Q>
-	GLM_FUNC_DECL void axisAngle(
+	GLM_FUNC_DISCARD_DECL void axisAngle(
 		mat<4, 4, T, Q> const& Mat, vec<3, T, Q> & Axis, T & Angle);
 
 	/// Build a matrix from axis and angle.
@@ -49,7 +47,7 @@ namespace glm
 
 	/// Build a interpolation of 4 * 4 matrixes.
 	/// From GLM_GTX_matrix_interpolation extension.
-	/// Warning! works only with rotation and/or traslation matrixes, scale will generate unexpected results.
+	/// Warning! works only with rotation and/or translation matrixes, scale will generate unexpected results.
 	template<typename T, qualifier Q>
 	GLM_FUNC_DECL mat<4, 4, T, Q> interpolate(
 		mat<4, 4, T, Q> const& m1, mat<4, 4, T, Q> const& m2, T const Delta);

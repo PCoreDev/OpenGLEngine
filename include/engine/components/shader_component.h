@@ -3,6 +3,14 @@
 
 #include "engine/component.h"
 
+struct ShaderComponentData {
+  int vertex;
+  int fragment;
+  int geometry;
+  int program;
+  bool enable;
+};
+
 
 class ShaderComponent : public Component {
 public:
@@ -43,7 +51,7 @@ private:
   unsigned int CompileShader(std::string& shader_code, ShaderType type); 
   bool LinkProgram(bool core = false);
 
-  std::unique_ptr<class ShaderData> data;
+  std::unique_ptr<class ShaderComponentData> data;
 };
 
 

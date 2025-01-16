@@ -19,12 +19,10 @@
 #include "../glm.hpp"
 #include "../gtc/matrix_transform.hpp"
 
-#if GLM_MESSAGES == GLM_ENABLE && !defined(GLM_EXT_INCLUDED)
-#	ifndef GLM_ENABLE_EXPERIMENTAL
-#		pragma message("GLM: GLM_GTX_transform is an experimental extension and may change in the future. Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to use it.")
-#	else
-#		pragma message("GLM: GLM_GTX_transform extension included")
-#	endif
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#	error "GLM: GLM_GTX_transform is an experimental extension and may change in the future. Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to use it."
+#elif GLM_MESSAGES == GLM_ENABLE && !defined(GLM_EXT_INCLUDED)
+#	pragma message("GLM: GLM_GTX_transform extension included")
 #endif
 
 namespace glm
@@ -32,7 +30,7 @@ namespace glm
 	/// @addtogroup gtx_transform
 	/// @{
 
-	/// Transforms a matrix with a traslation 4 * 4 matrix created from 3 scalars.
+	/// Transforms a matrix with a translation 4 * 4 matrix created from 3 scalars.
 	/// @see gtc_matrix_transform
 	/// @see gtx_transform
 	template<typename T, qualifier Q>

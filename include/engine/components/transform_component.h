@@ -3,6 +3,23 @@
 
 #include "engine/component.h"
 
+struct TransformData {
+  int parent_id;
+  glm::vec3 position;
+  glm::vec3 rotation;
+  glm::vec3 scale;
+
+  glm::mat4 m_traslation;
+  glm::mat4 m_rotation;
+  glm::mat4 m_scale;
+  glm::mat4 m_model;
+
+  void UpdateTraslationMatrix();
+  void UpdateScaleMatrix();
+  void UpdateRotationMatrix();
+  void UpdateModelMatrix();
+};
+
 class TransformComponent : public Component
 {
 public:
@@ -44,7 +61,7 @@ public:
 
 private:
 
-  std::unique_ptr<struct TransformData> data;
+  std::unique_ptr<TransformData> data;
 };
 
 #endif //__TRANSFORM_COMPONENT__

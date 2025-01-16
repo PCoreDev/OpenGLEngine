@@ -3,6 +3,10 @@
 
 #include "engine/component.h"
 
+struct RenderData {
+  bool enabled;
+};
+
 class RenderComponent: public Component{
 public:
   RenderComponent() = default;
@@ -17,7 +21,7 @@ public:
 
   void Render();
 private:
-  std::unique_ptr<class RenderData> data;
+  std::unique_ptr<RenderData> data;
 };
 
 
