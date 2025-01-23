@@ -9,6 +9,9 @@
 #include <list>
 
 #include "engine/entity.h"
+#include "engine/shader.h"
+#include "engine/entity_manager.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -24,18 +27,22 @@ struct ClearCommand : public Command {
   float r, g, b, a;
 };
 
-
-
-struct DrawCommand : public Command{
-  DrawCommand(Entity& e);
-  void Execute() override;
-  std::shared_ptr<Entity> entity;
- };
+//struct DrawCommand : public Command{
+//  DrawCommand(Entity& e) : entity(std::make_shared<Entity>(e)) {};
+//  void Execute() override;
+//  std::shared_ptr<Entity> entity;
+// };
 
 struct DrawRenderBufferCommand : public Command {
-  DrawRenderBufferCommand();
+  DrawRenderBufferCommand(EntityManager& manager, Shader& s, unsigned int fbo, unsigned int fb_texture, unsigned int quad_vao, unsigned int quad_ibo);
   void BindUniforms();
   void Execute() override;
+  std::shared_ptr<Shader> shader;
+  std::shared_ptr<EntityManager> entity_manager;
+  unsigned int screen_quad_vao;
+  unsigned int screen_quad_ibo;
+  unsigned int framebuffer_texture;
+  unsigned int framebuffer;
 };
 
 class DisplayList {
@@ -53,8 +60,8 @@ class DisplayList {
 
 
     void AddClearCommand(float r, float g, float b, float a);
-    void AddDrawCommand(Entity& entity);
-    void AddDrawRenderBufferCommand();
+    //void AddDrawCommand(Entity& entity);
+    void AddDrawRenderBufferCommand(EntityManager& manager, Shader& s, unsigned int fbo, unsigned int fb_texture, unsigned int quad_vao, unsigned int quad_ibo);
 
 
 

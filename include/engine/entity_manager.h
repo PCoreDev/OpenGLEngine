@@ -13,7 +13,12 @@ class EntityManager {
 
 public:
   EntityManager();
+  EntityManager(const EntityManager& other);
+  EntityManager(EntityManager&& other) noexcept;
   ~EntityManager();
+
+  EntityManager& operator=(const EntityManager& other);
+  void operator=(EntityManager&& other) noexcept;
 
   std::shared_ptr<class Entity> CreateEntity();
   size_t GetNumberOfEntities() const;

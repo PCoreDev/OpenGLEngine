@@ -1,3 +1,12 @@
+/*****************************************************************//**
+ * \file   entity.h
+ * \brief  
+ * 
+ * \author Pablo "Pau" Core Palmero
+ * \mail p.core.dev@outlook.com
+ * \date   May 2024
+ *********************************************************************/
+
 #ifndef __ENTITY_H__
 #define __ENTITY_H__ 1
 
@@ -6,11 +15,12 @@
 class Entity : public std::enable_shared_from_this<Entity>{
 
 public:
-  Entity();
+  Entity() = default;
   Entity(int id);
-  Entity(const Entity& entity);
-  Entity(Entity&& entity);
-  Entity& operator=(const Entity& entity);
+  Entity(const Entity& entity); //Copy constructor
+  Entity(Entity&& entity) noexcept; //Move constructor
+  Entity& operator=(const Entity& entity); //Copy assignment operator
+  void operator=(Entity&& entity) noexcept; //Move assignment operator
   ~Entity();
 
   //Getters
@@ -30,7 +40,6 @@ public:
   void AddRenderComponent();
   void AddTransformComponent();
  // void AddPhysicsComponent();
- // void AddNodeComponent();
  // void AddSoundComponent();
   void AddLightComponent();
   void AddCameraComponent();

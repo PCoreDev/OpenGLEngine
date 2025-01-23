@@ -18,7 +18,30 @@ EntityManager::EntityManager() {
   data_ = std::make_unique<EntityManagerData>();
 }
 
+EntityManager::EntityManager(const EntityManager& other)
+{
+  data_ = std::make_unique<EntityManagerData>(*other.data_);
+}
+
+EntityManager::EntityManager(EntityManager&& other) noexcept
+{
+  data_ = std::move(other.data_);
+  other.data_ = nullptr;
+}
+
 EntityManager::~EntityManager() {}
+
+EntityManager& EntityManager::operator=(const EntityManager& other)
+{
+  data_ = std::make_unique<EntityManagerData>(*other.data_);
+  return *this;
+}
+
+void EntityManager::operator=(EntityManager&& other) noexcept
+{
+  data_ = std::move(other.data_);
+  other.data_ = nullptr;
+}
 
 std::shared_ptr<Entity> EntityManager::CreateEntity() {
   std::shared_ptr<Entity> entity = std::make_shared<Entity>(data_->n_entities);

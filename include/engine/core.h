@@ -1,7 +1,11 @@
-//Author: Pablo "Pau" Core Palmero
-//Date: 28-May-2024
-//Email: p.core.dev@outlook.com
-//This header contains the core class of the engine.
+/*****************************************************************//**
+ * \file   core.h
+ * \brief  Core file of the engine.
+ * 
+ * \author Pablo "Pau" Core Palmero
+ * \mail p.core.dev@outlook.com
+ * \date   May 2024
+ *********************************************************************/
 
 #ifndef __CORE_H__
 #define __CORE_H__ 1
@@ -19,11 +23,13 @@ namespace OpenGLEngine {
 
   namespace Engine {
 
+    /** @brief Core class of the engine. */
     class Core {
     public:
 
       Core();
       ~Core();
+
 
       bool InitializeCore();
       void DeinitializeCore();
@@ -34,15 +40,27 @@ namespace OpenGLEngine {
 
       void BufferHandler();
       void EventsHandler();
+
+
       void Update();
       void Render();
       void FPS();
 
-      static std::unique_ptr<EntityManager> entity_manager_;
+
+
+      static std::shared_ptr<EntityManager> entity_manager_;
       static std::shared_ptr<CameraComponent> camera_;
       static std::shared_ptr<Shader> shader_;
 
-    private:             
+    private:
+
+      void CreateRenderTexture();
+      void CreateRenderBufferObject();
+      void CreateRenderQuad();
+
+
+      void DebugCoreStats();
+
       struct CoreData;
       std::unique_ptr<CoreData> data_;
     };

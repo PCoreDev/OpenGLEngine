@@ -11,7 +11,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "engine/core.h"
 
+
 #include "engine/components/render_component.h"
+
+#include <Windows.h>
 
 //ClearCommand
 void ClearCommand::Execute() {
@@ -19,49 +22,68 @@ void ClearCommand::Execute() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-//DrawCommand
+////DrawCommand
+//
+//void DrawCommand::Execute() {
+//  if (entity->GetRenderComponent() != nullptr) {
+//    entity->GetRenderComponent()->Render();
+//  }
+//}
 
-DrawCommand::DrawCommand(Entity& e) {
-  entity = std::make_shared<Entity>(e);
+
+DrawRenderBufferCommand::DrawRenderBufferCommand(EntityManager& manager, Shader& s, unsigned int fbo, unsigned int fb_texture, unsigned int quad_vao, unsigned int quad_ibo) {
+  entity_manager = std::make_shared<EntityManager>(manager);
+  shader = std::make_shared<Shader>(s);
+  framebuffer = fbo;
+  framebuffer_texture = fb_texture;
+  screen_quad_vao = quad_vao;
+  screen_quad_ibo = quad_ibo;
 }
 
-void DrawCommand::Execute() {
-  if (entity->GetRenderComponent() != nullptr) {
-    entity->GetRenderComponent()->Render();
-  }
-}
-
-DrawRenderBufferCommand::DrawRenderBufferCommand() {
-}
-
-//DrawRenderBuffer
 void DrawRenderBufferCommand::BindUniforms() {
-  int screen_texture_location = glGetUniformLocation(0, "screen_texture");
-  if(screen_texture_location != -1) {
-    glUniform1i(screen_texture_location, 0);
+  shader->UseProgram();
+  int screen_texture_location = glGetUniformLocation(shader->GetProgram(), "screen_texture");
+  if (screen_texture_location != -1) {
+    glUniform1i(screen_texture_location, 0); // Unidad de textura 0
   }
 
-  int depth_texture_location = glGetUniformLocation(0, "depth_texture");
+  int depth_texture_location = glGetUniformLocation(shader->GetProgram(), "depth_texture");
   if (depth_texture_location != -1) {
-    glUniform1i(depth_texture_location, 0);
+    glUniform1i(depth_texture_location, 1); // Unidad de textura 1
   }
 
-  int stencil_texture_location = glGetUniformLocation(0, "stencil_texture");
+  int stencil_texture_location = glGetUniformLocation(shader->GetProgram(), "stencil_texture");
   if (stencil_texture_location != -1) {
-    glUniform1i(stencil_texture_location, 0);
+    glUniform1i(stencil_texture_location, 2); // Unidad de textura 2
   }
 }
 
 void DrawRenderBufferCommand::Execute() {
-  glUseProgram(0);
 
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+
+  //DrawObjects
+  for (const auto& weak_entity : entity_manager->GetEntities()) {
+    if (auto entity = weak_entity.lock()) {
+      if (entity->GetRenderComponent() != nullptr) {
+        entity->GetRenderComponent()->Render();
+      }
+    }
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   BindUniforms();
-
-  glBindVertexArray(0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //0 = buffer data
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(screen_quad_vao);
+  glDepthFunc(GL_LESS);
+  glDisable(GL_DEPTH_TEST);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, screen_quad_ibo);
+  glActiveTexture(GL_TEXTURE0); // Activar la unidad de textura 0
+  glBindTexture(GL_TEXTURE_2D, framebuffer_texture);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
-
 
 //DisplayList
 
@@ -97,12 +119,14 @@ void DisplayList::AddClearCommand(float r, float g, float b, float a) {
   commands_.push_back(std::move(command));
 }
 
-void DisplayList::AddDrawCommand(Entity& entity) {
-  auto command = std::make_unique<DrawCommand>(entity);
-  commands_.push_back(std::move(command));
-}
+//void DisplayList::AddDrawCommand(Entity& entity) {
+//  auto command = std::make_unique<DrawCommand>(entity);
+//  commands_.push_back(std::move(command));
+//}
 
-void DisplayList::AddDrawRenderBufferCommand() {
+void DisplayList::AddDrawRenderBufferCommand(EntityManager& manager, Shader& s, unsigned int fbo, unsigned int fb_texture, unsigned int quad_vao, unsigned int quad_ibo){
+  auto command = std::make_unique<DrawRenderBufferCommand>(manager, s, fbo, fb_texture, quad_vao, quad_ibo);
+  commands_.push_back(std::move(command));
 }
 
 void DisplayList::Execute(){

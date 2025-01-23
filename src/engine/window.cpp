@@ -26,18 +26,16 @@ namespace OpenGLEngine
     //LOG_F(INFO, "FrameBuffer size changed to %d x %d", width, height);
   }
 
-  //void window_size_callback(GLFWwindow* window, int width, int height)
-  //{
-  //  glfwSetWindowSize(window, width, height);
-  //  //LOG_F(INFO, "Window size changed to %d x %d", width, height);
-  //}
+  void window_size_callback(GLFWwindow* window, int width, int height){
+    glfwSetWindowSize(window, width, height);
+  }
 
   struct WData {
 
     std::string name;
     int width, height;
 
-    int framebuffer_width, framebuffer_height;
+    unsigned int fbo;
 
     GLFWwindow* window;
     bool close = false;
@@ -55,58 +53,51 @@ namespace OpenGLEngine
     }
   };
 
-  Window::Window()
-  {
+  Window::Window(){
     wdata_ = std::make_unique<WData>();
     wdata_->name = "OpenGL Engine";
     wdata_->width = 800;
     wdata_->height = 600;
-    wdata_->framebuffer_width = 0;
-    wdata_->framebuffer_width = 0;
   }
 
-  Window::Window(std::string name, int width, int height)
-  {
+  Window::Window(std::string name, int width, int height){
     wdata_ = std::make_unique<WData>();
     wdata_->name = name;
     wdata_->width = width;
     wdata_->height = height;
   }
 
-  Window::~Window()
-  {
+  Window::~Window(){
     wdata_.reset();
   }
 
-  void Window::SetWindowData(std::string name, int width, int height)
-  {
+  void Window::SetWindowData(std::string name, int width, int height){
     wdata_->name = name;
     wdata_->width = width;
     wdata_->height = height;
   }
 
-  bool Window::InitWindow()
-  {
+  bool Window::InitWindow(){
+
     wdata_->window = glfwCreateWindow(wdata_->width, wdata_->height, wdata_->name.c_str(), NULL, NULL);
-    if (wdata_->window == NULL)
-    {
-      //std::cout << "Failed to create GLFW window" << std::endl;
+
+    if (wdata_->window == NULL){
       LOG_F(ERROR, "Failed to create GLFW window");
       glfwTerminate();
       return false;
     }
 
-    LOG_F(INFO, "Succeed to create GLFW window");
 
     glfwSetInputMode(wdata_->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    //glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
+    glfwSetWindowSizeCallback(wdata_->window, window_size_callback);
+
     glfwSetFramebufferSizeCallback(wdata_->window, framebuffer_size_callback);
 
     glfwMakeContextCurrent(wdata_->window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
       LOG_F(ERROR, "Failed to initialize GLAD");
       return false;
     }
@@ -123,6 +114,9 @@ namespace OpenGLEngine
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   
+    LOG_F(INFO, "Succeed to create GLFW window");
+
+    CreateFrameBuffer();
 
     return true;
   }
@@ -144,6 +138,33 @@ namespace OpenGLEngine
   bool Window::CloseWindow()
   {
     return wdata_->close;
+  }
+
+  int Window::GetWidth() const {
+    return wdata_->width;
+  }
+
+  int Window::GetHeight() const
+  {
+    return wdata_->height;
+  }
+
+  unsigned int Window::GetFBO() const
+  {
+    return wdata_->fbo;
+  }
+
+  void Window::CreateFrameBuffer(){
+    glGenFramebuffers(1, &wdata_->fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, wdata_->fbo);
+    //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+    //  LOG_F(INFO, "FrameBuffer created successfully");
+    //}
+    //else {
+    //  LOG_F(ERROR, "FrameBuffer failed to create");
+    //}
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glDeleteFramebuffers(1, &fbo);
   }
 
 }

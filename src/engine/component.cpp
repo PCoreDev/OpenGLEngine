@@ -1,7 +1,12 @@
-//Author: Pablo "Pau" Core Palmero
-//Date: 5-June-2024
-//Email: p.core.dev@outlook.com
-//This file contains the component class's implementation of the engine to add differents properties to the objects.
+/*****************************************************************//**
+ * \file   component.cpp
+ * \brief  This file contains the component class's implementation of the engine to add differents properties to the objects.
+ * 
+ * \author Pablo "Pau" Core Palmero
+ * \mail p.core.dev@outlook.com
+ * \date   June 2025
+ *********************************************************************/
+
 #include "engine/component.h"
 
 Component::Component() {

@@ -113,15 +113,15 @@ int OpenGLEngine::main(int argc, char** argv)
   entity2->GetMeshComponent()->LoadOBJ("../../data/models/Axe/VikingAxe.obj", "../../data/models/Axe/");
 
 
-  std::shared_ptr<Entity> entity3 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  entity3->AddMeshComponent();
-  entity3->AddRenderComponent();
-  entity3->AddTransformComponent();
-  entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
-  //entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-  entity3->AddMaterialComponent();
-  entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
+  //std::shared_ptr<Entity> entity3 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  //entity3->AddMeshComponent();
+  //entity3->AddRenderComponent();
+  //entity3->AddTransformComponent();
+  //entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
+  ////entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  //entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  //entity3->AddMaterialComponent();
+  //entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
  
   return 0;
 }

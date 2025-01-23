@@ -16,15 +16,23 @@ Shader::Shader() {
   data_ = std::make_unique<ShaderData>();
 }
 
+Shader::Shader(const Shader& other){
+  data_ = std::make_unique<ShaderData>(*other.data_);
+}
+
+Shader::Shader(Shader&& other) noexcept{
+  data_ = std::move(other.data_);
+}
+
 Shader::~Shader()
 {
 }
 
-bool Shader::LoadShader(){
-  std::string vertexCode = ReadFile("../../src/engine/shaders/core/vertex_core.glsl");
+bool Shader::LoadShader(std::string vert, std::string frag){
+  std::string vertexCode = ReadFile(vert);
   unsigned int vertex = CompileShader(vertexCode, 0);
   
-  std::string fragmentCode = ReadFile("../../src/engine/shaders/core/fragment_core.glsl");
+  std::string fragmentCode = ReadFile(frag);
   unsigned int fragment = CompileShader(fragmentCode, 1);
 
   return LinkProgram(vertex, fragment);
@@ -163,7 +171,7 @@ bool Shader::LinkProgram(unsigned int &vertex, unsigned int &fragment) {
   GLint success;
   bool correct = true;
   //GLint program = glCreateProgram();
-  data_->shader_program = glCreateProgram();;
+  data_->shader_program = glCreateProgram();
 
   glAttachShader(data_->shader_program, vertex);
   glAttachShader(data_->shader_program, fragment);

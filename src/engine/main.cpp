@@ -67,8 +67,10 @@ int main(int argc, char** argv){
     ////Render
     core->Render();
 
-    core->EventsHandler();
+
+
     core->BufferHandler();
+    core->EventsHandler();
     core->FPS();
   }
 

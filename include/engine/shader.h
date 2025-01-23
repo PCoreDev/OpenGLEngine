@@ -15,9 +15,11 @@ class Shader
 {
 public:
 	Shader();
+  Shader(const Shader& other);
+  Shader(Shader&& other) noexcept;
 	~Shader();
 
-  bool LoadShader();
+  bool LoadShader(std::string vert, std::string frag);
   int GetProgram();
 
   void SetBool(const std::string& name, bool value) const;

@@ -24,10 +24,15 @@ namespace OpenGLEngine {
 		bool InitWindow();
 		void* GetWindow() const;
 		void SwapBuffers();
-		void InputHandler();
 		bool CloseWindow();
-	private:
+    int GetWidth() const;
+    int GetHeight() const;
+    unsigned int GetFBO() const;
 
+
+
+	private:
+		void CreateFrameBuffer();
 		std::unique_ptr<WData> wdata_;
 
 	};
