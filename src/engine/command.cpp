@@ -41,7 +41,7 @@ DrawRenderBufferCommand::DrawRenderBufferCommand(EntityManager& manager, Shader&
 }
 
 void DrawRenderBufferCommand::BindUniforms() {
-  shader->UseProgram();
+  shader->UseShader();
   int screen_texture_location = glGetUniformLocation(shader->GetProgram(), "screen_texture");
   if (screen_texture_location != -1) {
     glUniform1i(screen_texture_location, 0); // Unidad de textura 0

@@ -12,6 +12,7 @@
 struct EntityManagerData {
   unsigned int n_entities = 0;
   std::vector<std::shared_ptr<Entity>> entities;
+  std::vector<std::shared_ptr<Entity>> lights;;
 };
 
 EntityManager::EntityManager() {
@@ -62,4 +63,15 @@ std::vector<std::weak_ptr<Entity>> EntityManager::GetEntities() const {
     weak_entities.push_back(entity);
   }
   return weak_entities;
+}
+
+std::vector<std::weak_ptr<class Entity>> EntityManager::GetEntitiesWithLights() const {
+  std::vector<std::weak_ptr<Entity>> weak_lights;
+  for (auto entity : data_->entities) {
+    if (entity->GetLightComponent() != nullptr) {
+      weak_lights.push_back(entity);
+    }
+  }
+
+  return weak_lights;
 }

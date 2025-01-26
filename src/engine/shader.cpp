@@ -1,3 +1,10 @@
+/*****************************************************************//**
+ * \file   shader.cpp
+ * \brief  
+ * 
+ * \author pablo
+ * \date   January 2025
+ *********************************************************************/
 #include "engine/shader.h"
 
 #include <fstream>
@@ -7,10 +14,9 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-//struct ShaderData
-//{
-//  GLuint shader_program;
-//};
+struct ShaderData {
+  unsigned int shader_program;
+};
 
 Shader::Shader() {
   data_ = std::make_unique<ShaderData>();
@@ -26,6 +32,17 @@ Shader::Shader(Shader&& other) noexcept{
 
 Shader::~Shader()
 {
+}
+
+void Shader::operator=(const Shader& other) {
+  data_ = std::make_unique<ShaderData>(*other.data_);
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept {
+  if (this != &other) {
+    data_ = std::move(other.data_);
+  }
+  return *this;
 }
 
 bool Shader::LoadShader(std::string vert, std::string frag){
@@ -98,7 +115,7 @@ void Shader::SetTexture(const std::string& name, int value) const {
   else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
-void Shader::UseProgram(){
+void Shader::UseShader(){
   glUseProgram(data_->shader_program);
 }
 

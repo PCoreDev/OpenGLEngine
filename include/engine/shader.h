@@ -1,3 +1,10 @@
+/*****************************************************************//**
+ * \file   shader.h
+ * \brief  
+ * 
+ * \author pablo
+ * \date   January 2025
+ *********************************************************************/
 #ifndef __SHADER_H__
 #define __SHADER_H__ 1
 
@@ -6,11 +13,6 @@
 
 #include "glm/glm.hpp"
 
-struct ShaderData
-{
-  unsigned int shader_program;
-};
-
 class Shader
 {
 public:
@@ -18,6 +20,9 @@ public:
   Shader(const Shader& other);
   Shader(Shader&& other) noexcept;
 	~Shader();
+
+  void operator=(const Shader& other);
+  Shader& operator=(Shader&& other) noexcept;
 
   bool LoadShader(std::string vert, std::string frag);
   int GetProgram();
@@ -30,10 +35,10 @@ public:
   void SetMat4(const std::string& name, glm::mat4 value) const;
   void SetTexture(const std::string& name, int value) const;
 
-  void UseProgram();
+  void UseShader();
 
 private:
-  std::unique_ptr<ShaderData> data_;
+  std::unique_ptr<class ShaderData> data_;
   std::string ReadFile(const std::string& path);
   unsigned int CompileShader(std::string& shader_code, int shader_type); // 0 = vertex, 1 = fragment, 2 = program
   bool LinkProgram(unsigned int &vertex, unsigned int &fragment);

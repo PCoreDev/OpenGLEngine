@@ -20,10 +20,22 @@
 int OpenGLEngine::main(int argc, char** argv)
 {
 
+  std::shared_ptr<Entity> directional_light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  directional_light->AddLightComponent();
+  directional_light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
+  directional_light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+  directional_light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+  directional_light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+  directional_light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+  directional_light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+
+
   std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   //camera->AddTransformComponent();
   camera->AddCameraComponent();
   camera->GetCameraComponent()->SetMainCamera();
+  camera->AddLightComponent();
+  camera->GetLightComponent()->SetLightType(LightComponent::LightType::Point);
 
   std::shared_ptr<Entity> skybox = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   skybox->AddMeshComponent();
@@ -31,10 +43,8 @@ int OpenGLEngine::main(int argc, char** argv)
   skybox->AddRenderComponent();
   skybox->AddSkyBoxComponent();
   skybox->AddShaderComponent();
-  skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.vert", ShaderComponent::Vertex);
-  skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.frag", ShaderComponent::Fragment);
-  std::vector<std::string> faces
-  {
+  skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.vert", "../../src/engine/shaders/skybox.frag");
+  std::vector<std::string> faces {
     "../../data/textures/skybox/skybox_4k_right.jpg",
     "../../data/textures/skybox/skybox_4k_left.jpg",
     "../../data/textures/skybox/skybox_4k_top.jpg",
@@ -113,15 +123,36 @@ int OpenGLEngine::main(int argc, char** argv)
   entity2->GetMeshComponent()->LoadOBJ("../../data/models/Axe/VikingAxe.obj", "../../data/models/Axe/");
 
 
-  //std::shared_ptr<Entity> entity3 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  //entity3->AddMeshComponent();
-  //entity3->AddRenderComponent();
-  //entity3->AddTransformComponent();
-  //entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
-  ////entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  //entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-  //entity3->AddMaterialComponent();
-  //entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
+  std::shared_ptr<Entity> entity3 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  entity3->AddMeshComponent();
+  entity3->AddRenderComponent();
+  entity3->AddTransformComponent();
+  entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
+  //entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  entity3->AddMaterialComponent();
+  entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
+
+  std::shared_ptr<Entity> entity4 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  entity4->AddMeshComponent();
+  entity4->AddRenderComponent();
+  entity4->AddTransformComponent();
+  entity4->GetTransformComponent()->SetPosition(glm::vec3(50.0f, -30.0f, 0.0f));
+  //entity4->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  entity4->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  entity4->AddMaterialComponent();
+  entity4->GetMeshComponent()->LoadOBJ("../../data/models/Pikachu/pikachu.obj", "../../data/models/Pikachu/");
+
+
+  std::shared_ptr<Entity> entity5 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  entity5->AddMeshComponent();
+  entity5->AddRenderComponent();
+  entity5->AddTransformComponent();
+  entity5->GetTransformComponent()->SetPosition(glm::vec3(50.0f, -30.0f, -50.0f));
+  //entity5->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  entity5->AddMaterialComponent();
+  entity5->GetMeshComponent()->LoadOBJ("../../data/models/tower22/objTower.obj", "../../data/models/tower22/");
  
   return 0;
 }

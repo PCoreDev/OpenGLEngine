@@ -38,6 +38,8 @@ public:
 
   void RenderFrameBuffer();
 
+  void RenderLights();
+
 
 private:
   std::unique_ptr<RenderData> data;

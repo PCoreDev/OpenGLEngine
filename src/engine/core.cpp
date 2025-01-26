@@ -207,21 +207,11 @@ namespace OpenGLEngine {
 
     void Core::Render() {
 
-      //Imgui Render
-      //Clears display list and screen.
       data_->display_list->Clear();
-      //data_->display_list->AddClearCommand(0.0f, 0.0f, 0.0f, 1.0f);
-
-      ////This is to draw all the entities.
-      //for (auto& entity : entity_manager_->GetEntities()) {
-      //  if (auto sharedEntity = entity.lock()) {
-      //    data_->display_list->AddDrawCommand(*sharedEntity);
-      //  }
-      //}
 
       ImGui::Render();
       data_->display_list->AddDrawRenderBufferCommand(*entity_manager_, *data_->framebuffer_shader, data_->window->GetFBO(), data_->framebuffer_texture, data_->screen_quad_vao, data_->screen_quad_ibo);
-      //This execute the displayList to render the scene.
+
       data_->display_list->Execute();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -237,10 +227,6 @@ namespace OpenGLEngine {
         data_->delta_time = static_cast<float>(glfwGetTime()) - data_->last_frame;
       }
     }
-
-    //void Core::UseFrameBufferProgram() {
-    //  core->data_->framebuffer_shader->UseProgram();
-    //}
 
     void Core::CreateRenderTexture(){
       

@@ -24,6 +24,7 @@ public:
   size_t GetNumberOfEntities() const;
 
   std::vector<std::weak_ptr<class Entity>> GetEntities() const;
+  std::vector<std::weak_ptr<class Entity>> GetEntitiesWithLights() const;
 
 
   private:

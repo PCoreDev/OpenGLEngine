@@ -888,91 +888,91 @@ void MaterialComponent::AddDissolveMultiTexture(const float dissolve){
 void MaterialComponent::BindTextures() {
     //Diffuse
     if (data_->diffuse_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->diffuse_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->diffuse_texture.texture_unit);
       glBindTexture(data_->diffuse_texture.type, data_->diffuse_texture.id);
     }
 
     //Ambient
     if (data_->ambient_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->ambient_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->ambient_texture.texture_unit);
       glBindTexture(data_->ambient_texture.type, data_->ambient_texture.id);
     }
 
     //Specular
     if (data_->specular_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->specular_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->specular_texture.texture_unit);
       glBindTexture(data_->specular_texture.type, data_->specular_texture.id);
     }
 
     //Emissive
     if (data_->emissive_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->emissive_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->emissive_texture.texture_unit);
       glBindTexture(data_->emissive_texture.type, data_->emissive_texture.id);
     }
 
     //Alpha
     if (data_->alpha_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->alpha_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->alpha_texture.texture_unit);
       glBindTexture(data_->alpha_texture.type, data_->alpha_texture.id);
     }
 
     //Bump
     if (data_->bump_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->bump_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->bump_texture.texture_unit);
       glBindTexture(data_->bump_texture.type, data_->bump_texture.id);
     }
 
     //Normal
     if (data_->normal_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->normal_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->normal_texture.texture_unit);
       glBindTexture(data_->normal_texture.type, data_->normal_texture.id);
     }
 
     //Displacement
     if (data_->displacement_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->displacement_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->displacement_texture.texture_unit);
       glBindTexture(data_->displacement_texture.type, data_->displacement_texture.id);
     }
 
     //Specular Exponent
     if (data_->specular_exponent_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->specular_exponent_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->specular_exponent_texture.texture_unit);
       glBindTexture(data_->specular_exponent_texture.type, data_->specular_exponent_texture.id);
     }
 
     //Reflection
     if (data_->reflection_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->reflection_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->reflection_texture.texture_unit);
       glBindTexture(data_->reflection_texture.type, data_->reflection_texture.id);
     }
 
     //Roughness
     if (data_->roughness_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->roughness_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->roughness_texture.texture_unit);
       glBindTexture(data_->roughness_texture.type, data_->roughness_texture.id);
     }
 
     //Metallic
     if (data_->metallic_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->metallic_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->metallic_texture.texture_unit);
       glBindTexture(data_->metallic_texture.type, data_->metallic_texture.id);
     }
 
     //Ambient Occlusion
     if (data_->ambient_occlusion_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->ambient_occlusion_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->ambient_occlusion_texture.texture_unit);
       glBindTexture(data_->ambient_occlusion_texture.type, data_->ambient_occlusion_texture.id);
     }
 
     //Height
     if (data_->height_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->height_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->height_texture.texture_unit);
       glBindTexture(data_->height_texture.type, data_->height_texture.id);
     }
 
     //Glossiness
     if (data_->glossiness_texture.set == true) {
-      glActiveTexture(GL_TEXTURE0 + data_->glossiness_texture.texture_unit);
+      glActiveTexture(GL_TEXTURE1 + data_->glossiness_texture.texture_unit);
       glBindTexture(data_->glossiness_texture.type, data_->glossiness_texture.id);
     }
 }

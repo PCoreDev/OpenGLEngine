@@ -18,6 +18,6 @@ void main(){
 position = vec4(model_matrix * vec4(aPos, 1.0)).xyz;
 normal = mat3(model_matrix) * aNormal;
 texCoords = aTexCoords;
-color = vec4(1.0, 1.0, 1.0, 1.0);
+//color = vec4(1.0, 1.0, 1.0, 1.0);
 gl_Position = projection_matrix * view_matrix * model_matrix * vec4(aPos, 1.0);
 }

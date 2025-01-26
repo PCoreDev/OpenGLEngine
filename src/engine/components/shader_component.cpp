@@ -1,279 +1,119 @@
+/*****************************************************************//**
+ * \file   shader_component.cpp
+ * \brief  
+ * 
+ * \author pablo
+ * \date   January 2025
+ *********************************************************************/
 #include "engine/components/shader_component.h"
-
-#include <fstream>
-
-
-#include "glad/glad.h"
-#include "loguru/loguru.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
-#include "engine/core.h"
-
-#include "engine/components/camera_component.h"
-#include "engine/components/transform_component.h"
-#include "engine/components/material_component.h"
-
+#include "engine/shader.h"
 #include "engine/entity.h"
 
+struct ShaderComponentdata {
+  std::unique_ptr<Shader> shader;
+  ShaderComponentdata() { shader = std::make_unique<Shader>(); }
+  ShaderComponentdata(const ShaderComponentdata& other) {
+    shader = std::make_unique<Shader>(*other.shader);
+  }
+  ShaderComponentdata(ShaderComponentdata&& other) noexcept {
+    shader = std::move(other.shader);
+  }
+  ~ShaderComponentdata() {}
 
+  void operator=(const ShaderComponentdata& other) {
+    shader = std::make_unique<Shader>(*other.shader);
+  }
 
+  ShaderComponentdata& operator=(ShaderComponentdata&& other) noexcept {
+    if (this != &other) {
+      shader = std::move(other.shader);
+    }
+    return *this;
+  }
+};
 
-
+ShaderComponent::ShaderComponent() {
+  data_ = std::make_unique<ShaderComponentdata>();
+}
 
 ShaderComponent::ShaderComponent(std::weak_ptr<Entity> e) {
-  this->entity = e;
+  entity = e;
   this->id = entity.lock()->ID();
   this->type = ComponentType_Shader;
-  data = std::make_unique<ShaderComponentData>();
-  data->enable = true;
+  data_ = std::make_unique<ShaderComponentdata>();
 }
 
-ShaderComponent::ShaderComponent(const ShaderComponent& other){
+ShaderComponent::ShaderComponent(const ShaderComponent& other) {
+  entity = other.entity;
   this->id = other.id;
   this->type = other.type;
-  this->data = std::make_unique<ShaderComponentData>();
-  this->data->vertex = other.data->vertex;
-  this->data->fragment = other.data->fragment;
-  this->data->geometry = other.data->geometry;
-  this->data->program = other.data->program;
-  this->data->enable = other.data->enable;
+  data_ = std::make_unique<ShaderComponentdata>(*other.data_);
 }
 
-ShaderComponent::ShaderComponent(ShaderComponent&& other) noexcept
-{
-  this->data = std::move(other.data);
+ShaderComponent::ShaderComponent(ShaderComponent&& other) noexcept {
+  entity = other.entity;
   this->id = other.id;
   this->type = other.type;
+  data_ = std::move(other.data_);
 }
 
-void ShaderComponent::operator=(const ShaderComponent& other){
+ShaderComponent::~ShaderComponent() {}
+
+void ShaderComponent::operator=(const ShaderComponent& other) {
+  entity = other.entity;
   this->id = other.id;
   this->type = other.type;
-  this->data = std::make_unique<ShaderComponentData>();
-  this->data->vertex = other.data->vertex;
-  this->data->fragment = other.data->fragment;
-  this->data->geometry = other.data->geometry;
-  this->data->program = other.data->program;
-  this->data->enable = other.data->enable;
+  data_ = std::make_unique<ShaderComponentdata>(*other.data_);
 }
 
 ShaderComponent& ShaderComponent::operator=(ShaderComponent&& other) noexcept {
   if (this != &other) {
-    this->data = std::move(other.data);
+    entity = other.entity;
     this->id = other.id;
     this->type = other.type;
+    data_ = std::move(other.data_);
   }
   return *this;
 }
 
-void ShaderComponent::SetEnable(bool enable){
-  data->enable = enable;
-}
-
-void ShaderComponent::SetBool(const std::string& name, bool value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniform1i(found, (int)value);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
-}
-
-void ShaderComponent::SetInt(const std::string& name, int value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniform1i(found, value);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
-}
-
-void ShaderComponent::SetFloat(const std::string& name, float value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniform1f(found, value);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
-}
-
-void ShaderComponent::SetVec3(const std::string& name, glm::vec3 value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniform3fv(found, 1, &value[0]);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
-}
-
-void ShaderComponent::SetMat4(const std::string& name, glm::mat4 value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniformMatrix4fv(found, 1, GL_FALSE, &value[0][0]);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
-}
-
-void ShaderComponent::SetTexture(const std::string& name, int value) const {
-  int found = glGetUniformLocation(data->program, name.c_str());
-  if (found != -1) {
-    glUniform1i(found, value);
-  }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+bool ShaderComponent::LoadShader(std::string vert, std::string frag) {
+  return data_->shader->LoadShader(vert, frag);
 }
 
 int ShaderComponent::GetProgram() {
-  return data->program;
+  return data_->shader->GetProgram();
 }
 
-bool ShaderComponent::Enable()
-{
-  return data->enable;
+void ShaderComponent::SetBool(const std::string& name, bool value) const {
+  data_->shader->SetBool(name, value);
 }
 
-void ShaderComponent::UseProgram(){
-  glUseProgram(data->program);
+void ShaderComponent::SetInt(const std::string& name, int value) const {
+  data_->shader->SetInt(name, value);
 }
 
-bool ShaderComponent::LoadShader(std::string path, ShaderType type) {
-  std::string shaderCode = ReadFile(path);
-  switch (type)
-  {
-  case Vertex:
-    data->vertex = CompileShader(shaderCode, type);
-    break;
-  case Fragment:
-    data->fragment = CompileShader(shaderCode, type);
-    break;
-  case Geometry:
-    data->geometry = CompileShader(shaderCode, type);
-    break;
-  default:
-    break;
-  }
-
-  return LinkProgram();
+void ShaderComponent::SetFloat(const std::string& name, float value) const {
+  data_->shader->SetFloat(name, value);
 }
 
-bool ShaderComponent::LoadShaderAndAttach(std::string path, ShaderType type)
-{
-  std::string shaderCode = ReadFile(path);
-  switch (type)
-  {
-  case Vertex:
-    data->vertex = CompileShader(shaderCode, type);
-    break;
-  case Fragment:
-    data->fragment = CompileShader(shaderCode, type);
-    break;
-  case Geometry:
-    data->geometry = CompileShader(shaderCode, type);
-    break;
-  default:
-    break;
-  }
-
-  return LinkProgram(true);
+void ShaderComponent::SetVec2(const std::string& name, glm::vec2 value) const {
+  data_->shader->SetVec2(name, value);
 }
 
-std::string ShaderComponent::ReadFile(const std::string& path) {
-  std::string code;
-  std::ifstream file;
-
-  file.open(path);
-
-  if (!file.is_open()) {
-    LOG_F(ERROR, "Failed to open file %s", path.c_str());
-  }
-
-  std::string loaded_code;
-  std::string line;
-
-  while (std::getline(file, line)) {
-    loaded_code += line + "\n";
-  }
-
-  file.close();
-
-  return loaded_code;
+void ShaderComponent::SetVec3(const std::string& name, glm::vec3 value) const {
+  data_->shader->SetVec3(name, value);
 }
 
-unsigned int ShaderComponent::CompileShader(std::string& shader_code, ShaderType type)
-{
-  GLuint shader = 0;
-    switch (type)
-    {
-    case Vertex:
-      shader = glCreateShader(GL_VERTEX_SHADER);
-      break;
-    case Fragment:
-      shader = glCreateShader(GL_FRAGMENT_SHADER);
-      break;
-    case Geometry:
-      shader = glCreateShader(GL_GEOMETRY_SHADER);
-      break;
-    default:
-      break;
-    }
-    
-    
-  const GLchar* code = shader_code.c_str();
-  GLint success;
-
-  glShaderSource(shader, 1, &code, NULL);
-  glCompileShader(shader);
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-  if (!success) {
-    GLchar infoLog[512];
-    glGetShaderInfoLog(shader, 512, NULL, infoLog);
-    switch (type)
-    {
-    case Vertex:
-      LOG_F(ERROR, "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s", infoLog);
-      break;
-    case Fragment:
-      LOG_F(ERROR, "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s", infoLog);
-      break;
-    case Geometry:
-      LOG_F(ERROR, "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n%s", infoLog);
-      break;
-    default:
-      LOG_F(ERROR, "ERROR::SHADER::UNKNOW::COMPILATION_FAILED\n%s", infoLog);
-      break;
-    }
-  }
-
-  return shader;
+void ShaderComponent::SetMat4(const std::string& name, glm::mat4 value) const {
+  data_->shader->SetMat4(name, value);
 }
 
-bool ShaderComponent::LinkProgram(bool core) {
-  GLint success;
-  bool correct = true;
-  GLuint program;
-  if (!core) {
-    data->program = glCreateProgram();
-    program = data->program;
-  }
-  else {
-    LinkProgram();
-    program = OpenGLEngine::Engine::Core::shader_->GetProgram();
-  }
-
-  glAttachShader(program, data->vertex);
-  glAttachShader(program, data->fragment);
-  //glAttachShader(data->program, data->geometry);
-
-  glLinkProgram(program);
-
-  glGetProgramiv(program, GL_LINK_STATUS, &success);
-  if (!success) {
-    GLchar infoLog[512];
-    glGetProgramInfoLog(program, 512, NULL, infoLog);
-    LOG_F(ERROR, "ERROR::SHADER::PROGRAM::LINKING_FAILED\n%s", infoLog);
-    correct = false;
-  }
-
-  glUseProgram(0);
-  glDeleteShader(data->vertex);
-  glDeleteShader(data->fragment);
-  glDeleteShader(data->geometry);
-
-  return correct;
+void ShaderComponent::SetTexture(const std::string& name, int value) const {
+  data_->shader->SetTexture(name, value);
 }
+
+void ShaderComponent::UseShader() {
+  data_->shader->UseShader();
+}
+
+

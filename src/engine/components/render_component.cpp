@@ -64,8 +64,8 @@ void RenderComponent::Render() {
   auto shader = entity_locked->GetShaderComponent();
   auto mesh = entity_locked->GetMeshComponent();
 
-  if (shader && shader->Enable()) {
-    shader->UseProgram();
+  if (shader) {
+    shader->UseShader();
 
     auto transform = entity_locked->GetTransformComponent();
     if (transform) {
@@ -90,24 +90,58 @@ void RenderComponent::Render() {
       material->BindTextures();
     }
 
-    shader->SetVec3("light_position", glm::vec3(0.0f, 100.0f, 0.0f));
+    shader->SetVec3("directional_light.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+    shader->SetVec3("directional_light.ambient", glm::vec3(0.2f));
+    shader->SetVec3("directional_light.diffuse", glm::vec3(0.5f));
+    shader->SetVec3("directional_light.specular", glm::vec3(1.0f));
+
+    shader->SetVec3("point_light[0].position", OpenGLEngine::Engine::Core::camera_->GetPosition());
+    shader->SetVec3("point_light[0].ambient", glm::vec3(0.2f));
+    shader->SetVec3("point_light[0].diffuse", glm::vec3(0.5f));
+    shader->SetVec3("point_light[0].specular", glm::vec3(1.0f));
+    shader->SetFloat("point_light[0].constant", 1.0f);
+    shader->SetFloat("point_light[0].linear", 0.09f);
+    shader->SetFloat("point_light[0].quadratic", 0.032f);
+    shader->SetVec3("point_light[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
+
+    shader->SetInt("point_light_count", 1);
+
     shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
   }
   else {
     auto core_shader = OpenGLEngine::Engine::Core::shader_;
-    core_shader->UseProgram();
+    core_shader->UseShader();
 
     auto transform = entity_locked->GetTransformComponent();
     core_shader->SetMat4("model_matrix", transform->GetModelMatrix());
     core_shader->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
     core_shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
-    core_shader->SetVec3("light_position", glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+    core_shader->SetVec3("directional_light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    core_shader->SetVec3("directional_light.ambient", glm::vec3(0.2f));
+    core_shader->SetVec3("directional_light.diffuse", glm::vec3(0.5f));
+    core_shader->SetVec3("directional_light.specular", glm::vec3(1.0f));
+
+
+    core_shader->SetVec3("point_light[0].position", OpenGLEngine::Engine::Core::camera_->GetPosition());
+    core_shader->SetVec3("point_light[0].ambient", glm::vec3(0.2f));
+    core_shader->SetVec3("point_light[0].diffuse", glm::vec3(0.5f));
+    core_shader->SetVec3("point_light[0].specular", glm::vec3(1.0f));
+    core_shader->SetFloat("point_light[0].constant", 1.0f);
+    core_shader->SetFloat("point_light[0].linear", 0.09f);
+    core_shader->SetFloat("point_light[0].quadratic", 0.032f);
+    //core_shader->SetVec3("point_light[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
+
+    core_shader->SetInt("point_light_count", 1);
+
+
     core_shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
 
     auto material = entity_locked->GetMaterialComponent();
     if (material) {
-      material->SendToShader();
       material->BindTextures();
+      material->SendToShader();
     }
   }
 
@@ -123,4 +157,9 @@ void RenderComponent::Render() {
 
 void RenderComponent::RenderFrameBuffer(){
 
+}
+
+void RenderComponent::RenderLights()
+{
+  //TODO ...
 }

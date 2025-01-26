@@ -3,8 +3,8 @@ illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd germany010_-_còpia.jpg
-bump  -bm 0.04 germany010b.jpg
+map_Kd germany010.jpg
+bump  germany010b.jpg
 Ni 1.00
 newmtl lambert50SG
 illum 4
@@ -12,7 +12,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd entr137M.jpg
-bump  -bm 1 entr137M.jpg
+bump  entr137M.jpg
 Ni 1.00
 newmtl tower_lambert39SG
 illum 4
@@ -20,7 +20,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd Wall3_copy.jpg
-bump  -bm 0.1 brck49Lb.jpg
+bump  brck49Lb.jpg
 Ni 1.00
 newmtl tower_lambert49SG
 illum 4
@@ -28,7 +28,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd wind15L.jpg
-bump  -bm 1 wind15Lb.jpg
+bump  wind15Lb.jpg
 Ni 1.00
 newmtl tower_lambert51SG
 illum 4
@@ -36,7 +36,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd wndw038M.jpg
-bump  -bm 1 wndw038M.jpg
+bump  wndw038M.jpg
 Ni 1.00
 newmtl tower_wallgateRender_lambert37SG
 illum 4
@@ -44,5 +44,5 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd patio03a.jpg
-bump  -bm 0.1 patio03b.jpg
+bump  patio03b.jpg
 Ni 1.00
