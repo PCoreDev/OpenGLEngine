@@ -6,14 +6,13 @@
  * \date   January 2025
  *********************************************************************/
 #include "engine/components/shader_component.h"
-#include "engine/shader.h"
 #include "engine/entity.h"
 
 struct ShaderComponentdata {
-  std::unique_ptr<Shader> shader;
-  ShaderComponentdata() { shader = std::make_unique<Shader>(); }
+  std::shared_ptr<Shader> shader;
+  ShaderComponentdata() { shader = std::make_shared<Shader>(); }
   ShaderComponentdata(const ShaderComponentdata& other) {
-    shader = std::make_unique<Shader>(*other.shader);
+    shader = std::make_shared<Shader>(*other.shader);
   }
   ShaderComponentdata(ShaderComponentdata&& other) noexcept {
     shader = std::move(other.shader);
@@ -21,7 +20,7 @@ struct ShaderComponentdata {
   ~ShaderComponentdata() {}
 
   void operator=(const ShaderComponentdata& other) {
-    shader = std::make_unique<Shader>(*other.shader);
+    shader = std::make_shared<Shader>(*other.shader);
   }
 
   ShaderComponentdata& operator=(ShaderComponentdata&& other) noexcept {
@@ -82,6 +81,10 @@ bool ShaderComponent::LoadShader(std::string vert, std::string frag) {
 
 int ShaderComponent::GetProgram() {
   return data_->shader->GetProgram();
+}
+
+std::shared_ptr<Shader> ShaderComponent::GetShader(){
+  return data_->shader;
 }
 
 void ShaderComponent::SetBool(const std::string& name, bool value) const {

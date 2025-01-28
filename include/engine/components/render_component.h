@@ -17,6 +17,7 @@ struct RenderData {
   bool enabled;
 };
 
+class Shader;
 
 class RenderComponent: public Component{
 public:
@@ -36,9 +37,9 @@ public:
 
   void Render();
 
-  void RenderFrameBuffer();
+  void RenderLights(std::shared_ptr<Shader> shader);
 
-  void RenderLights();
+  void MatrixToShader(std::shared_ptr<Shader> shader);
 
 
 private:

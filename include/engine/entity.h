@@ -48,6 +48,8 @@ public:
   void AddMaterialComponent();
   void AddSkyBoxComponent();
 
+  void ShowStats();
+
 private:
   std::unique_ptr<class EntityData> data_;
 

@@ -96,21 +96,37 @@ Entity::~Entity() {
 
 int Entity::ID() { return data_->id; }
 
-std::shared_ptr<MeshComponent> Entity::GetMeshComponent() { return data_->mesh_component; }
+std::shared_ptr<MeshComponent> Entity::GetMeshComponent() { 
+  return data_->mesh_component;
+}
 
-std::shared_ptr<ShaderComponent> Entity::GetShaderComponent() { return data_->shader_component; }
+std::shared_ptr<ShaderComponent> Entity::GetShaderComponent() {
+  return data_->shader_component;
+}
 
-std::shared_ptr<TransformComponent> Entity::GetTransformComponent() { return data_->transform_component; }
+std::shared_ptr<TransformComponent> Entity::GetTransformComponent() { 
+  return data_->transform_component;
+}
 
-std::shared_ptr<CameraComponent> Entity::GetCameraComponent() { return data_->camera_component; }
+std::shared_ptr<CameraComponent> Entity::GetCameraComponent() { 
+  return data_->camera_component;
+}
 
-std::shared_ptr<MaterialComponent> Entity::GetMaterialComponent() { return data_->material_component; }
+std::shared_ptr<MaterialComponent> Entity::GetMaterialComponent() { 
+  return data_->material_component;
+}
 
-std::shared_ptr<class RenderComponent> Entity::GetRenderComponent() { return data_->render_component; }
+std::shared_ptr<class RenderComponent> Entity::GetRenderComponent() { 
+  return data_->render_component;
+}
 
-std::shared_ptr<class LightComponent> Entity::GetLightComponent() { return data_->light_component; }
+std::shared_ptr<class LightComponent> Entity::GetLightComponent() { 
+  return data_->light_component;
+}
 
-std::shared_ptr<class SkyBoxComponent> Entity::GetSkyBoxComponent() { return data_->skybox_component; }
+std::shared_ptr<class SkyBoxComponent> Entity::GetSkyBoxComponent() { 
+  return data_->skybox_component;
+}
 
 void Entity::AddRenderComponent() {
   if (data_->render_component == nullptr) {
@@ -182,6 +198,15 @@ void Entity::AddSkyBoxComponent(){
   else {
     LOG_F(ERROR, "SkyBoxComponent already exists");
   }
+}
+
+void Entity::ShowStats()
+{
+  if (data_->transform_component != nullptr)
+    data_->transform_component->ShowStats();
+
+  if (data_->light_component != nullptr)
+    data_->light_component->ShowStats();
 }
 
 /*

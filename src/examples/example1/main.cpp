@@ -19,23 +19,10 @@
 
 int OpenGLEngine::main(int argc, char** argv)
 {
-
-  std::shared_ptr<Entity> directional_light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  directional_light->AddLightComponent();
-  directional_light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
-  directional_light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
-  directional_light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
-  directional_light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
-  directional_light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
-  directional_light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
-
-
   std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   //camera->AddTransformComponent();
   camera->AddCameraComponent();
   camera->GetCameraComponent()->SetMainCamera();
-  camera->AddLightComponent();
-  camera->GetLightComponent()->SetLightType(LightComponent::LightType::Point);
 
   std::shared_ptr<Entity> skybox = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   skybox->AddMeshComponent();
@@ -86,6 +73,13 @@ int OpenGLEngine::main(int argc, char** argv)
   light->GetMaterialComponent()->SetDiffuse(glm::vec3(1.0f, 1.0f, 1.0f));
   light->GetMaterialComponent()->SetSpecular(glm::vec3(0.0f));
   light->GetMaterialComponent()->SetShininess(0.0f);
+  light->AddLightComponent();
+  light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
+  light->GetLightComponent()->SetDirection(glm::vec3(-1.0f, -1.0f, 0.0f));
+  light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+  light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+  light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+  light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
 
   
   int num_cubes = 3;
@@ -105,9 +99,30 @@ int OpenGLEngine::main(int argc, char** argv)
         entity->GetMaterialComponent()->SetDiffuse(glm::vec3(0.2f));
         entity->GetMaterialComponent()->SetSpecular(glm::vec3(20.0f));
         entity->GetMaterialComponent()->SetShininess(32.0f);
-        //entity->AddShaderComponent();
-        //entity->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.vert", ShaderComponent::Vertex);
-        //entity->GetShaderComponent()->LoadShader("../../src/engine/shaders/default3D.frag", ShaderComponent::Fragment);
+        if (i == 0 && j == 0 && z == 0) {
+          entity->AddLightComponent();
+          entity->GetLightComponent()->SetLightType(LightComponent::LightType::Spot);
+          entity->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+          entity->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+          entity->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+          entity->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+          entity->GetLightComponent()->SetConstant(1.0f);
+          entity->GetLightComponent()->SetLinear(0.09f);
+          entity->GetLightComponent()->SetQuadratic(0.032f);
+          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+        }
+
+        if (i == 1 && j == 1 && z == 1) {
+          entity->AddLightComponent();
+          entity->GetLightComponent()->SetLightType(LightComponent::LightType::Point);
+          entity->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+          entity->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+          entity->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+          entity->GetLightComponent()->SetConstant(1.0f);
+          entity->GetLightComponent()->SetLinear(0.09f);
+          entity->GetLightComponent()->SetQuadratic(0.032f);
+          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
+        }
       }
     }
   }
@@ -129,7 +144,7 @@ int OpenGLEngine::main(int argc, char** argv)
   entity3->AddTransformComponent();
   entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
   //entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  entity3->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  entity3->GetTransformComponent()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
   entity3->AddMaterialComponent();
   entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
 

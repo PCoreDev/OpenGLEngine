@@ -11,42 +11,89 @@
 #include "OBJ_Loader.h"
 #include "stb/stb_image.h"
 
+struct Vertex {
+  glm::vec3 position;
+  glm::vec3 normal;
+  glm::vec2 uv;
+};
+
+struct Mesh {
+  std::vector<Vertex> vertex;
+  std::vector<unsigned int> index;
+  unsigned int vao, vbo, ibo;
+};
+
+struct MeshData {
+  std::vector<Mesh> meshes;
+  void Bind();
+};
+
 
 
 void MeshData::Bind() {
-  //TODO: Change all to one buffer (vertex, normal, uv)
 
-  glCreateBuffers(1, &vbo); //vertex buffer object
-  glCreateBuffers(1, &nbo); //normal buffer object
-  glCreateBuffers(1, &ubo); //uv buffer object
-  glCreateBuffers(1, &ibo); //index buffer object
+  for (auto& mesh : meshes) {
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    glGenBuffers(1, &mesh.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, mesh.vertex.size() * sizeof(Vertex), &mesh.vertex[0], GL_STATIC_DRAW);
+
+    glGenBuffers(1, &mesh.ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.index.size() * sizeof(unsigned int), &mesh.index[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0); //Be carrefull with this
+
+  }
+  
 
 
 
-  glNamedBufferStorage(vbo, static_cast<GLsizei>(vertex_data.size() * sizeof(float)), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
-  glNamedBufferStorage(nbo, static_cast<GLsizei>(normal_data.size() * sizeof(float)), normal_data.data(), GL_DYNAMIC_STORAGE_BIT);
-  glNamedBufferStorage(ubo, static_cast<GLsizei>(uv_data.size() * sizeof(float)), uv_data.data(), GL_DYNAMIC_STORAGE_BIT);
-  glNamedBufferStorage(ibo, static_cast<GLsizei>(index_data.size() * sizeof(unsigned int)), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
+  ////TODO: Change all to one buffer (vertex, normal, uv)
 
-  glCreateVertexArrays(1, &vao);
+  //glCreateBuffers(1, &vbo); //vertex buffer object
+  //glCreateBuffers(1, &nbo); //normal buffer object
+  //glCreateBuffers(1, &ubo); //uv buffer object
+  //glCreateBuffers(1, &ibo); //index buffer object
 
-  glVertexArrayVertexBuffer(vao, 0, vbo, 0, 3 * sizeof(float)); //Vertex
-  glVertexArrayVertexBuffer(vao, 1, nbo, 0, 3 * sizeof(float)); //Normals
-  glVertexArrayVertexBuffer(vao, 2, ubo, 0, 2 * sizeof(float)); //UV
 
-  glEnableVertexArrayAttrib(vao, 0);
-  glEnableVertexArrayAttrib(vao, 1);
-  glEnableVertexArrayAttrib(vao, 2);
 
-  glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, 0);
-  glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, 0);
-  glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, 0);
+  //glNamedBufferStorage(vbo, static_cast<GLsizei>(vertex_data.size() * sizeof(float)), vertex_data.data(), GL_DYNAMIC_STORAGE_BIT);
+  //glNamedBufferStorage(nbo, static_cast<GLsizei>(normal_data.size() * sizeof(float)), normal_data.data(), GL_DYNAMIC_STORAGE_BIT);
+  //glNamedBufferStorage(ubo, static_cast<GLsizei>(uv_data.size() * sizeof(float)), uv_data.data(), GL_DYNAMIC_STORAGE_BIT);
+  //glNamedBufferStorage(ibo, static_cast<GLsizei>(index_data.size() * sizeof(unsigned int)), index_data.data(), GL_DYNAMIC_STORAGE_BIT);
 
-  glVertexArrayAttribBinding(vao, 0, 0);
-  glVertexArrayAttribBinding(vao, 1, 1);
-  glVertexArrayAttribBinding(vao, 2, 2);
+  //glCreateVertexArrays(1, &vao);
 
-  glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), &vertex_data[0], GL_STATIC_DRAW);
+  //glVertexArrayVertexBuffer(vao, 0, vbo, 0, 3 * sizeof(float)); //Vertex
+  //glVertexArrayVertexBuffer(vao, 1, nbo, 0, 3 * sizeof(float)); //Normals
+  //glVertexArrayVertexBuffer(vao, 2, ubo, 0, 2 * sizeof(float)); //UV
+
+  //glEnableVertexArrayAttrib(vao, 0);
+  //glEnableVertexArrayAttrib(vao, 1);
+  //glEnableVertexArrayAttrib(vao, 2);
+
+  //glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, 0);
+  //glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, 0);
+  //glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, 0);
+
+  //glVertexArrayAttribBinding(vao, 0, 0);
+  //glVertexArrayAttribBinding(vao, 1, 1);
+  //glVertexArrayAttribBinding(vao, 2, 2);
+
+  //glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(float), &vertex_data[0], GL_STATIC_DRAW);
 }
 
 MeshComponent::MeshComponent(std::weak_ptr<Entity> e) {
@@ -68,6 +115,8 @@ MeshComponent::MeshComponent(MeshComponent&& other) noexcept  {
   data_ = std::move(other.data_);
 }
 
+MeshComponent::~MeshComponent() = default;
+
 MeshComponent& MeshComponent::operator=(MeshComponent&& other) noexcept
 {
   this->id = other.id;
@@ -82,446 +131,266 @@ void MeshComponent::operator=(const MeshComponent& other) {
   data_ = std::make_unique<MeshData>(*other.data_);
 }
 
-void MeshComponent::Triangle() {
-  if (data_ != nullptr) {
-    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+//void MeshComponent::Triangle() {
+  //if (data_ != nullptr) {
+  //  if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
 
-    data_->vertex_data = {
-      -0.5f, -0.5f, 0.0f, // bottom left
-      0.5f, -0.5f, 0.0f, // bottom right
-      0.0f, 0.5f, 0.0f // top
-    };
+  //  data_->vertex_data = {
+  //    -0.5f, -0.5f, 0.0f, // bottom left
+  //    0.5f, -0.5f, 0.0f, // bottom right
+  //    0.0f, 0.5f, 0.0f // top
+  //  };
 
-    data_->normal_data = {
-      0.0f, 0.0f, 1.0f,
-      0.0f, 0.0f, 1.0f,
-      0.0f, 0.0f, 1.0f
-    };
+  //  data_->normal_data = {
+  //    0.0f, 0.0f, 1.0f,
+  //    0.0f, 0.0f, 1.0f,
+  //    0.0f, 0.0f, 1.0f
+  //  };
 
-    data_->index_data = {
-      0, 1, 2
-    };
-  }
-  data_->n_vertex = 3;
-  data_->Bind();
-}
+  //  data_->index_data = {
+  //    0, 1, 2
+  //  };
+  //}
+  //data_->n_vertex = 3;
+  //data_->Bind();
+//}
 
 void MeshComponent::Square() {
   if (data_ != nullptr) {
-    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
-    data_->vertex_data = {
-         -1.0f, 1.0f, 1.0f,
-         -1.0f, -1.0f, 1.0f,
-         1.0f, -1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f
+    Mesh mesh;
+    if (data_->meshes.size() != 0) { data_->meshes.clear(); }
+    Vertex vertex_data[] = {
+      {{-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+      {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+      {{1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+      {{1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}
     };
-
-    data_->index_data = {
-        0,1,3,
-        1,2,3
+    unsigned int index_data[] = {
+      0,1,3,
+      1,2,3
     };
-
-    data_->normal_data = {
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f
-    };
-    data_->uv_data = {
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f
-    };
-
-    data_->n_vertex = 6;
-
+    mesh.vertex = std::vector<Vertex>(vertex_data, vertex_data + sizeof(vertex_data) / sizeof(Vertex));
+    mesh.index = std::vector<unsigned int>(index_data, index_data + sizeof(index_data) / sizeof(unsigned int));
+    data_->meshes.push_back(mesh);
+    data_->Bind();
   }
-  data_->Bind();
 }
 
 void MeshComponent::SkyBox() {
   if (data_ != nullptr) {
-    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
-    data_->vertex_data = {
-      //Front
-         -0.5f, 0.5f, 0.5f,
-         -0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
+    Mesh mesh;
+    if (data_->meshes.size() != 0) { data_->meshes.clear(); }
 
-         //Bottom
-         -0.5f, -0.5f, 0.5f,
-         -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, 0.5f,
-
-         //Back
-         0.5f, 0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         -0.5f, -0.5f, -0.5f,
-         -0.5f, 0.5f, -0.5f,
-
-         //Right
-         0.5f, 0.5f, 0.5f,
-         0.5f, -0.5f, 0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, 0.5f, -0.5f,
-
-         //Left
-         -0.5f, 0.5f, -0.5f,
-         -0.5f, -0.5f, -0.5f,
-         -0.5f, -0.5f, 0.5f,
-         -0.5f, 0.5f, 0.5f,
-
-         //UP
-         -0.5f, 0.5f, -0.5f,
-         -0.5f, 0.5f, 0.5f,
-          0.5f, 0.5f, 0.5f,
-          0.5f, 0.5f, -0.5f
+    Vertex vertex_data[] = {
+      // Front
+      {{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+      {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+      {{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+      {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+      // Bottom
+      {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+      {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
+      // Back
+      {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
+      {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
+      {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
+      {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
+      // Right
+      {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+      {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+      {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+      // Left
+      {{-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+      {{-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+      {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+      // Up
+      {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+      {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
     };
 
-    data_->normal_data = {
-      //Front
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-
-          //Bottom
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
-
-          //Back
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
-
-          //Right
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
-
-          //Left
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
-
-          //Up
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f
+    unsigned int index_data[] = {
+      // Front
+      1, 0, 3, 3, 2, 1,
+      // Bottom
+      5, 4, 7, 7, 6, 5,
+      // Back
+      9, 8, 11, 11, 10, 9,
+      // Right
+      13, 12, 15, 15, 14, 13,
+      // Left
+      17, 16, 19, 19, 18, 17,
+      // Up
+      21, 20, 23, 23, 22, 21
     };
 
-    data_->uv_data = {
-      //Front
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Bottom
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Back
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Right
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Left
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Up
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f
-    };
-
-    data_->index_data = { //counter clockwise
-      //Front 0, 1, 2, 3
-      1,0,3,
-      3,2,1,
-
-      //Bottom 4, 5, 6, 7
-      5,4,7,
-      7,6,5,
-
-      //Back 8, 9, 10, 11
-      9,8,11,
-      11,10,9,
-
-      //Right 12, 13, 14, 15
-      13,12,15,
-      15,14,13,
-
-      //Left 16, 17, 18, 19
-      17,16,19,
-      19,18,17,
-
-      //Up 20, 21, 22, 23
-      21,20,23,
-      23,22,21
-    };
-
-    data_->n_vertex = 24;
-
+    mesh.vertex.assign(std::begin(vertex_data), std::end(vertex_data));
+    mesh.index.assign(std::begin(index_data), std::end(index_data));
+    data_->meshes.push_back(mesh);
     data_->Bind();
   }
 }
 
 void MeshComponent::Cube() {
   if (data_ != nullptr) {
-    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
-    data_->vertex_data = {
-      //Front
-         -1.0f, 1.0f, 1.0f,
-         -1.0f, -1.0f, 1.0f,
-         1.0f, -1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f,
+    Mesh mesh;
+    if (data_->meshes.size() != 0) { data_->meshes.clear(); }
 
-         //Bottom
-         -1.0f, -1.0f, 1.0f,
-         -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, 1.0f,
-
-         //Back
-         1.0f, 1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         -1.0f, -1.0f, -1.0f,
-         -1.0f, 1.0f, -1.0f,
-
-         //Right
-         1.0f, 1.0f, 1.0f,
-         1.0f, -1.0f, 1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, 1.0f, -1.0f,
-
-         //Left
-         -1.0f, 1.0f, -1.0f,
-         -1.0f, -1.0f, -1.0f,
-         -1.0f, -1.0f, 1.0f,
-         -1.0f, 1.0f, 1.0f,
-
-         //UP
-         -1.0f, 1.0f, -1.0f,
-         -1.0f, 1.0f, 1.0f,
-          1.0f, 1.0f, 1.0f,
-          1.0f, 1.0f, -1.0f
+    Vertex vertex_data[] = {
+      // Front
+      {{-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+      {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+      {{ 1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+      {{ 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+      // Bottom
+      {{-1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+      {{1.0f, -1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
+      // Back
+      {{1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
+      {{1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
+      {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
+      {{-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
+      // Right
+      {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+      {{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+      {{1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+      {{1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+      // Left
+      {{-1.0f, 1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-1.0f, -1.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+      {{-1.0f, -1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
+      {{-1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+      // Up
+      {{-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+      {{ 1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
     };
 
-    data_->normal_data = {
-      //Front
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
-          0.0f, 0.0f, 1.0f,
+    unsigned int index_data[] = { //Clockwise
+      // Front 0, 1, 2, 3
+      0,1,3,
+      1,2,3,
 
-          //Bottom
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
-          0.0f, -1.0f, 0.0f,
+      //Bottom 4, 5, 6, 7
+      4,5,7,
+      5,6,7,
 
-          //Back
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
-          0.0f, 0.0f, -1.0f,
+      //Back 8, 9, 10, 11
+      8,9,11,
+      9,10,11,
 
-          //Right
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
-          1.0f, 0.0f, 0.0f,
+      //Right 12, 13, 14, 15
+      12,13,15,
+      13,14,15,
 
-          //Left
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
-          -1.0f, 0.0f, 0.0f,
+      //Left 16, 17, 18, 19
+      16,17,19,
+      17,18,19,
 
-          //Up
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f,
-          0.0f, 1.0f, 0.0f
+      //Up 20, 21, 22, 23
+      20,21,23,
+      21,22,23
     };
 
-    data_->uv_data = {
-      //Front
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Bottom
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Back
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Right
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Left
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f,
-
-           //Up
-           0.0f, 0.0f,
-           0.0f, 1.0f,
-           1.0f, 1.0f,
-           1.0f, 0.0f
-    };
-
-    data_->index_data = { //Clockwise
-      //Front 0, 1, 2, 3
-        0,1,3,
-        1,2,3,
-
-        //Bottom 4, 5, 6, 7
-        4,5,7,
-        5,6,7,
-
-        //Back 8, 9, 10, 11
-        8,9,11,
-        9,10,11,
-
-        //Right 12, 13, 14, 15
-        12,13,15,
-        13,14,15,
-
-        //Left 16, 17, 18, 19
-        16,17,19,
-        17,18,19,
-
-        //Up 20, 21, 22, 23
-        20,21,23,
-        21,22,23
-    };
-
-    data_->n_vertex = 24;
-
+    mesh.vertex.assign(std::begin(vertex_data), std::end(vertex_data));
+    mesh.index.assign(std::begin(index_data), std::end(index_data));
+    data_->meshes.push_back(mesh);
     data_->Bind();
   }
 }
 
-void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int stackCount) {
-  double M_PI = 3.14159265358979323846;
-  if (data_ != nullptr) {
-    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
-    if (data_->normal_data.size() != 0) { data_->normal_data.clear(); }
-    if (data_->uv_data.size() != 0) { data_->uv_data.clear(); }
-    if (data_->index_data.size() != 0) { data_->index_data.clear(); }
-
-    std::vector<float> vertices;
-    std::vector<float> normals;
-    std::vector<float> texCoords;
-    std::vector<unsigned int> indices;
-
-    float x, y, z, xy;                              // vertex position
-    float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
-    float s, t;                                     // texCoord
-
-    float sectorStep = 2 * M_PI / sectorCount;
-    float stackStep = M_PI / stackCount;
-    float sectorAngle, stackAngle;
-
-    for (unsigned int i = 0; i <= stackCount; ++i) {
-      stackAngle = M_PI / 2 - i * stackStep;        // from pi/2 to -pi/2
-      xy = radius * cosf(stackAngle);             // r * cos(u)
-      z = radius * sinf(stackAngle);              // r * sin(u)
-
-      for (unsigned int j = 0; j <= sectorCount; ++j) {
-        sectorAngle = j * sectorStep;           // from 0 to 2pi
-
-        // vertex position (x, y, z)
-        x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
-        y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
-        vertices.push_back(x);
-        vertices.push_back(y);
-        vertices.push_back(z);
-
-        // normalized vertex normal (nx, ny, nz)
-        nx = x * lengthInv;
-        ny = y * lengthInv;
-        nz = z * lengthInv;
-        normals.push_back(nx);
-        normals.push_back(ny);
-        normals.push_back(nz);
-
-        // vertex tex coord (s, t)
-        s = (float)j / sectorCount;
-        t = (float)i / stackCount;
-        texCoords.push_back(s);
-        texCoords.push_back(t);
-      }
-    }
-
-    // indices
-    unsigned int k1, k2;
-    for (unsigned int i = 0; i < stackCount; ++i) {
-      k1 = i * (sectorCount + 1);     // start of current stack
-      k2 = k1 + sectorCount + 1;      // start of next stack
-
-      for (unsigned int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
-        // 2 triangles per sector except at the top and bottom
-        if (i != 0) {
-          indices.push_back(k1);
-          indices.push_back(k2);
-          indices.push_back(k1 + 1);
-        }
-
-        if (i != (stackCount - 1)) {
-          indices.push_back(k1 + 1);
-          indices.push_back(k2);
-          indices.push_back(k2 + 1);
-        }
-      }
-    }
-
-    // Store data in MeshComponent object
-    data_->vertex_data = vertices;
-    data_->normal_data = normals;
-    data_->uv_data = texCoords;
-    data_->index_data = indices;
-    data_->n_vertex = static_cast<unsigned int>(vertices.size() / 3);
-
-    data_->Bind();
-  }
-}
+//void MeshComponent::Sphere(float radius, unsigned int sectorCount, unsigned int stackCount) {
+//  double M_PI = 3.14159265358979323846;
+//  if (data_ != nullptr) {
+//    if (data_->vertex_data.size() != 0) { data_->vertex_data.clear(); }
+//    if (data_->normal_data.size() != 0) { data_->normal_data.clear(); }
+//    if (data_->uv_data.size() != 0) { data_->uv_data.clear(); }
+//    if (data_->index_data.size() != 0) { data_->index_data.clear(); }
+//
+//    std::vector<float> vertices;
+//    std::vector<float> normals;
+//    std::vector<float> texCoords;
+//    std::vector<unsigned int> indices;
+//
+//    float x, y, z, xy;                              // vertex position
+//    float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
+//    float s, t;                                     // texCoord
+//
+//    float sectorStep = 2 * M_PI / sectorCount;
+//    float stackStep = M_PI / stackCount;
+//    float sectorAngle, stackAngle;
+//
+//    for (unsigned int i = 0; i <= stackCount; ++i) {
+//      stackAngle = M_PI / 2 - i * stackStep;        // from pi/2 to -pi/2
+//      xy = radius * cosf(stackAngle);             // r * cos(u)
+//      z = radius * sinf(stackAngle);              // r * sin(u)
+//
+//      for (unsigned int j = 0; j <= sectorCount; ++j) {
+//        sectorAngle = j * sectorStep;           // from 0 to 2pi
+//
+//        // vertex position (x, y, z)
+//        x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+//        y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+//        vertices.push_back(x);
+//        vertices.push_back(y);
+//        vertices.push_back(z);
+//
+//        // normalized vertex normal (nx, ny, nz)
+//        nx = x * lengthInv;
+//        ny = y * lengthInv;
+//        nz = z * lengthInv;
+//        normals.push_back(nx);
+//        normals.push_back(ny);
+//        normals.push_back(nz);
+//
+//        // vertex tex coord (s, t)
+//        s = (float)j / sectorCount;
+//        t = (float)i / stackCount;
+//        texCoords.push_back(s);
+//        texCoords.push_back(t);
+//      }
+//    }
+//
+//    // indices
+//    unsigned int k1, k2;
+//    for (unsigned int i = 0; i < stackCount; ++i) {
+//      k1 = i * (sectorCount + 1);     // start of current stack
+//      k2 = k1 + sectorCount + 1;      // start of next stack
+//
+//      for (unsigned int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+//        // 2 triangles per sector except at the top and bottom
+//        if (i != 0) {
+//          indices.push_back(k1);
+//          indices.push_back(k2);
+//          indices.push_back(k1 + 1);
+//        }
+//
+//        if (i != (stackCount - 1)) {
+//          indices.push_back(k1 + 1);
+//          indices.push_back(k2);
+//          indices.push_back(k2 + 1);
+//        }
+//      }
+//    }
+//
+//    // Store data in MeshComponent object
+//    data_->vertex_data = vertices;
+//    data_->normal_data = normals;
+//    data_->uv_data = texCoords;
+//    data_->index_data = indices;
+//    data_->n_vertex = static_cast<unsigned int>(vertices.size() / 3);
+//
+//    data_->Bind();
+//  }
+//}
 
 /*void loadOBJ(const std::string& filename, std::vector<Mesh>& meshes, std::vector<Material>& materials) {
     tinyobj::attrib_t attrib;
@@ -587,176 +456,220 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
     return false;
   }
 
-  // Process loaded vertices, normals, texture coordinates
-  for (const auto& vertex : loader.LoadedVertices) {
-    data_->vertex_data.push_back(vertex.Position.X);
-    data_->vertex_data.push_back(vertex.Position.Y);
-    data_->vertex_data.push_back(vertex.Position.Z);
-
-    data_->normal_data.push_back(vertex.Normal.X);
-    data_->normal_data.push_back(vertex.Normal.Y);
-    data_->normal_data.push_back(vertex.Normal.Z);
-       
-    data_->uv_data.push_back(vertex.TextureCoordinate.X);
-    data_->uv_data.push_back(-vertex.TextureCoordinate.Y);
-  }
-
-  // Process indices
-  for (const auto& index : loader.LoadedIndices) {
-    data_->index_data.push_back(index);
-  }
-
-  // Process materials
-
-  if (loader.LoadedMaterials.empty()) {
-    LOG_F(INFO, "No materials loaded");
-  }
-  else {
-    std::shared_ptr<MaterialComponent> material_component = entity.lock()->GetMaterialComponent();
-    if (material_component == nullptr) {
-      LOG_F(ERROR, "Material component not found");
-    }
-    else {
-      entity.lock()->AddMaterialComponent();
-      material_component = entity.lock()->GetMaterialComponent();
-    }
-
-    if (material_component == nullptr) {
-      LOG_F(ERROR, "Material component not found");
-    }
-    else {
-      std::string path = texture_path + "textures/";
-
-      if (loader.LoadedMaterials.size() < 2) { //if there is only one material
-        for (const auto& material : loader.LoadedMaterials) {
-          std::string diffuse_path;
-          std::string specular_path;
-          std::string ambient_path;
-          std::string bump_path;
-          if (!material.map_Kd.empty()) {
-            diffuse_path = path + material.map_Kd;
-            material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-          }
-
-          if (!material.map_Ks.empty()) {
-            specular_path = path + material.map_Ks;
-            material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-          }
-
-          if (!material.map_Ka.empty()) {
-            ambient_path = path + material.map_Ka;
-            material_component->LoadTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
-          }
-
-          if (!material.map_bump.empty()) {
-            bump_path = path + material.map_bump;
-            material_component->LoadTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
-          }
-
-          material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
-          material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
-          material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
-          material_component->SetShininess(material.Ns);
-
-          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
-          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
-        }
-        material_component->BindTextures();
+  if (data_ != nullptr) {
+    if (data_->meshes.size() != 0) { data_->meshes.clear(); }
+    for (const auto& shape : loader.LoadedMeshes) {
+      Mesh mesh;
+      for (const auto& vertex : shape.Vertices) {
+        Vertex v;
+        v.position = { vertex.Position.X, vertex.Position.Y, vertex.Position.Z };
+        v.normal = { vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z };
+        v.uv = { vertex.TextureCoordinate.X, -vertex.TextureCoordinate.Y };
+        mesh.vertex.push_back(v);
       }
-      else if (loader.LoadedMaterials.size() >= 2) {
-        for (const auto& material : loader.LoadedMaterials) {
-          std::string diffuse_path;
-          std::string specular_path;
-          std::string ambient_path;
-          std::string bump_path;
-          if (!material.map_Kd.empty()) {
-            diffuse_path = path + material.map_Kd;
-            material_component->AddMultiTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-          }
-
-          if (!material.map_Ks.empty()) {
-            specular_path = path + material.map_Ks;
-            material_component->AddMultiTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-          }
-
-          if (!material.map_Ka.empty()) {
-            ambient_path = path + material.map_Ka;
-            material_component->AddMultiTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
-          }
-
-          if (!material.map_bump.empty()) {
-            bump_path = path + material.map_bump;
-            material_component->AddMultiTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
-          }
-
-          material_component->AddAmbientColorMultiTexture(material.Ka.X, material.Ka.Y, material.Ka.Z);
-          material_component->AddDiffuseColorMultiTexture(material.Kd.X, material.Kd.Y, material.Kd.Z);
-          material_component->AddSpecularColorMultiTexture(material.Ks.X, material.Ks.Y, material.Ks.Z);
-          material_component->AddShininessMultiTexture(material.Ns);
-
-          material_component->SetMultiMaterial(true);
-
-          LOG_F(INFO, "Material loaded: %s", material.name.c_str());
-          LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
-        }
-        material_component->BindMultiTextures();
+      for (const auto& index : shape.Indices) {
+        mesh.index.push_back(index);
       }
-      
+      data_->meshes.push_back(mesh);
     }
+    data_->Bind();
   }
 
-  data_->n_vertex = loader.LoadedVertices.size();
-  data_->Bind();
 
   return true;
+  //// Process loaded vertices, normals, texture coordinates
+  //for (const auto& vertex : loader.LoadedVertices) {
+  //  data_->vertex_data.push_back(vertex.Position.X);
+  //  data_->vertex_data.push_back(vertex.Position.Y);
+  //  data_->vertex_data.push_back(vertex.Position.Z);
+
+  //  data_->normal_data.push_back(vertex.Normal.X);
+  //  data_->normal_data.push_back(vertex.Normal.Y);
+  //  data_->normal_data.push_back(vertex.Normal.Z);
+  //     
+  //  data_->uv_data.push_back(vertex.TextureCoordinate.X);
+  //  data_->uv_data.push_back(-vertex.TextureCoordinate.Y);
+  //}
+
+  //// Process indices
+  //for (const auto& index : loader.LoadedIndices) {
+  //  data_->index_data.push_back(index);
+  //}
+
+  //// Process materials
+
+  //if (loader.LoadedMaterials.empty()) {
+  //  LOG_F(INFO, "No materials loaded");
+  //}
+  //else {
+  //  std::shared_ptr<MaterialComponent> material_component = entity.lock()->GetMaterialComponent();
+  //  if (material_component == nullptr) {
+  //    LOG_F(ERROR, "Material component not found");
+  //  }
+  //  else {
+  //    entity.lock()->AddMaterialComponent();
+  //    material_component = entity.lock()->GetMaterialComponent();
+  //  }
+
+  //  if (material_component == nullptr) {
+  //    LOG_F(ERROR, "Material component not found");
+  //  }
+  //  else {
+  //    std::string path = texture_path + "textures/";
+
+  //    if (loader.LoadedMaterials.size() < 2) { //if there is only one material
+  //      for (const auto& material : loader.LoadedMaterials) {
+  //        std::string diffuse_path;
+  //        std::string specular_path;
+  //        std::string ambient_path;
+  //        std::string bump_path;
+  //        if (!material.map_Kd.empty()) {
+  //          diffuse_path = path + material.map_Kd;
+  //          material_component->LoadTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+  //        }
+
+  //        if (!material.map_Ks.empty()) {
+  //          specular_path = path + material.map_Ks;
+  //          material_component->LoadTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+  //        }
+
+  //        if (!material.map_Ka.empty()) {
+  //          ambient_path = path + material.map_Ka;
+  //          material_component->LoadTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
+  //        }
+
+  //        if (!material.map_bump.empty()) {
+  //          bump_path = path + material.map_bump;
+  //          material_component->LoadTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
+  //        }
+
+  //        material_component->SetAmbient(material.Ka.X, material.Ka.Y, material.Ka.Z);
+  //        material_component->SetDiffuse(material.Kd.X, material.Kd.Y, material.Kd.Z);
+  //        material_component->SetSpecular(material.Ks.X, material.Ks.Y, material.Ks.Z);
+  //        material_component->SetShininess(material.Ns);
+
+  //        LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+  //        LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+  //      }
+  //      material_component->BindTextures();
+  //    }
+  //    else if (loader.LoadedMaterials.size() >= 2) {
+  //      for (const auto& material : loader.LoadedMaterials) {
+  //        std::string diffuse_path;
+  //        std::string specular_path;
+  //        std::string ambient_path;
+  //        std::string bump_path;
+  //        if (!material.map_Kd.empty()) {
+  //          diffuse_path = path + material.map_Kd;
+  //          material_component->AddMultiTexture(diffuse_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
+  //        }
+
+  //        if (!material.map_Ks.empty()) {
+  //          specular_path = path + material.map_Ks;
+  //          material_component->AddMultiTexture(specular_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
+  //        }
+
+  //        if (!material.map_Ka.empty()) {
+  //          ambient_path = path + material.map_Ka;
+  //          material_component->AddMultiTexture(ambient_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Ambient);
+  //        }
+
+  //        if (!material.map_bump.empty()) {
+  //          bump_path = path + material.map_bump;
+  //          material_component->AddMultiTexture(bump_path, MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Bump);
+  //        }
+
+  //        material_component->AddAmbientColorMultiTexture(material.Ka.X, material.Ka.Y, material.Ka.Z);
+  //        material_component->AddDiffuseColorMultiTexture(material.Kd.X, material.Kd.Y, material.Kd.Z);
+  //        material_component->AddSpecularColorMultiTexture(material.Ks.X, material.Ks.Y, material.Ks.Z);
+  //        material_component->AddShininessMultiTexture(material.Ns);
+
+  //        material_component->SetMultiMaterial(true);
+
+  //        LOG_F(INFO, "Material loaded: %s", material.name.c_str());
+  //        LOG_F(INFO, "Material Path: %s%s", texture_path.c_str(), path.c_str());
+  //      }
+  //      material_component->BindMultiTextures();
+  //    }
+  //    
+  //  }
+  //}
+
+  //data_->n_vertex = loader.LoadedVertices.size();
+  //data_->Bind();
+
+  //return true;
 }
 
-float* MeshComponent::GetVertexData() {
-  if (data_->vertex_data.size() > 0) {
-    LOG_F(INFO, "Vertex data retrieved");
-    return data_->vertex_data.data();
-  }
-  return nullptr;
-}
+//float* MeshComponent::GetVertexData() {
+//  if (data_->vertex_data.size() > 0) {
+//    LOG_F(INFO, "Vertex data retrieved");
+//    return data_->vertex_data.data();
+//  }
+//  return nullptr;
+//}
+//
+//size_t MeshComponent::GetVertexSizeb() {
+//  if (data_->vertex_data.size() > 0) {
+//    LOG_F(INFO, "Vertex data size retrieved");
+//    return data_->vertex_data.size() * sizeof(float);
+//  }
+//  return 0;
+//}
 
-size_t MeshComponent::GetVertexSizeb() {
-  if (data_->vertex_data.size() > 0) {
-    LOG_F(INFO, "Vertex data size retrieved");
-    return data_->vertex_data.size() * sizeof(float);
-  }
-  return 0;
-}
-
-size_t MeshComponent::GetVertexCount() {
-  return data_->n_vertex;
-}
-
-unsigned int MeshComponent::GetVAO() {
-  return data_->vao;
-}
-
-unsigned int MeshComponent::GetVBO() {
-  return data_->vbo;
-}
-
-unsigned int MeshComponent::GetIBO() {
-  return data_->ibo;
-}
-
-void MeshComponent::SetBack(bool back)
+int MeshComponent::GetMeshCount() const
 {
-  data_->back = back;
+  return data_->meshes.size();
 }
 
-bool MeshComponent::RenderMode(){
-  return data_->back;
+std::vector<size_t> MeshComponent::GetVertexCount(){
+  std::vector<size_t> vertex_count;
+  for (const auto& mesh : data_->meshes) {
+    vertex_count.push_back(mesh.vertex.size());
+  }
+  return vertex_count;
 }
+
+std::vector<unsigned int> MeshComponent::GetVAO(){
+  std::vector<unsigned int> vaos;
+  for (const auto& mesh : data_->meshes) {
+    vaos.push_back(mesh.vao);
+  }
+  return vaos;
+}
+
+
+
+std::vector<unsigned int> MeshComponent::GetVBO() {
+  std::vector<unsigned int> vbos;
+  for (const auto& mesh : data_->meshes) {
+    vbos.push_back(mesh.vbo);
+  }
+  return vbos;
+}
+
+std::vector<unsigned int> MeshComponent::GetIBO() {
+  std::vector<unsigned int> ibos;
+  for (const auto& mesh : data_->meshes) {
+    ibos.push_back(mesh.ibo);
+  }
+  return ibos;
+}
+
+//void MeshComponent::SetBack(bool back)
+//{
+//  data_->back = back;
+//}
+
+//bool MeshComponent::RenderMode(){
+//  return data_->back;
+//}
 
 void MeshComponent::CleanUp(){
-  glDeleteBuffers(1, &data_->vbo);
-  glDeleteBuffers(1, &data_->nbo);
-  glDeleteBuffers(1, &data_->ubo);
-  glDeleteBuffers(1, &data_->ibo);
-  glDeleteVertexArrays(1, &data_->vao);
+  for (auto& mesh : data_->meshes) {
+    glDeleteBuffers(1, &mesh.vbo);
+    glDeleteBuffers(1, &mesh.ibo);
+    glDeleteVertexArrays(1, &mesh.vao);
+  }
   data_.reset();
 }

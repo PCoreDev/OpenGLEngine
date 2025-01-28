@@ -198,5 +198,9 @@ glm::vec3 CameraComponent::GetPosition()
 {
     return data->camera_position;
 }
+glm::vec3 CameraComponent::GetDirection()
+{
+  return data->camera_direction;
+}
 //
 //glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }

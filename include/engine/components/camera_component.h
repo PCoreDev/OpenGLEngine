@@ -59,6 +59,7 @@ public:
   glm::mat4 GetProjectionMatrix();
 
   glm::vec3 GetPosition();
+  glm::vec3 GetDirection();
   //glm::mat4 GetOrthoMatrix();
   float GetFOV();
   //float GetAspectRatio();

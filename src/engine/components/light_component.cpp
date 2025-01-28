@@ -6,6 +6,7 @@
  * \date   January 2025
  *********************************************************************/
 #include "engine/components/light_component.h"
+#include "imgui/imgui.h"
 
 /**
  * For the Directional we use direction, ambient, diffuse, specular, color.
@@ -22,6 +23,7 @@ struct LightData {
   float linear;
   float quadratic;
   float cut_off;
+  float outer_cut_off;
   glm::vec3 color;
 };
 
@@ -157,4 +159,21 @@ float LightComponent::GetCutOff() const
 glm::vec3 LightComponent::GetLightColor() const
 {
   return data_->color;
+}
+
+void LightComponent::ShowStats(){
+  std::string begin = "Entity " + std::to_string(id);
+  ImGui::Begin(begin.c_str());
+  ImGui::Text("Light Stats");
+  ImGui::Text("Light Type % d", data_->type);
+  ImGui::SliderFloat3("Direction", &data_->direction[0], -1000.0f, 1000.0f);
+  ImGui::SliderFloat3("Ambient", &data_->ambient[0], 0.0f, 1.0f);
+  ImGui::SliderFloat3("Diffuse", &data_->diffuse[0], 0.0f, 1.0f);
+  ImGui::SliderFloat3("Specular", &data_->specular[0], 0.0f, 1.0f);
+  ImGui::SliderFloat("Constant", &data_->constant, 0.0f, 1.0f);
+  ImGui::SliderFloat("Linear", &data_->linear, 0.0f, 1.0f);
+  ImGui::SliderFloat("Quadratic", &data_->quadratic, 0.0f, 1.0f);
+  ImGui::SliderFloat("Cut Off", &data_->cut_off, 0.0f, 1.0f);
+  ImGui::SliderFloat3("Color", &data_->color[0], 0.0f, 1.0f);
+  ImGui::End();
 }

@@ -7,6 +7,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "engine/entity.h"
+#include "imgui/imgui.h"
 
 
 
@@ -105,11 +106,17 @@ void TransformComponent::SetParent(Entity entity) {
 }
 
 //Getters
-glm::vec3 TransformComponent::GetPosition() const { return data->position; }
+glm::vec3 TransformComponent::GetPosition() const { 
+  return data->position;
+}
 
-glm::vec3 TransformComponent::GetRotation() const { return data->rotation; }
+glm::vec3 TransformComponent::GetRotation() const { 
+  return data->rotation;
+}
 
-glm::vec3 TransformComponent::GetScale() const { return data->scale; }
+glm::vec3 TransformComponent::GetScale() const {
+  return data->scale;
+}
 
 glm::mat4 TransformComponent::GetTraslationMatrix() const {
   if (data->parent_id != id) {
@@ -146,6 +153,16 @@ glm::mat4 TransformComponent::GetRotationMatrix() const {
 
 glm::mat4 TransformComponent::GetModelMatrix() const {
   return data->m_model;
+}
+
+void TransformComponent::ShowStats(){
+  std::string begin = "Entity " + std::to_string(id);
+  ImGui::Begin(begin.c_str());
+  ImGui::Text("Transform Stats");
+  ImGui::SliderFloat3("Position", &data->position[0], -1000.0f, 1000.0f);
+  ImGui::SliderFloat3("Rotation", &data->rotation[0], -360.0f, 360.0f);
+  ImGui::SliderFloat3("Scale", &data->scale[0], 0.0f, 10.0f);
+  ImGui::End();
 }
 
 void TransformData::UpdateTraslationMatrix() {

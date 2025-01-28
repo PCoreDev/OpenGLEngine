@@ -9,6 +9,7 @@
 #define __SHADER_COMPONENT_H__ 1
 
 #include "engine/component.h"
+#include "engine/shader.h"
 
 
 class ShaderComponent : public Component {
@@ -26,6 +27,8 @@ public:
   bool LoadShader(std::string vert, std::string frag);
 
   int GetProgram();
+
+  std::shared_ptr<Shader> GetShader();
 
   void SetBool(const std::string& name, bool value) const;
   void SetInt(const std::string& name, int value) const;

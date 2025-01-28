@@ -26,7 +26,6 @@ public:
   std::vector<std::weak_ptr<class Entity>> GetEntities() const;
   std::vector<std::weak_ptr<class Entity>> GetEntitiesWithLights() const;
 
-
   private:
   std::unique_ptr<class EntityManagerData> data_;
 

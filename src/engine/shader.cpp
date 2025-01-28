@@ -64,7 +64,7 @@ void Shader::SetBool(const std::string& name, bool value) const{
   if (found != -1) {
     glUniform1i(found, (int)value);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetInt(const std::string& name, int value) const{
@@ -72,7 +72,7 @@ void Shader::SetInt(const std::string& name, int value) const{
   if (found != -1) {
     glUniform1i(found, value);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetFloat(const std::string& name, float value) const{
@@ -80,7 +80,7 @@ void Shader::SetFloat(const std::string& name, float value) const{
   if (found != -1) {
     glUniform1f(found, value);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetVec2(const std::string& name, glm::vec2 value) const{
@@ -88,7 +88,7 @@ void Shader::SetVec2(const std::string& name, glm::vec2 value) const{
   if (found != -1) {
     glUniform2fv(found, 1, &value[0]);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetVec3(const std::string& name, glm::vec3 value) const{
@@ -96,7 +96,7 @@ void Shader::SetVec3(const std::string& name, glm::vec3 value) const{
   if (found != -1) {
     glUniform3fv(found, 1, &value[0]);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetMat4(const std::string& name, glm::mat4 value) const{
@@ -104,7 +104,7 @@ void Shader::SetMat4(const std::string& name, glm::mat4 value) const{
   if (found != -1) {
     glUniformMatrix4fv(found, 1, GL_FALSE, &value[0][0]);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::SetTexture(const std::string& name, int value) const {
@@ -112,7 +112,7 @@ void Shader::SetTexture(const std::string& name, int value) const {
   if (found != -1) {
     glUniform1i(found, value);
   }
-  else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
+  //else { LOG_F(ERROR, "Uniform %s not found", name.c_str()); }
 }
 
 void Shader::UseShader(){

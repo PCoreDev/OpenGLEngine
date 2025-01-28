@@ -34,6 +34,8 @@ namespace OpenGLEngine {
 
   namespace Engine {
 
+    std::unique_ptr<Core> core = nullptr;
+
     std::shared_ptr<EntityManager> Core::entity_manager_ = nullptr;
     std::shared_ptr<CameraComponent> Core::camera_ = nullptr;
     std::shared_ptr<Shader> Core::shader_ = nullptr;
@@ -44,10 +46,12 @@ namespace OpenGLEngine {
       bool isRunning;
       bool show_mouse;
 
+      int imgui_entity_id;
+
       //Maybe change this to window
       float delta_time;
       float last_frame;
-      float max_fps = 60.0f;
+      float max_fps = 75.0f;
 
       std::unique_ptr<Window> window;
       std::shared_ptr<EngineInput> input;
@@ -81,6 +85,7 @@ namespace OpenGLEngine {
       data_->delta_time = 0.0f;
       data_->last_frame = 0.0f;
       data_->show_mouse = false;
+      data_->imgui_entity_id = 0;
     }
 
     Core::~Core() {}
@@ -126,6 +131,8 @@ namespace OpenGLEngine {
       //Init imgui backends
       ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(data_->window->GetWindow()), true);
       ImGui_ImplOpenGL3_Init("#version 460");
+
+
 
       return state;
     }
@@ -185,7 +192,6 @@ namespace OpenGLEngine {
       else {
         glfwSetInputMode(static_cast<GLFWwindow*>(data_->window->GetWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
-
 
       std::thread cameraThread([this]() {
         if (camera_ != nullptr && !data_->show_mouse) {
@@ -302,6 +308,14 @@ namespace OpenGLEngine {
       ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
       ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
       ImGui::End();
+      
+      //std::string begin = "Entity " + std::to_string(data_->imgui_entity_id);
+      //ImGui::Begin(begin.c_str());
+      //ImGui::InputInt("Entity ID", &data_->imgui_entity_id);
+      //entity_manager_->GetEntities()[data_->imgui_entity_id].lock()->ShowStats();
+      //ImGui::End();
+
+
     }
   } // namespace Engine
 
