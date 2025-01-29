@@ -9,39 +9,6 @@
 class MaterialComponent : public Component {
 public:
 
-  enum TextureFormat {
-    Texture1D = 0,
-    Texture2D,
-    Texture3D,
-    Texture1DArray,
-    Texture2DArray,
-    TextureRectangle,
-    TextureCubeMap,
-    TextureCubeMapArray,
-    TextureBuffer,
-    Texture2DMultisample,
-    Texture2DMultisampleArray
-  };
-
-  enum TextureTarget {
-    Diffuse = 0,
-    Ambient,
-    Specular,
-    Emissive,
-    Alpha,
-    Bump,
-    Normal,
-    Displacement,
-    SpecularExponent,
-    Reflection,
-    Roughness,
-    Metallic,
-    AmbientOcclusion,
-    Height,
-    Glossiness,
-    MAX
-  };
-
   MaterialComponent() = default;
   MaterialComponent(std::weak_ptr<class Entity> entity);
   ~MaterialComponent() = default;
@@ -50,44 +17,26 @@ public:
   MaterialComponent(MaterialComponent&& other) noexcept;
   MaterialComponent& operator=(MaterialComponent&& other) noexcept;
 
-  void SendToShader();
+  void AddNewMaterial(
+    const std::string& name,
+    const std::string& diffuse_path,
+    const std::string& ambient_path,
+    const std::string& specular_path,
+    const std::string& alpha_path,
+    const std::string& bump_path,
+    const std::string& normal_path,
+    const glm::vec3& ambient,
+    const glm::vec3& diffuse,
+    const glm::vec3& specular,
+    float shininess,
+    float dissolve,
+    float opt_dens,
+    int illum
+  );
 
-  //Setters
-  void SetAmbient(float ambient_x, float ambient_y, float ambient_z);
-  void SetAmbient(const float ambient[3]);
-  void SetAmbient(const glm::vec3& ambient);
-
-  void SetDiffuse(float diffuse_x, float diffuse_y, float diffuse_z);
-  void SetDiffuse(const float diffuse[3]);
-  void SetDiffuse(const glm::vec3& diffuse);
-
-  void SetSpecular(float specular_x, float specular_y, float specular_z);
-  void SetSpecular(const float specular[3]);
-  void SetSpecular(const glm::vec3& specular);
-
-  void SetShininess(float shininess);
-
-  void LoadTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
-
-  void AddMultiTexture(const std::string& path, MaterialComponent::TextureFormat type, MaterialComponent::TextureTarget target);
-
-  void AddAmbientColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
-  void AddAmbientColorMultiTexture(const glm::vec3 color);
-
-  void AddDiffuseColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
-  void AddDiffuseColorMultiTexture(const glm::vec3 color);
-
-  void AddSpecularColorMultiTexture(float ambient_x, float ambient_y, float ambient_z);
-  void AddSpecularColorMultiTexture(const glm::vec3 color);
-
-  void AddShininessMultiTexture(const float shininess);
-  void AddDissolveMultiTexture(const float dissolve);
-
-
-  void BindTextures();
-  void BindMultiTextures();
-
-  void SetMultiMaterial(bool multi);
+  void BindMaterial(std::shared_ptr<class Shader> shader, int index);
+  void SendToShader(std::shared_ptr<class Shader> shader, int index);
+  void CleanUp();
 
 private:
   std::shared_ptr<class MaterialData> data_;

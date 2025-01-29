@@ -52,12 +52,15 @@ int OpenGLEngine::main(int argc, char** argv)
   entity1->GetTransformComponent()->SetScale(glm::vec3(100.0f, 100.0f, 100.0f));
   entity1->GetMeshComponent()->Square();
   entity1->AddMaterialComponent();
-  entity1->GetMaterialComponent()->LoadTexture("../../data/textures/metal.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-  entity1->GetMaterialComponent()->LoadTexture("../../data/textures/metal.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-  entity1->GetMaterialComponent()->SetAmbient(glm::vec3(0.5f));
-  entity1->GetMaterialComponent()->SetDiffuse(glm::vec3(0.2f));
-  entity1->GetMaterialComponent()->SetSpecular(glm::vec3(1.0f));
-  entity1->GetMaterialComponent()->SetShininess(0.0f);
+  entity1->GetMaterialComponent()->AddNewMaterial("Square",
+    "../../data/textures/metal.png","",
+    "../../data/textures/metal.png",
+    "", "", "",
+    glm::vec3(0.5f),
+    glm::vec3(0.2f),
+    glm::vec3(1.0f),
+    0.0f, 0.0f, 0.0f, 0);
+
 
   std::shared_ptr<Entity> light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   light->AddMeshComponent();
@@ -65,14 +68,16 @@ int OpenGLEngine::main(int argc, char** argv)
   light->AddTransformComponent();
   light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 100.0f, 0.0f));
   light->GetTransformComponent()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
-  light->GetMeshComponent()->LoadOBJ("../../data/models/sphere.obj", "../../data/models/");
   light->AddMaterialComponent();
-  light->GetMaterialComponent()->LoadTexture("../../data/textures/white.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-  //light->GetMaterialComponent()->LoadTexture("../../data/textures/metal.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-  light->GetMaterialComponent()->SetAmbient(glm::vec3(1.0f, 1.0f, 1.0f));
-  light->GetMaterialComponent()->SetDiffuse(glm::vec3(1.0f, 1.0f, 1.0f));
-  light->GetMaterialComponent()->SetSpecular(glm::vec3(0.0f));
-  light->GetMaterialComponent()->SetShininess(0.0f);
+  light->GetMeshComponent()->LoadOBJ("../../data/models/sphere.obj", "../../data/models/");
+  light->GetMaterialComponent()->AddNewMaterial("Light",
+    "../../data/textures/white.png","",
+    "../../data/textures/metal.png",
+    "", "", "",
+    glm::vec3(0.5f),
+    glm::vec3(0.2f),
+    glm::vec3(1.0f),
+    0.0f, 0.0f, 0.0f, 0);
   light->AddLightComponent();
   light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
   light->GetLightComponent()->SetDirection(glm::vec3(-1.0f, -1.0f, 0.0f));
@@ -93,12 +98,14 @@ int OpenGLEngine::main(int argc, char** argv)
         entity->GetTransformComponent()->SetPosition(glm::vec3(i * 10.0f, j * 10.0f, z * 10.0f));
         entity->GetMeshComponent()->Cube();
         entity->AddMaterialComponent();
-        entity->GetMaterialComponent()->LoadTexture("../../data/textures/container.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Diffuse);
-        entity->GetMaterialComponent()->LoadTexture("../../data/textures/container_specular.png", MaterialComponent::TextureFormat::Texture2D, MaterialComponent::TextureTarget::Specular);
-        entity->GetMaterialComponent()->SetAmbient(glm::vec3(0.5f));
-        entity->GetMaterialComponent()->SetDiffuse(glm::vec3(0.2f));
-        entity->GetMaterialComponent()->SetSpecular(glm::vec3(20.0f));
-        entity->GetMaterialComponent()->SetShininess(32.0f);
+        entity->GetMaterialComponent()->AddNewMaterial("Wooden",
+          "../../data/textures/container.png", "",
+          "../../data/textures/container_specular.png",
+          "", "", "",
+          glm::vec3(0.5f),
+          glm::vec3(0.2f),
+          glm::vec3(1.0f),
+          0.0f, 0.0f, 0.0f, 0);
         if (i == 0 && j == 0 && z == 0) {
           entity->AddLightComponent();
           entity->GetLightComponent()->SetLightType(LightComponent::LightType::Spot);
@@ -109,7 +116,7 @@ int OpenGLEngine::main(int argc, char** argv)
           entity->GetLightComponent()->SetConstant(1.0f);
           entity->GetLightComponent()->SetLinear(0.09f);
           entity->GetLightComponent()->SetQuadratic(0.032f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 0.0f, 1.0f));
         }
 
         if (i == 1 && j == 1 && z == 1) {
@@ -168,6 +175,6 @@ int OpenGLEngine::main(int argc, char** argv)
   entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
   entity5->AddMaterialComponent();
   entity5->GetMeshComponent()->LoadOBJ("../../data/models/tower22/objTower.obj", "../../data/models/tower22/");
- 
+
   return 0;
 }

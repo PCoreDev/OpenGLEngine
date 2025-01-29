@@ -78,7 +78,11 @@ void RenderComponent::Render() {
 
   glDepthFunc(entity_locked->GetSkyBoxComponent() ? GL_LEQUAL : GL_LESS);
   if (mesh) {
+    auto material = entity_locked->GetMaterialComponent();
     for (int i = 0; i < mesh->GetMeshCount(); ++i) {
+      if (material) {
+        material->BindMaterial(shader, i);
+      }
       glBindVertexArray(mesh->GetVAO()[i]);
       glBindBuffer(GL_ARRAY_BUFFER, mesh->GetVBO()[i]);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->GetIBO()[i]);
@@ -164,11 +168,6 @@ void RenderComponent::MatrixToShader(std::shared_ptr<Shader> shader)
   }
   shader->SetMat4("view_matrix", view);
   shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
-  auto material = entity_locked->GetMaterialComponent();
-  if (material) {
-    material->SendToShader();
-    material->BindTextures();
-  }
   shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
   shader->SetVec3("camera_direction", OpenGLEngine::Engine::Core::camera_->GetDirection());
 }

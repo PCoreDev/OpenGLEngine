@@ -307,6 +307,8 @@ namespace OpenGLEngine {
       ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
       ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
       ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
+      for (int i = 0; i < 10; ++i)
+        ImGui::Image(i, ImVec2(512, 512));
       ImGui::End();
       
       //std::string begin = "Entity " + std::to_string(data_->imgui_entity_id);

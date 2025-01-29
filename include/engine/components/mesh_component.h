@@ -14,7 +14,7 @@ public:
   ~MeshComponent();
   MeshComponent& operator=(MeshComponent&& other) noexcept;
   void operator=(const MeshComponent& other);
-  //void Triangle();
+  void Triangle();
   void Square();
   void Cube();
   void SkyBox();
