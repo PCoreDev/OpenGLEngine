@@ -31,3 +31,6 @@
 [submodule "deps/glad"]
 	path = deps/glad
 	url = https://github.com/premake-libs/glad.git
+[submodule "deps/assimp"]
+	path = deps/assimp
+	url = https://github.com/assimp/assimp.git
