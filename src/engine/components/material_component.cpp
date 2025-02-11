@@ -11,7 +11,10 @@
 #include "engine/components/shader_component.h"
 #include "engine/core.h"
 
+#include <unordered_map>
+
 #include <map>
+
 
 struct Texture {
   GLuint id = -1;
@@ -19,6 +22,11 @@ struct Texture {
   int height = 0;
   int n_channels = 0;
 };
+
+struct MaterialMap {
+  static std::unordered_map<std::string, Texture> loaded_materials;
+};
+
 
 struct Material {
   std::string name;
@@ -40,6 +48,7 @@ struct Material {
   float optical_density = 0.0f;
 
   void LoadTexture(const std::string& path, Texture& texture) {
+    std::string file_name = path.substr(path.find_last_of("/\\") + 1);
     unsigned char* data = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.n_channels, 0);
     if (data) {
       GLenum format = GL_RGB; // Default format
@@ -58,6 +67,7 @@ struct Material {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      MaterialMap::loaded_materials.insert({ file_name, texture });
     }
     else {
       LOG_F(ERROR, "Failed to load texture: %s", path.c_str());
@@ -70,6 +80,8 @@ struct Material {
 struct MaterialData {
   std::vector<Material> materials;
 };
+
+std::unordered_map<std::string, Texture> MaterialMap::loaded_materials;
 
 MaterialComponent::MaterialComponent(std::weak_ptr<class Entity> entity) {
   this->entity = entity;
@@ -128,22 +140,52 @@ void MaterialComponent::AddNewMaterial(const std::string& name, const std::strin
   std::string normal_name = normal_path.substr(normal_path.find_last_of("/\\") + 1);
 
   if (diffuse_name != "") {
-    material.LoadTexture(diffuse_path, material.diffuse_texture);
+    if (MaterialMap::loaded_materials.contains(diffuse_name)) {
+      material.diffuse_texture = MaterialMap::loaded_materials[diffuse_name];
+    }
+    else {
+      material.LoadTexture(diffuse_path, material.diffuse_texture);
+    }
   }
   if (ambient_name != "") {
-    material.LoadTexture(ambient_path, material.ambient_texture);
+    if (MaterialMap::loaded_materials.contains(ambient_name)) {
+      material.ambient_texture = MaterialMap::loaded_materials[ambient_name];
+    }
+    else {
+      material.LoadTexture(ambient_path, material.ambient_texture);
+    }
   }
   if (specular_name != "") {
-    material.LoadTexture(specular_path, material.specular_texture);
+    if (MaterialMap::loaded_materials.contains(specular_name)) {
+      material.specular_texture = MaterialMap::loaded_materials[specular_name];
+    }
+    else {
+      material.LoadTexture(specular_path, material.specular_texture);
+    }
   }
   if (alpha_name != "") {
-    material.LoadTexture(alpha_path, material.alpha_texture);
+    if (MaterialMap::loaded_materials.contains(alpha_name)) {
+      material.alpha_texture = MaterialMap::loaded_materials[alpha_name];
+    }
+    else {
+      material.LoadTexture(alpha_path, material.alpha_texture);
+    }
   }
   if (bump_name != "") {
-    material.LoadTexture(bump_path, material.bump_texture);
+    if (MaterialMap::loaded_materials.contains(bump_name)) {
+      material.bump_texture = MaterialMap::loaded_materials[bump_name];
+    }
+    else {
+      material.LoadTexture(bump_path, material.bump_texture);
+    }
   }
   if (normal_name != "") {
-    material.LoadTexture(normal_path, material.normal_texture);
+    if (MaterialMap::loaded_materials.contains(normal_name)) {
+      material.normal_texture = MaterialMap::loaded_materials[normal_name];
+    }
+    else {
+      material.LoadTexture(normal_path, material.normal_texture);
+    }
   }
   material.ambient_color = ambient;
   material.diffuse_color = diffuse;

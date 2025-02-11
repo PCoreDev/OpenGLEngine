@@ -19,10 +19,10 @@
 
 int OpenGLEngine::main(int argc, char** argv)
 {
-  std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  //camera->AddTransformComponent();
-  camera->AddCameraComponent();
-  camera->GetCameraComponent()->SetMainCamera();
+  //std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  ////camera->AddTransformComponent();
+  //camera->AddCameraComponent();
+  //camera->GetCameraComponent()->SetMainCamera();
 
   std::shared_ptr<Entity> skybox = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   skybox->AddMeshComponent();
@@ -32,12 +32,12 @@ int OpenGLEngine::main(int argc, char** argv)
   skybox->AddShaderComponent();
   skybox->GetShaderComponent()->LoadShader("../../src/engine/shaders/skybox.vert", "../../src/engine/shaders/skybox.frag");
   std::vector<std::string> faces {
-    "../../data/textures/skybox/skybox_4k_right.jpg",
-    "../../data/textures/skybox/skybox_4k_left.jpg",
-    "../../data/textures/skybox/skybox_4k_top.jpg",
-    "../../data/textures/skybox/skybox_4k_bottom.jpg",
-    "../../data/textures/skybox/skybox_4k_back.jpg",
-    "../../data/textures/skybox/skybox_4k_front.jpg",
+    "../../data/textures/skybox/skybox_right.jpg",
+    "../../data/textures/skybox/skybox_left.jpg",
+    "../../data/textures/skybox/skybox_top.jpg",
+    "../../data/textures/skybox/skybox_bottom.jpg",
+    "../../data/textures/skybox/skybox_back.jpg",
+    "../../data/textures/skybox/skybox_front.jpg",
   };
   skybox->GetSkyBoxComponent()->LoadSkyBox(faces);
 
@@ -86,7 +86,7 @@ int OpenGLEngine::main(int argc, char** argv)
   light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
   light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
 
-  
+ 
   int num_cubes = 3;
   for (int i = 0; i < num_cubes; i++) {
     for (int j = 0; j < num_cubes; j++) {
@@ -110,13 +110,13 @@ int OpenGLEngine::main(int argc, char** argv)
           entity->AddLightComponent();
           entity->GetLightComponent()->SetLightType(LightComponent::LightType::Spot);
           entity->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
-          entity->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
-          entity->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+          entity->GetLightComponent()->SetAmbient(glm::vec3(1.0f));
+          entity->GetLightComponent()->SetDiffuse(glm::vec3(1.0f));
           entity->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
           entity->GetLightComponent()->SetConstant(1.0f);
-          entity->GetLightComponent()->SetLinear(0.09f);
-          entity->GetLightComponent()->SetQuadratic(0.032f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 0.0f, 1.0f));
+          entity->GetLightComponent()->SetLinear(1.0f);
+          entity->GetLightComponent()->SetQuadratic(1.0f);
+          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
         }
 
         if (i == 1 && j == 1 && z == 1) {
@@ -151,7 +151,7 @@ int OpenGLEngine::main(int argc, char** argv)
   entity3->AddTransformComponent();
   entity3->GetTransformComponent()->SetPosition(glm::vec3(0.0f, -30.0f, 0.0f));
   //entity3->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  entity3->GetTransformComponent()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
+  entity3->GetTransformComponent()->SetScale(glm::vec3(11.0f, 11.0f, 11.0f));
   entity3->AddMaterialComponent();
   entity3->GetMeshComponent()->LoadOBJ("../../data/models/Echidna/Echidna.obj", "../../data/models/Echidna/");
 
@@ -166,15 +166,28 @@ int OpenGLEngine::main(int argc, char** argv)
   entity4->GetMeshComponent()->LoadOBJ("../../data/models/Pikachu/pikachu.obj", "../../data/models/Pikachu/");
 
 
-  std::shared_ptr<Entity> entity5 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  entity5->AddMeshComponent();
-  entity5->AddRenderComponent();
-  entity5->AddTransformComponent();
-  entity5->GetTransformComponent()->SetPosition(glm::vec3(50.0f, -30.0f, -50.0f));
-  //entity5->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-  entity5->AddMaterialComponent();
-  entity5->GetMeshComponent()->LoadOBJ("../../data/models/tower22/objTower.obj", "../../data/models/tower22/");
+  //std::shared_ptr<Entity> entity5 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  //entity5->AddMeshComponent();
+  //entity5->AddRenderComponent();
+  //entity5->AddTransformComponent();
+  //entity5->GetTransformComponent()->SetPosition(glm::vec3(500.0f, -30.0f, -50.0f));
+  ////entity5->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  //entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  //entity5->AddMaterialComponent();
+  ////entity5->GetMeshComponent()->LoadOBJ("../../data/models/Yamato/Space_Battleship_Yamato_[Clean]_v003.obj", "../../data/Yamato/");
+  //entity5->GetMeshComponent()->LoadOBJ("../../data/models/Bayonetta/Bayonetta.obj", "../../data/models/Bayonetta/");
+
+  //std::shared_ptr<Entity> entity7 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  //entity7->AddMeshComponent();
+  //entity7->AddRenderComponent();
+  //entity7->AddTransformComponent();
+  //entity7->GetTransformComponent()->SetPosition(glm::vec3(500.0f, -30.0f, 50.0f));
+  ////entity7->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  //entity7->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  //entity7->AddMaterialComponent();
+  ////entity7->GetMeshComponent()->LoadOBJ("../../data/models/Yamato/Space_Battleship_Yamato_[Clean]_v003.obj", "../../data/Yamato/");
+  //entity7->GetMeshComponent()->LoadOBJ("../../data/models/Yamato/Space_Battleship_Yamato_[Clean]_v003.obj", "../../data/models/Yamato/");
+
 
   return 0;
 }

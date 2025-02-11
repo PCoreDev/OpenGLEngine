@@ -133,6 +133,10 @@ namespace OpenGLEngine {
       ImGui_ImplOpenGL3_Init("#version 460");
 
 
+      //Create a camera
+      std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+      camera->AddCameraComponent();
+      camera->GetCameraComponent()->SetMainCamera();
 
       return state;
     }
@@ -216,9 +220,11 @@ namespace OpenGLEngine {
       data_->display_list->Clear();
 
       ImGui::Render();
+
       data_->display_list->AddDrawRenderBufferCommand(*entity_manager_, *data_->framebuffer_shader, data_->window->GetFBO(), data_->framebuffer_texture, data_->screen_quad_vao, data_->screen_quad_ibo);
 
       data_->display_list->Execute();
+
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
@@ -303,14 +309,15 @@ namespace OpenGLEngine {
     }
 
     void Core::DebugCoreStats(){
-      ImGui::Begin("Core Stats");
-      ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
-      ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
-      ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
-      for (int i = 0; i < 10; ++i)
-        ImGui::Image(i, ImVec2(512, 512));
-      ImGui::End();
-      
+      //ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Clamp to top-left corner
+      //ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x * 0.2f, ImGui::GetIO().DisplaySize.y)); // Full screen size
+      //ImGui::Begin("Core Stats", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+      //ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
+      //ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
+      //ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
+      //for (int i = 0; i < 100; ++i)
+      //  ImGui::Image(i, ImVec2(128, 128));
+      //ImGui::End();
       //std::string begin = "Entity " + std::to_string(data_->imgui_entity_id);
       //ImGui::Begin(begin.c_str());
       //ImGui::InputInt("Entity ID", &data_->imgui_entity_id);

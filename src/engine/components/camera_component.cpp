@@ -1,4 +1,5 @@
 #include "engine/components/camera_component.h"
+#include "engine/components/transform_component.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -8,38 +9,38 @@
 
 #include "engine/entity.h"
 
-//struct CameraData {
-//  std::shared_ptr<class TransformComponent> transform;
-//  //camera attributes
-//  glm::vec3 camera_position;
-//  glm::vec3 camera_direction;
-//  glm::vec3 camera_front;
-//  glm::vec3 camera_up;
-//  glm::vec3 camera_right;
-//  glm::mat4 camera_view_matrix;
-//  glm::vec3 up;
-//  glm::mat4 projection_matrix;
-//  glm::mat4 ortho_matrix;
-//
-//  //euler Angles
-//  float camera_pitch;
-//  float camera_yaw;
-//  float camera_roll;
-//
-//  //camera options
-//  float fov;
-//  float aspect_ratio;
-//  float near_plane;
-//  float far_plane;
-//  float camera_sensitivity;
-//  float camera_speed;
-//
-//  //Mouse variables
-//  double last_x, last_y;
-//  bool first_mouse;
-//
-//  void UpdateVectors();
-//};
+struct CameraData {
+  std::shared_ptr<class TransformComponent> transform;
+  //camera attributes
+  glm::vec3 camera_position;
+  glm::vec3 camera_direction;
+  glm::vec3 camera_front;
+  glm::vec3 camera_up;
+  glm::vec3 camera_right;
+  glm::mat4 camera_view_matrix;
+  glm::vec3 up;
+  glm::mat4 projection_matrix;
+  glm::mat4 ortho_matrix;
+
+  //euler Angles
+  float camera_pitch;
+  float camera_yaw;
+  float camera_roll;
+
+  //camera options
+  float fov;
+  float aspect_ratio;
+  float near_plane;
+  float far_plane;
+  float camera_sensitivity;
+  float camera_speed;
+
+  //Mouse variables
+  double last_x, last_y;
+  bool first_mouse;
+
+  void UpdateVectors();
+};
 
 void CameraData::UpdateVectors() {
   up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -51,6 +52,10 @@ void CameraData::UpdateVectors() {
   camera_front = glm::normalize(camera_direction);
   camera_right = glm::normalize(glm::cross(camera_front, up));
   camera_up = glm::normalize(glm::cross(camera_right, camera_front));
+
+  //Update the view matrix
+  camera_view_matrix = glm::lookAt(transform->GetPosition() + camera_position, transform->GetPosition() + camera_position + camera_front, camera_up);
+
 }
 
 CameraComponent::CameraComponent(std::weak_ptr<Entity> e) {
@@ -58,8 +63,14 @@ CameraComponent::CameraComponent(std::weak_ptr<Entity> e) {
   this->id = entity.lock()->ID();
   this->type = ComponentType_Camera;
   data = std::make_unique<CameraData>();
+  data->transform = entity.lock()->GetTransformComponent();
 
-  data->camera_position = glm::vec3(100.0f, 0.0f, 0.0f);
+  if (!data->transform) {
+    entity.lock()->AddTransformComponent();
+    data->transform = entity.lock()->GetTransformComponent();
+  }
+
+  data->camera_position = glm::vec3(0.0f, 0.0f, 0.0f);
   data->camera_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
   data->camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -76,15 +87,37 @@ CameraComponent::CameraComponent(std::weak_ptr<Entity> e) {
   data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
-void CameraComponent::operator=(const CameraComponent& other) {
+CameraComponent::CameraComponent(const CameraComponent& other){
   this->id = other.id;
   this->type = other.type;
   data = std::make_unique<CameraData>(*other.data);
 }
 
-//void CameraComponent::SetTarget(glm::vec3 target) {
-//  data->camera_target = target;
-//}
+CameraComponent::CameraComponent(CameraComponent&& other) noexcept{
+  this->id = other.id;
+  this->type = other.type;
+  data = std::move(other.data);
+}
+
+CameraComponent::~CameraComponent(){
+  data.reset();
+}
+
+CameraComponent& CameraComponent::operator=(CameraComponent&& other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
+  this->id = other.id;
+  this->type = other.type;
+  data = std::move(other.data);
+  return *this;
+}
+
+void CameraComponent::operator=(const CameraComponent& other) {
+  this->id = other.id;
+  this->type = other.type;
+  data = std::make_unique<CameraData>(*other.data);
+}
 
 void CameraComponent::SetFOV(float fov) {
   data->fov = fov;
@@ -116,30 +149,43 @@ void CameraComponent::SetMainCamera() {
   }
 }
 
+void CameraComponent::SetCameraPosition(glm::vec3 pos){
+  data->camera_position = pos;
+}
+
 void CameraComponent::MoveCamera() {
   MoveMouse();
   MoveKeyboard();
-  data->camera_view_matrix = glm::lookAt(data->camera_position, data->camera_position + data->camera_front, data->camera_up);
+  data->camera_view_matrix = glm::lookAt(data->transform->GetPosition() + data->camera_position, data->transform->GetPosition() + data->camera_position + data->camera_front, data->camera_up);
 }
 
 void CameraComponent::MoveKeyboard()
 {
   float camera_speed = data->camera_speed;
-  //std::shared_ptr<TransformComponent> transform = entity.lock()->GetTransformComponent();
+  std::shared_ptr<TransformComponent> transform = entity.lock()->GetTransformComponent();
+  if (!transform) {
+    entity.lock()->AddTransformComponent();
+    transform = entity.lock()->GetTransformComponent();
+  }
 
-  //if (transform != nullptr) {
-    //glm::vec3 position = transform->GetPosition();
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW))
-    data->camera_position += (camera_speed * data->camera_front);
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS))
-    data->camera_position -= (camera_speed * data->camera_front);
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA))
-    data->camera_position -= (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
-  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD))
-    data->camera_position += (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
+  glm::vec3 position = transform->GetPosition();
 
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyW)) {
+    position += (camera_speed * data->camera_front);
+  }
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyS)) {
+    position -= (camera_speed * data->camera_front);
+  }
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyA)) {
+    position -= (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
+  }
+  if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_KeyD)) {
+    position += (glm::normalize(glm::cross(data->camera_front, data->camera_up)) * camera_speed);
+  }
 
-  //if (position != transform->GetPosition()) {
+  transform->SetPosition(position);
+
+  //if (position != transform->GetPosition() + camera_position) {
   //  transform->SetPosition(position);
   //}
 //  }
@@ -177,30 +223,46 @@ void CameraComponent::MoveMouse() {
   data->UpdateVectors();
 }
 
-//glm::vec3 CameraComponent::GetDirection() { return data->camera_direction; }
-//
-//glm::vec3 CameraComponent::GetUp() { return data->camera_up; }
-//
-float CameraComponent::GetFOV() { return data->fov; }
-//
-//float CameraComponent::GetAspectRatio() { return data->aspect_ratio; }
-//
-//float CameraComponent::GetNearPlane() { return data->near_plane; }
-//
-//float CameraComponent::GetFarPlane() { return data->far_plane; }
-//
-//glm::vec3 CameraComponent::GetRight() { return data->camera_right; }
-//
-glm::mat4 CameraComponent::GetViewMatrix() { return data->camera_view_matrix; }
-
-glm::mat4 CameraComponent::GetProjectionMatrix() { return data->projection_matrix; }
-glm::vec3 CameraComponent::GetPosition()
-{
-    return data->camera_position;
+glm::vec3 CameraComponent::GetUp() const {
+  return data->camera_up;
 }
-glm::vec3 CameraComponent::GetDirection()
-{
+
+float CameraComponent::GetFOV() const {
+  return data->fov;
+}
+
+float CameraComponent::GetAspectRatio() const {
+  return data->aspect_ratio; 
+}
+
+float CameraComponent::GetNearPlane() const {
+  return data->near_plane;
+}
+
+float CameraComponent::GetFarPlane() const { 
+  return data->far_plane;
+}
+
+glm::vec3 CameraComponent::GetRight() const {
+  return data->camera_right;
+}
+
+glm::mat4 CameraComponent::GetViewMatrix() const {
+  return data->camera_view_matrix;
+}
+
+glm::mat4 CameraComponent::GetProjectionMatrix() const {
+  return data->projection_matrix;
+}
+
+glm::vec3 CameraComponent::GetPosition() const {
+    return data->camera_position; // check this
+}
+
+glm::vec3 CameraComponent::GetDirection() const {
   return data->camera_direction;
 }
-//
-//glm::mat4 CameraComponent::GetOrthoMatrix() { return data->ortho_matrix; }
+
+glm::mat4 CameraComponent::GetOrthoMatrix() const {
+  return data->ortho_matrix;
+}

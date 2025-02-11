@@ -7,17 +7,22 @@ layout (location = 2) in vec2 aTexCoords;  // Texture coordinates
 out vec3 position;
 out vec3 normal;
 out vec2 texCoords;
-out vec4 color;
 
 // Uniforms for transformation matrices
 uniform mat4 model_matrix;
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
 
-void main(){
-position = vec4(model_matrix * vec4(aPos, 1.0)).xyz;
-normal = mat3(model_matrix) * aNormal;
-texCoords = aTexCoords;
-//color = vec4(1.0, 1.0, 1.0, 1.0);
-gl_Position = projection_matrix * view_matrix * model_matrix * vec4(aPos, 1.0);
+void main() {
+    // Transform vertex position to world space
+    position = vec3(model_matrix * vec4(aPos, 1.0));
+
+    // Transform normal using the inverse transpose of the model matrix
+    normal = mat3(transpose(inverse(model_matrix))) * aNormal;
+
+    // Pass texture coordinates to the fragment shader
+    texCoords = aTexCoords;
+
+    // Transform vertex position to clip space
+    gl_Position = projection_matrix * view_matrix * model_matrix * vec4(aPos, 1.0);
 }

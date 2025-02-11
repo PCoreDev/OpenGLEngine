@@ -33,6 +33,8 @@ includedirs {
   --"../deps/Lua",
   --OBJ LOADER
   "../deps/OBJ-Loader/Source",
+  --Fast_OBJ
+  "../deps/fast_obj",
   --Minitrace
   "../deps/minitrace",
   --Include
@@ -108,6 +110,9 @@ project "Engine"
 
     "../deps/minitrace/minitrace.c",
     "../deps/minitrace/minitrace.h",
+
+    "../deps/fast_obj/fast_obj.h",
+    "../deps/fast_obj/fast_obj.c",
   }
 
   filter "configurations:Debug"

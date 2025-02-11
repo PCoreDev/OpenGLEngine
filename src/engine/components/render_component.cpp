@@ -108,12 +108,14 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
     }
   }
 
-  //directional light
-  shader->SetVec3("directional_light.direction", directional_light.lock()->GetLightComponent()->GetDirection());
-  shader->SetVec3("directional_light.ambient", directional_light.lock()->GetLightComponent()->GetAmbient());
-  shader->SetVec3("directional_light.diffuse", directional_light.lock()->GetLightComponent()->GetDiffuse());
-  shader->SetVec3("directional_light.specular", directional_light.lock()->GetLightComponent()->GetSpecular());
-  shader->SetVec3("directional_light.color", directional_light.lock()->GetLightComponent()->GetLightColor());
+  if (directional_light.lock()) {
+    //directional light
+    shader->SetVec3("directional_light.direction", directional_light.lock()->GetLightComponent()->GetDirection());
+    shader->SetVec3("directional_light.ambient", directional_light.lock()->GetLightComponent()->GetAmbient());
+    shader->SetVec3("directional_light.diffuse", directional_light.lock()->GetLightComponent()->GetDiffuse());
+    shader->SetVec3("directional_light.specular", directional_light.lock()->GetLightComponent()->GetSpecular());
+    shader->SetVec3("directional_light.color", directional_light.lock()->GetLightComponent()->GetLightColor());
+  }
 
 
   //point light
@@ -158,15 +160,17 @@ void RenderComponent::MatrixToShader(std::shared_ptr<Shader> shader)
   if (transform) {
     shader->SetMat4("model_matrix", transform->GetModelMatrix());
   }
-  glm::mat4 view = OpenGLEngine::Engine::Core::camera_->GetViewMatrix();
+
   auto skybox = entity_locked->GetSkyBoxComponent();
   if (skybox) {
     shader->SetInt("skybox", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->GetSkyBoxID());
-    view = glm::mat4(glm::mat3(view));
+    glm::mat4 view = glm::mat4(glm::mat3(OpenGLEngine::Engine::Core::camera_->GetViewMatrix()));
+    shader->SetMat4("view_matrix_no_translation", view);
   }
-  shader->SetMat4("view_matrix", view);
+
+  shader->SetMat4("view_matrix", OpenGLEngine::Engine::Core::camera_->GetViewMatrix());
   shader->SetMat4("projection_matrix", OpenGLEngine::Engine::Core::camera_->GetProjectionMatrix());
   shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
   shader->SetVec3("camera_direction", OpenGLEngine::Engine::Core::camera_->GetDirection());
