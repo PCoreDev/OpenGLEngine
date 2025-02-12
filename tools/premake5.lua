@@ -1,3 +1,5 @@
+require "export-compile-commands"
+
 workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
@@ -43,7 +45,7 @@ includedirs {
   "../deps/",
 }
 
-platforms { "Win32", "Win64", "Unix32", "Unix64", "MacOS" }
+platforms {"Win64"}
 startproject "Example1"
 
 ----------------------------------------------------------
@@ -52,7 +54,7 @@ startproject "Example1"
 project "Engine"
   kind "StaticLib"
   language "C++"
-  cppdialect "C++20"  -- Establece el estándar de C++ a C++20
+  cppdialect "C++20"  -- Establece el estï¿½ndar de C++ a C++20
   location "../build/engine"
   targetdir"../data/engine"
   objdir "../build/engine"
@@ -141,7 +143,7 @@ project "Engine"
 project "Example1"
   kind "ConsoleApp"
   language "C++"
-  cppdialect "C++20"  -- Establece el estándar de C++ a C++20
+  cppdialect "C++20"  -- Establece el estï¿½ndar de C++ a C++20
   location "../build/example1"
   targetdir "../bin/example/example1"
   libdirs { "../data/engine" }

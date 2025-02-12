@@ -34,3 +34,6 @@
 [submodule "deps/fast_obj"]
 	path = deps/fast_obj
 	url = https://github.com/thisistherk/fast_obj.git
+[submodule "tools/export-compile-commands"]
+	path = tools/export-compile-commands
+	url = https://github.com/tarruda/premake-export-compile-commands

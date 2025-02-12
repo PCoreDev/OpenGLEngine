@@ -80,7 +80,7 @@ CameraComponent::CameraComponent(std::weak_ptr<Entity> e) {
   data->near_plane = 0.1f;
   data->far_plane = 1000.0f;
 
-  data->camera_yaw = -90.0f;
+  data->camera_yaw = 0.0f;
   data->first_mouse = true;
   data->camera_speed = 1.0f;
   data->camera_sensitivity = 0.1f;

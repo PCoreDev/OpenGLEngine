@@ -40,11 +40,19 @@ namespace OpenGLEngine {
     std::shared_ptr<CameraComponent> Core::camera_ = nullptr;
     std::shared_ptr<Shader> Core::shader_ = nullptr;
 
+    struct CoreDebugData {
+      bool show_debug_data;
+      bool can_press;
+      int selected_entity;
+
+      CoreDebugData() : show_debug_data(false), can_press(true), selected_entity(0) {}
+    };
+
 
     struct Core::CoreData {
+      std::unique_ptr<CoreDebugData> debug_data;
       std::unique_ptr<DisplayList> display_list;
       bool isRunning;
-      bool show_mouse;
 
       int imgui_entity_id;
 
@@ -81,10 +89,10 @@ namespace OpenGLEngine {
       data_->display_list = std::make_unique<DisplayList>();
       data_->input = std::make_shared<EngineInput>();
       data_->framebuffer_shader = std::make_shared<Shader>();
+      data_->debug_data = std::make_unique<CoreDebugData>();
       data_->isRunning = true;
       data_->delta_time = 0.0f;
       data_->last_frame = 0.0f;
-      data_->show_mouse = false;
       data_->imgui_entity_id = 0;
     }
 
@@ -121,15 +129,16 @@ namespace OpenGLEngine {
       }
 
 
-      
-      //Imgui
+      // Setup Dear ImGui context
       IMGUI_CHECKVERSION();
       ImGui::CreateContext();
-      ImGuiIO& io = ImGui::GetIO(); (void)io;
-      ImGui::StyleColorsDark();
+      ImGuiIO& io = ImGui::GetIO();
+      io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+      io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+      //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 
-      //Init imgui backends
-      ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(data_->window->GetWindow()), true);
+      // Setup Platform/Renderer backends
+      ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(data_->window->GetWindow()), true);         // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
       ImGui_ImplOpenGL3_Init("#version 460");
 
 
@@ -156,7 +165,6 @@ namespace OpenGLEngine {
     bool Core::RunningState() const {
       return data_->isRunning;
     }
-
 
     void Core::BufferHandler() {
       data_->window->SwapBuffers();
@@ -185,12 +193,21 @@ namespace OpenGLEngine {
 
       DebugCoreStats();
 
-      if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_F1)) {
-        data_->show_mouse = !data_->show_mouse;
+      if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_F1) && data_->debug_data->can_press) {
+        data_->debug_data->can_press = false;
+        data_->debug_data->show_debug_data = !data_->debug_data->show_debug_data;
+        std::thread timer;
+        timer = std::thread([this]() {
+                      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          data_->debug_data->can_press = true;
+        });
+
+        timer.join();
       }
 
 
-      if (data_->show_mouse) {
+
+      if (data_->debug_data->show_debug_data) {
         glfwSetInputMode(static_cast<GLFWwindow*>(data_->window->GetWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       }
       else {
@@ -198,7 +215,7 @@ namespace OpenGLEngine {
       }
 
       std::thread cameraThread([this]() {
-        if (camera_ != nullptr && !data_->show_mouse) {
+        if (camera_ != nullptr && !data_->debug_data->show_debug_data) {
           camera_->MoveCamera();
         }
       });
@@ -309,23 +326,63 @@ namespace OpenGLEngine {
     }
 
     void Core::DebugCoreStats(){
-      //ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Clamp to top-left corner
-      //ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x * 0.2f, ImGui::GetIO().DisplaySize.y)); // Full screen size
-      //ImGui::Begin("Core Stats", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-      //ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
-      //ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
-      //ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
-      //for (int i = 0; i < 100; ++i)
-      //  ImGui::Image(i, ImVec2(128, 128));
-      //ImGui::End();
-      //std::string begin = "Entity " + std::to_string(data_->imgui_entity_id);
-      //ImGui::Begin(begin.c_str());
-      //ImGui::InputInt("Entity ID", &data_->imgui_entity_id);
-      //entity_manager_->GetEntities()[data_->imgui_entity_id].lock()->ShowStats();
-      //ImGui::End();
+      if (data_->debug_data->show_debug_data) {
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Clamp to top-left corner
+        ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x * 0.2f, ImGui::GetIO().DisplaySize.y)); // Full screen size
+        ImGui::Begin("Core Stats", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+        ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
+        ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
+        ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
 
 
+
+        /*
+          const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
+          static int item_selected_idx = 0; // Here we store our selection data as an index.
+
+          // Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+          const char* combo_preview_value = items[item_selected_idx];
+          if (ImGui::BeginCombo("combo 1", combo_preview_value, flags))
+          {
+              for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+              {
+                  const bool is_selected = (item_selected_idx == n);
+                  if (ImGui::Selectable(items[n], is_selected))
+                      item_selected_idx = n;
+
+                  // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                  if (is_selected)
+                      ImGui::SetItemDefaultFocus();
+              }
+              ImGui::EndCombo();
+          }
+        */
+
+
+
+        //ImGui Combo Box
+        std::vector<std::string> entity_names;
+        for (auto& entity : entity_manager_->GetEntities()) {
+          entity_names.push_back("Entity ID: " + std::to_string(entity.lock()->ID()));
+        }
+        if (ImGui::BeginCombo("Select an Entity", entity_names[data_->debug_data->selected_entity].c_str()))
+        {
+          for (int n = 0; n < entity_names.size(); n++)
+          {
+            const bool is_selected = (data_->debug_data->selected_entity == n);
+            if (ImGui::Selectable(entity_names[n].c_str(), is_selected))
+              data_->debug_data->selected_entity = n;
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+              ImGui::SetItemDefaultFocus();
+          }
+          ImGui::EndCombo();
+        }
+        entity_manager_->GetEntities()[data_->debug_data->selected_entity].lock()->ShowStats();
+        ImGui::End();
+      }
     }
-  } // namespace Engine
 
+  } // namespace Engine
 } // namespace OpenGLEngine

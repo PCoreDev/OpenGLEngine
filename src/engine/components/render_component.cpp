@@ -110,6 +110,9 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
 
   if (directional_light.lock()) {
     //directional light
+    std::weak_ptr<LightComponent> light = directional_light.lock()->GetLightComponent();
+    std::weak_ptr<TransformComponent> transform = directional_light.lock()->GetTransformComponent();
+
     shader->SetVec3("directional_light.direction", directional_light.lock()->GetLightComponent()->GetDirection());
     shader->SetVec3("directional_light.ambient", directional_light.lock()->GetLightComponent()->GetAmbient());
     shader->SetVec3("directional_light.diffuse", directional_light.lock()->GetLightComponent()->GetDiffuse());
@@ -120,37 +123,47 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
 
   //point light
   for (int i = 0; i < point_lights.size(); ++i) {
+
+    std::weak_ptr<LightComponent> light = point_lights[i].lock()->GetLightComponent();
+    std::weak_ptr<TransformComponent> transform = point_lights[i].lock()->GetTransformComponent();
+
     std::string index = std::to_string(i);
-    shader->SetVec3("point_light[" + index + ']' + ".position", point_lights[i].lock()->GetTransformComponent()->GetPosition());
-    shader->SetVec3("point_light[" + index + ']' + ".ambient", point_lights[i].lock()->GetLightComponent()->GetAmbient());
-    shader->SetVec3("point_light[" + index + ']' + ".diffuse", point_lights[i].lock()->GetLightComponent()->GetDiffuse());
-    shader->SetVec3("point_light[" + index + ']' + ".specular", point_lights[i].lock()->GetLightComponent()->GetSpecular());
-    shader->SetFloat("point_light[" + index + ']' + ".constant", point_lights[i].lock()->GetLightComponent()->GetConstant());
-    shader->SetFloat("point_light[" + index + ']' + ".linear", point_lights[i].lock()->GetLightComponent()->GetLinear());
-    shader->SetFloat("point_light[" + index + ']' + ".quadratic", point_lights[i].lock()->GetLightComponent()->GetQuadratic());
-    shader->SetVec3("point_light[" + index + ']' + ".color", point_lights[i].lock()->GetLightComponent()->GetLightColor());
+    shader->SetVec3("point_light[" + index + ']' + ".position", transform.lock()->GetPosition());
+    shader->SetVec3("point_light[" + index + ']' + ".ambient", light.lock()->GetAmbient());
+    shader->SetVec3("point_light[" + index + ']' + ".diffuse", light.lock()->GetDiffuse());
+    shader->SetVec3("point_light[" + index + ']' + ".specular", light.lock()->GetSpecular());
+    shader->SetFloat("point_light[" + index + ']' + ".constant", light.lock()->GetConstant());
+    shader->SetFloat("point_light[" + index + ']' + ".linear", light.lock()->GetLinear());
+    shader->SetFloat("point_light[" + index + ']' + ".quadratic", light.lock()->GetQuadratic());
+    shader->SetVec3("point_light[" + index + ']' + ".color", light.lock()->GetLightColor());
   }
 
-  if (point_lights.size() > 0)
+  if (point_lights.size() > 0) {
     shader->SetInt("point_light_count", point_lights.size());
+  }
 
   //spot light
   for (int i = 0; i < spot_lights.size(); ++i) {
+
+    std::weak_ptr<LightComponent> light = spot_lights[i].lock()->GetLightComponent();
+    std::weak_ptr<TransformComponent> transform = spot_lights[i].lock()->GetTransformComponent();
+
     std::string index = std::to_string(i);
-    shader->SetVec3("spot_light[" + index + ']' + ".position", spot_lights[i].lock()->GetTransformComponent()->GetPosition());
-    shader->SetVec3("spot_light[" + index + ']' + ".direction", spot_lights[i].lock()->GetLightComponent()->GetDirection());
-    shader->SetFloat("spot_light[" + index + ']' + ".cutOff", spot_lights[i].lock()->GetLightComponent()->GetCutOff());
-    shader->SetVec3("point_light[" + index + ']' + ".ambient", spot_lights[i].lock()->GetLightComponent()->GetAmbient());
-    shader->SetVec3("point_light[" + index + ']' + ".diffuse", spot_lights[i].lock()->GetLightComponent()->GetDiffuse());
-    shader->SetVec3("point_light[" + index + ']' + ".specular", spot_lights[i].lock()->GetLightComponent()->GetSpecular());
-    shader->SetFloat("point_light[" + index + ']' + ".constant", spot_lights[i].lock()->GetLightComponent()->GetConstant());
-    shader->SetFloat("point_light[" + index + ']' + ".linear", spot_lights[i].lock()->GetLightComponent()->GetLinear());
-    shader->SetFloat("point_light[" + index + ']' + ".quadratic", spot_lights[i].lock()->GetLightComponent()->GetQuadratic());
-    shader->SetVec3("spot_light[" + index + ']' + ".color", spot_lights[i].lock()->GetLightComponent()->GetLightColor());
+    shader->SetVec3("spot_light[" + index + ']' + ".position", transform.lock()->GetPosition());
+    shader->SetVec3("spot_light[" + index + ']' + ".direction", light.lock()->GetDirection());
+    shader->SetFloat("spot_light[" + index + ']' + ".cutOff", light.lock()->GetCutOff());
+    shader->SetVec3("point_light[" + index + ']' + ".ambient", light.lock()->GetAmbient());
+    shader->SetVec3("point_light[" + index + ']' + ".diffuse", light.lock()->GetDiffuse());
+    shader->SetVec3("point_light[" + index + ']' + ".specular", light.lock()->GetSpecular());
+    shader->SetFloat("point_light[" + index + ']' + ".constant", light.lock()->GetConstant());
+    shader->SetFloat("point_light[" + index + ']' + ".linear", light.lock()->GetLinear());
+    shader->SetFloat("point_light[" + index + ']' + ".quadratic", light.lock()->GetQuadratic());
+    shader->SetVec3("spot_light[" + index + ']' + ".color", light.lock()->GetLightColor());
   }
 
-  if (spot_lights.size() > 0)
+  if (spot_lights.size() > 0) {
     shader->SetInt("spot_light_count", spot_lights.size());
+  }
 }
 
 void RenderComponent::MatrixToShader(std::shared_ptr<Shader> shader)

@@ -80,11 +80,11 @@ int OpenGLEngine::main(int argc, char** argv)
     0.0f, 0.0f, 0.0f, 0);
   light->AddLightComponent();
   light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
-  light->GetLightComponent()->SetDirection(glm::vec3(-1.0f, -1.0f, 0.0f));
+  light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
   light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
   light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
   light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
-  light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+  light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
 
  
   int num_cubes = 3;
@@ -116,7 +116,7 @@ int OpenGLEngine::main(int argc, char** argv)
           entity->GetLightComponent()->SetConstant(1.0f);
           entity->GetLightComponent()->SetLinear(1.0f);
           entity->GetLightComponent()->SetQuadratic(1.0f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
         if (i == 1 && j == 1 && z == 1) {
@@ -128,7 +128,7 @@ int OpenGLEngine::main(int argc, char** argv)
           entity->GetLightComponent()->SetConstant(1.0f);
           entity->GetLightComponent()->SetLinear(0.09f);
           entity->GetLightComponent()->SetQuadratic(0.032f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
+          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 0.0f, 1.0f));
         }
       }
     }
