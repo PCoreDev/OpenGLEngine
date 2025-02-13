@@ -4,7 +4,7 @@ workspace "OpenGL Engine"
 filename "Engine"
 configurations{"Debug", "Release"}
 location "../build/solution"
-libdirs{"../deps/openal-soft/build/RelWithDebInfo", "../deps/glew-2.1.0/lib/Release/x64", "opengl32.lib", "../deps/glfw/build/src/RelWithDebInfo",} 
+libdirs{"../deps/openal-soft/build/RelWithDebInfo", "../deps/glew-2.1.0/lib/Release/x64", "opengl32.lib", "../deps/glfw/build/src/RelWithDebInfo","../deps/freetype/release static/vs2015-2022/win64",} 
 
 links {
   "glfw3",
@@ -43,6 +43,8 @@ includedirs {
   "../include",
   --Deps
   "../deps/",
+  --freetype
+  "../deps/freetype/include",
 }
 
 platforms {"Win64"}

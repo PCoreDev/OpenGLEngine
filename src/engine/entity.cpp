@@ -207,6 +207,9 @@ void Entity::ShowStats()
 
   if (data_->light_component != nullptr)
     data_->light_component->ShowStats();
+
+  if (data_->camera_component != nullptr)
+    data_->camera_component->ShowStats();
 }
 
 /*

@@ -28,6 +28,10 @@ namespace OpenGLEngine {
     int GetWidth() const;
     int GetHeight() const;
     unsigned int GetFBO() const;
+    void Update();
+
+    void FullScreen();
+
 
 
 

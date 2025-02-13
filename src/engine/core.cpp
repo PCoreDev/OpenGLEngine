@@ -18,6 +18,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+
 #include <windows.h>
 
 #include <thread>
@@ -128,7 +129,6 @@ namespace OpenGLEngine {
         LOG_F(INFO, "Framebuffer is complete!");
       }
 
-
       // Setup Dear ImGui context
       IMGUI_CHECKVERSION();
       ImGui::CreateContext();
@@ -185,13 +185,18 @@ namespace OpenGLEngine {
     }
 
     void Core::Update() {
-
+      data_->window->Update();
       //Imgui
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplGlfw_NewFrame();
       ImGui::NewFrame();
 
       DebugCoreStats();
+
+      if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_F11)) {
+        data_->window->FullScreen();
+      }
+
 
       if (EngineInput::IsKeyPressed(EngineInput::KeyNames::kKeyNames_F1) && data_->debug_data->can_press) {
         data_->debug_data->can_press = false;
@@ -332,7 +337,7 @@ namespace OpenGLEngine {
         ImGui::Begin("Core Stats", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
         ImGui::Text("FPS: %f", 1.0f / data_->delta_time);
         ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
-        ImGui::Text("Number of entitites: %d", entity_manager_->GetNumberOfEntities());
+        ImGui::Text("Number of entitites: %d",(int) entity_manager_->GetNumberOfEntities());
 
 
 
@@ -381,6 +386,11 @@ namespace OpenGLEngine {
         }
         entity_manager_->GetEntities()[data_->debug_data->selected_entity].lock()->ShowStats();
         ImGui::End();
+
+        ImGui::Begin("Render Window");
+        ImGui::Image(data_->framebuffer_texture, ImVec2(ImGui::GetIO().DisplaySize.x * 0.8f, ImGui::GetIO().DisplaySize.y * 0.8f), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::End();
+
       }
     }
 

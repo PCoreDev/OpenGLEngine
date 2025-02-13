@@ -149,6 +149,6 @@ void main() {
     }
 
     // Output the final color
-    FragColor = vec4(result, 1.0);
-    //FragColor = vec4(vec3(texture(material.diffuse_texture, texCoords)), 1.0);
+    //FragColor = vec4(result, 1.0);
+    FragColor = vec4(vec3(texture(material.diffuse_texture, texCoords)), 1.0);
 }

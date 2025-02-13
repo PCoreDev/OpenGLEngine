@@ -9,6 +9,9 @@
 
 #include "engine/entity.h"
 
+#include "imgui/imgui.h"
+
+
 struct CameraData {
   std::shared_ptr<class TransformComponent> transform;
   //camera attributes
@@ -221,6 +224,20 @@ void CameraComponent::MoveMouse() {
   }
 
   data->UpdateVectors();
+}
+
+void CameraComponent::ShowStats()
+{
+  std::string begin = "Entity " + std::to_string(id);
+  ImGui::Begin(begin.c_str());
+  ImGui::Text("Camera Stats");
+  ImGui::SliderFloat("FOV", &data->fov, 1.0f, 120.0f, "%.3f", ImGuiSliderFlags_NoInput);
+  ImGui::SliderFloat("Aspect Ratio", &data->aspect_ratio, 0.1f, 10.0f, "%.3f", ImGuiSliderFlags_NoInput);
+  ImGui::SliderFloat("Near Plane", &data->near_plane, 0.1f, 100.0f, "%.3f", ImGuiSliderFlags_NoInput);
+  ImGui::SliderFloat("Far Plane", &data->far_plane, 0.1f, 1000.0f, "%.3f", ImGuiSliderFlags_NoInput);
+  ImGui::End();
+
+  data->projection_matrix = glm::perspective(glm::radians(data->fov), data->aspect_ratio, data->near_plane, data->far_plane);
 }
 
 glm::vec3 CameraComponent::GetUp() const {

@@ -52,7 +52,7 @@ public:
   float GetCutOff() const;
   glm::vec3 GetLightColor() const;
 
-  void ShowStats();
+  void ShowStats() override;
 
 private:
   std::unique_ptr<class LightData> data_;

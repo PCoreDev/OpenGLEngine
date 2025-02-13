@@ -41,6 +41,8 @@ public:
 
   void MatrixToShader(std::shared_ptr<Shader> shader);
 
+  void ShowStats() override;
+
 
 private:
   std::unique_ptr<RenderData> data;

@@ -50,6 +50,7 @@
 	public:
 		inline int GetId() const { return id; }
     inline ComponentType GetType() const { return type; }
+    virtual void ShowStats() = 0;
 	};
    
 #endif // !__COMPONENT_H__

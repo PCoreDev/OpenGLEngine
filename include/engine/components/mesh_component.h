@@ -33,6 +33,8 @@ public:
 
   void CleanUp();
 
+  void ShowStats() override;
+
 private:
   std::unique_ptr<class MeshData> data_;
 };

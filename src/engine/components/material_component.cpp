@@ -303,3 +303,6 @@ void MaterialComponent::CleanUp() {
   }
   data_->materials.clear();
 }
+
+void MaterialComponent::ShowStats(){
+}

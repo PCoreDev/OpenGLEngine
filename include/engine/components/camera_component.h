@@ -39,6 +39,8 @@ public:
   void MoveKeyboard();
   void MoveMouse();
 
+  void ShowStats() override;
+
 private:
   std::unique_ptr<class CameraData> data;
 };

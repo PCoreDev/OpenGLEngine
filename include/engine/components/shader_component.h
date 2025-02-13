@@ -40,6 +40,8 @@ public:
 
   void UseShader();
 
+  void ShowStats() override;
+
 private:
   std::unique_ptr<class ShaderComponentdata> data_;
 };

@@ -188,3 +188,6 @@ void RenderComponent::MatrixToShader(std::shared_ptr<Shader> shader)
   shader->SetVec3("camera_position", OpenGLEngine::Engine::Core::camera_->GetPosition());
   shader->SetVec3("camera_direction", OpenGLEngine::Engine::Core::camera_->GetDirection());
 }
+
+void RenderComponent::ShowStats(){
+}

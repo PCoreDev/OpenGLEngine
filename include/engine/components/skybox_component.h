@@ -25,7 +25,9 @@ public:
 
   void LoadSkyBox(std::vector<std::string> faces_path);
 
-  void SendToShader();
+  void ShowStats() override;
+
+  //void SendToShader();
 
 private:
   std::unique_ptr<class SkyBoxData> data_;

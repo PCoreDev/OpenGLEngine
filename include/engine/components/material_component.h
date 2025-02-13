@@ -38,6 +38,8 @@ public:
   void SendToShader(std::shared_ptr<class Shader> shader, int index);
   void CleanUp();
 
+  void ShowStats() override;
+
 private:
   std::shared_ptr<class MaterialData> data_;
 };

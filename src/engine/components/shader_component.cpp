@@ -119,4 +119,7 @@ void ShaderComponent::UseShader() {
   data_->shader->UseShader();
 }
 
+void ShaderComponent::ShowStats(){
+}
+
 

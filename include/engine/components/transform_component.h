@@ -59,7 +59,7 @@ public:
   glm::mat4 GetRotationMatrix() const;
   glm::mat4 GetModelMatrix() const;
 
-  void ShowStats();
+  void ShowStats() override;
 
 private:
 

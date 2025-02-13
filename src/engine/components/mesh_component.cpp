@@ -666,3 +666,6 @@ void MeshComponent::CleanUp(){
   }
   data_.reset();
 }
+
+void MeshComponent::ShowStats(){
+}

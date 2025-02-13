@@ -37,3 +37,6 @@
 [submodule "tools/export-compile-commands"]
 	path = tools/export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands
+[submodule "deps/freetype"]
+	path = deps/freetype
+	url = https://github.com/ubawurinna/freetype-windows-binaries.git
