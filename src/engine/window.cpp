@@ -16,6 +16,8 @@
 
 #include "loguru/loguru.hpp"
 
+#include <thread>
+
 
 
 namespace OpenGLEngine {
@@ -35,8 +37,9 @@ namespace OpenGLEngine {
     bool close;
     bool vsync;
     bool fullscreen;
+    bool allow_fullscreen;
 
-    WData() : name("OpenGL Engine"), fbo(-1), window(nullptr), monitor(nullptr), close(false), vsync(true), fullscreen(false) {}
+    WData() : name("OpenGL Engine"), fbo(-1), window(nullptr), monitor(nullptr), close(false), vsync(true), fullscreen(false), allow_fullscreen(true){}
 
     bool CreateOpenGLContext() {
       glfwMakeContextCurrent(window);
@@ -69,6 +72,10 @@ namespace OpenGLEngine {
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         WData::update = false;
+
+        int xpos = (glfwGetVideoMode(monitor)->width >> 1) - (width >> 1);
+        int ypos = (glfwGetVideoMode(monitor)->height >> 1) - (height >> 1);
+        glfwSetWindowPos(window, xpos, ypos);
       }
     }
   };
@@ -83,8 +90,8 @@ namespace OpenGLEngine {
 
   void window_size_callback(GLFWwindow* window, int width, int height) {
     glfwSetWindowSize(window, width, height);
-    WData::width = width;
-    WData::height = height;
+    //WData::width = width;
+    //WData::height = height;
     WData::update = true;
   }
 
@@ -198,7 +205,19 @@ namespace OpenGLEngine {
     wdata_->UpdateData();
   }
   void Window::FullScreen(){
-    wdata_->fullscreen = !wdata_->fullscreen;
-    WData::update = true;
+    if (wdata_->allow_fullscreen) {
+      wdata_->allow_fullscreen = false;
+      wdata_->fullscreen = !wdata_->fullscreen;
+      WData::update = true;
+
+      std::thread timer;
+
+      timer = std::thread([this]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        wdata_->allow_fullscreen = true;
+      });
+
+      timer.join();
+    }
   }
 }

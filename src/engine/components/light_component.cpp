@@ -162,8 +162,8 @@ glm::vec3 LightComponent::GetLightColor() const
 }
 
 void LightComponent::ShowStats(){
-  std::string begin = "Entity " + std::to_string(id);
-  ImGui::Begin(begin.c_str());
+  //std::string begin = "Entity " + std::to_string(id);
+  //ImGui::Begin(begin.c_str());
   ImGui::Text("Light Stats");
   ImGui::Text("Light Type % d", data_->type);
   ImGui::SliderFloat3("Direction", &data_->direction[0], -1000.0f, 1000.0f);
@@ -175,5 +175,5 @@ void LightComponent::ShowStats(){
   ImGui::SliderFloat("Quadratic", &data_->quadratic, 0.0f, 1.0f);
   ImGui::SliderFloat("Cut Off", &data_->cut_off, 0.0f, 1.0f);
   ImGui::SliderFloat3("Color", &data_->color[0], 0.0f, 1.0f);
-  ImGui::End();
+  //ImGui::End();
 }

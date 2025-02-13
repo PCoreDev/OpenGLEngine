@@ -339,32 +339,6 @@ namespace OpenGLEngine {
         ImGui::SliderFloat("Max FPS", &data_->max_fps, 1.0f, 120.0f);
         ImGui::Text("Number of entitites: %d",(int) entity_manager_->GetNumberOfEntities());
 
-
-
-        /*
-          const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
-          static int item_selected_idx = 0; // Here we store our selection data as an index.
-
-          // Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
-          const char* combo_preview_value = items[item_selected_idx];
-          if (ImGui::BeginCombo("combo 1", combo_preview_value, flags))
-          {
-              for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-              {
-                  const bool is_selected = (item_selected_idx == n);
-                  if (ImGui::Selectable(items[n], is_selected))
-                      item_selected_idx = n;
-
-                  // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                  if (is_selected)
-                      ImGui::SetItemDefaultFocus();
-              }
-              ImGui::EndCombo();
-          }
-        */
-
-
-
         //ImGui Combo Box
         std::vector<std::string> entity_names;
         for (auto& entity : entity_manager_->GetEntities()) {
@@ -384,7 +358,9 @@ namespace OpenGLEngine {
           }
           ImGui::EndCombo();
         }
+        ImGui::BeginChild("Entity Stats", ImVec2(0, 0), true);
         entity_manager_->GetEntities()[data_->debug_data->selected_entity].lock()->ShowStats();
+        ImGui::EndChild();
         ImGui::End();
 
         ImGui::Begin("Render Window");

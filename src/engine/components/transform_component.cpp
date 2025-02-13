@@ -156,13 +156,13 @@ glm::mat4 TransformComponent::GetModelMatrix() const {
 }
 
 void TransformComponent::ShowStats(){
-  std::string begin = "Entity " + std::to_string(id);
-  ImGui::Begin(begin.c_str());
+  //std::string begin = "Entity " + std::to_string(id);
+  //ImGui::Begin(begin.c_str());
   ImGui::Text("Transform Stats");
   ImGui::SliderFloat3("Position", &data->position[0], -1000.0f, 1000.0f);
   ImGui::SliderFloat3("Rotation", &data->rotation[0], -360.0f, 360.0f);
   ImGui::SliderFloat3("Scale", &data->scale[0], 0.0f, 10.0f);
-  ImGui::End();
+  //ImGui::End();
 }
 
 void TransformData::UpdateTraslationMatrix() {
