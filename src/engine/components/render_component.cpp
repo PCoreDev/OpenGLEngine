@@ -150,9 +150,13 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader) {
     std::weak_ptr<TransformComponent> transform = spot_lights[i].lock()->GetTransformComponent();
 
     std::string index = std::to_string(i);
+    //shader->SetVec3("spot_light[" + index + ']' + ".position", transform.lock()->GetPosition());
     shader->SetVec3("spot_light[" + index + ']' + ".position", transform.lock()->GetPosition());
+    
+    //shader->SetVec3("spot_light[" + index + ']' + ".direction", light.lock()->GetDirection());
     shader->SetVec3("spot_light[" + index + ']' + ".direction", light.lock()->GetDirection());
     shader->SetFloat("spot_light[" + index + ']' + ".cutOff", light.lock()->GetCutOff());
+    shader->SetFloat("spot_light[" + index + ']' + ".outerCutOff", light.lock()->GetOuterCutOff());
     shader->SetVec3("spot_light[" + index + ']' + ".ambient", light.lock()->GetAmbient());
     shader->SetVec3("spot_light[" + index + ']' + ".diffuse", light.lock()->GetDiffuse());
     shader->SetVec3("spot_light[" + index + ']' + ".specular", light.lock()->GetSpecular());

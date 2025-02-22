@@ -39,6 +39,7 @@ public:
   void SetLinear(float linear);
   void SetQuadratic(float quadratic);
   void SetCutOff(float angle);
+  void SetOuterCutOff(float angle);
   void SetLightColor(glm::vec3 color);
 
   LightType GetLightType() const;
@@ -50,6 +51,7 @@ public:
   float GetLinear() const;
   float GetQuadratic() const;
   float GetCutOff() const;
+  float GetOuterCutOff() const;
   glm::vec3 GetLightColor() const;
 
   void ShowStats() override;

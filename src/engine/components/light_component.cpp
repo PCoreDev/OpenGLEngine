@@ -109,6 +109,10 @@ void LightComponent::SetCutOff(float angle) {
   data_->cut_off = angle;
 }
 
+void LightComponent::SetOuterCutOff(float angle) {
+  data_->outer_cut_off = angle;
+}
+
 void LightComponent::SetLightColor(glm::vec3 color){
   data_->color = color;
 }
@@ -158,6 +162,10 @@ float LightComponent::GetCutOff() const
   return data_->cut_off;
 }
 
+float LightComponent::GetOuterCutOff() const {
+  return data_->outer_cut_off;
+}
+
 glm::vec3 LightComponent::GetLightColor() const
 {
   return data_->color;
@@ -176,6 +184,7 @@ void LightComponent::ShowStats(){
   ImGui::SliderFloat("Linear", &data_->linear, 0.0f, 1.0f);
   ImGui::SliderFloat("Quadratic", &data_->quadratic, 0.0f, 1.0f);
   ImGui::SliderFloat("Cut Off", &data_->cut_off, 0.0f, 1.0f);
+  ImGui::SliderFloat("Outer Cut Off", &data_->outer_cut_off, 0.0f, 1.0f);
   ImGui::SliderFloat3("Color", &data_->color[0], 0.0f, 1.0f);
   //ImGui::End();
 }

@@ -68,10 +68,10 @@ int OpenGLEngine::main(int argc, char** argv)
   light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 100.0f, 0.0f));
   light->GetTransformComponent()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
   light->AddMaterialComponent();
-  light->GetMeshComponent()->LoadOBJ("../../data/models/sphere.obj", "../../data/models/");
+  light->GetMeshComponent()->LoadOBJ("../../data/models/sphere.obj");
   light->GetMaterialComponent()->AddNewMaterial("Light3",
     "../../data/textures/white.png","",
-    "../../data/textures/metal.png",
+    "",
     "", "", "",
     glm::vec3(0.5f),
     glm::vec3(0.2f),
@@ -93,14 +93,14 @@ int OpenGLEngine::main(int argc, char** argv)
   spot_light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 30.0f, 40.0f));
   spot_light->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
   spot_light->AddMaterialComponent();
-  spot_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere1.obj", "../../data/models/");
+  spot_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere1.obj");
   spot_light->GetMaterialComponent()->AddNewMaterial("Light2",
     "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
+    "",
+    "",
+    "",
+    "",
+    "",
     glm::vec3(0.5f),
     glm::vec3(0.2f),
     glm::vec3(1.0f),
@@ -115,6 +115,7 @@ int OpenGLEngine::main(int argc, char** argv)
   spot_light->GetLightComponent()->SetLinear(0.0f);
   spot_light->GetLightComponent()->SetQuadratic(0.0f);
   spot_light->GetLightComponent()->SetCutOff(0.7f);
+  spot_light->GetLightComponent()->SetOuterCutOff(0.1f);
   spot_light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
 
   //Point
@@ -123,16 +124,16 @@ int OpenGLEngine::main(int argc, char** argv)
   point_light->AddRenderComponent();
   point_light->AddTransformComponent();
   point_light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 10.0f, -40.0f));
-  point_light->GetTransformComponent()->SetScale(glm::vec3(5.0f, 1.0f, 5.0f));
+  point_light->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
   point_light->AddMaterialComponent();
-  point_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere2.obj", "../../data/models/");
+  point_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere2.obj");
   point_light->GetMaterialComponent()->AddNewMaterial("Light",
     "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
-    "../../data/textures/white.png",
+    "",
+    "",
+    "",
+    "",
+    "",
     glm::vec3(0.5f),
     glm::vec3(0.2f),
     glm::vec3(1.0f),
@@ -204,16 +205,16 @@ int OpenGLEngine::main(int argc, char** argv)
   entity4->GetMeshComponent()->LoadOBJ("../../data/models/Pikachu/pikachu.obj", "../../data/models/Pikachu/");
 
 
-  //std::shared_ptr<Entity> entity5 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
-  //entity5->AddMeshComponent();
-  //entity5->AddRenderComponent();
-  //entity5->AddTransformComponent();
-  //entity5->GetTransformComponent()->SetPosition(glm::vec3(500.0f, -30.0f, -50.0f));
-  ////entity5->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
-  //entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-  //entity5->AddMaterialComponent();
-  ////entity5->GetMeshComponent()->LoadOBJ("../../data/models/Yamato/Space_Battleship_Yamato_[Clean]_v003.obj", "../../data/Yamato/");
-  //entity5->GetMeshComponent()->LoadOBJ("../../data/models/Bayonetta/Bayonetta.obj", "../../data/models/Bayonetta/");
+  std::shared_ptr<Entity> entity5 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  entity5->AddMeshComponent();
+  entity5->AddRenderComponent();
+  entity5->AddTransformComponent();
+  entity5->GetTransformComponent()->SetPosition(glm::vec3(500.0f, -30.0f, -50.0f));
+  //entity5->GetTransformComponent()->SetRotation(glm::vec3(-90.0f, 90.0f, 90.0f));
+  entity5->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  entity5->AddMaterialComponent();
+  //entity5->GetMeshComponent()->LoadOBJ("../../data/models/Yamato/Space_Battleship_Yamato_[Clean]_v003.obj", "../../data/Yamato/");
+  entity5->GetMeshComponent()->LoadOBJ("../../data/models/Bayonetta/Bayonetta.obj", "../../data/models/Bayonetta/");
 
   //std::shared_ptr<Entity> entity7 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   //entity7->AddMeshComponent();

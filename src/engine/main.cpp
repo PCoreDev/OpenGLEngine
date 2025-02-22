@@ -33,7 +33,7 @@ int main(int argc, char** argv){
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
   loguru::init(argc, argv);
-  loguru::add_file("../../../data/log/engine.log", loguru::Append, loguru::Verbosity_MAX);
+  loguru::add_file("../../../data/log/engine.log", loguru::Truncate, loguru::Verbosity_MAX);
   LOG_SCOPE_FUNCTION(INFO);
 
 //Create the core of the engine and initialize it.
@@ -79,6 +79,5 @@ int main(int argc, char** argv){
   }
 
    core->DeinitializeCore();
-   core.reset();
   return 0;
 }

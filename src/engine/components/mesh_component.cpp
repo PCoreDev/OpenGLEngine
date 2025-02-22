@@ -329,7 +329,7 @@ void MeshComponent::Cube() {
 }
 
 bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& texture_path) {
-  #if 1
+  #if 0
     // Load the OBJ file using fast_obj
     fastObjMesh* mesh = fast_obj_read(obj_path.c_str());
     if (!mesh) {
@@ -572,6 +572,8 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
         entity.lock()->AddMaterialComponent();
         material_component = entity.lock()->GetMaterialComponent();
       }
+      if(!texture_path.empty()){
+      }
       std::string path = texture_path + "textures/";
   
       if (data_->meshes.size() != 0) { data_->meshes.clear(); }
@@ -579,22 +581,24 @@ bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& text
         Mesh mesh; //Create a new mesh to add to the vector
         mesh.name = shape.MeshName;
         //Create a new material for the new mesh
-        material_component->AddNewMaterial(
-          shape.MeshMaterial.name,
-          path + shape.MeshMaterial.map_Kd,
-          path + shape.MeshMaterial.map_Ka,
-          path + shape.MeshMaterial.map_Ks,
-          path + shape.MeshMaterial.map_d,
-          path + shape.MeshMaterial.map_bump,
-          path + shape.MeshMaterial.map_Ns,
-          glm::vec3(shape.MeshMaterial.Ka.X, shape.MeshMaterial.Ka.Y, shape.MeshMaterial.Ka.Z),
-          glm::vec3(shape.MeshMaterial.Kd.X, shape.MeshMaterial.Kd.Y, shape.MeshMaterial.Kd.Z),
-          glm::vec3(shape.MeshMaterial.Ks.X, shape.MeshMaterial.Ks.Y, shape.MeshMaterial.Ks.Z),
-          shape.MeshMaterial.Ns,
-          shape.MeshMaterial.d,
-          shape.MeshMaterial.Ni,
-          shape.MeshMaterial.illum
-        );
+        if (!texture_path.empty()) {
+          material_component->AddNewMaterial(
+            shape.MeshMaterial.name,
+            path + shape.MeshMaterial.map_Kd,
+            path + shape.MeshMaterial.map_Ka,
+            path + shape.MeshMaterial.map_Ks,
+            path + shape.MeshMaterial.map_d,
+            path + shape.MeshMaterial.map_bump,
+            path + shape.MeshMaterial.map_Ns,
+            glm::vec3(shape.MeshMaterial.Ka.X, shape.MeshMaterial.Ka.Y, shape.MeshMaterial.Ka.Z),
+            glm::vec3(shape.MeshMaterial.Kd.X, shape.MeshMaterial.Kd.Y, shape.MeshMaterial.Kd.Z),
+            glm::vec3(shape.MeshMaterial.Ks.X, shape.MeshMaterial.Ks.Y, shape.MeshMaterial.Ks.Z),
+            shape.MeshMaterial.Ns,
+            shape.MeshMaterial.d,
+            shape.MeshMaterial.Ni,
+            shape.MeshMaterial.illum
+          );
+        }
   
         //Loop through the vertices and indices of the shape and add them to the mesh
         for (const auto& vertex : shape.Vertices) {
