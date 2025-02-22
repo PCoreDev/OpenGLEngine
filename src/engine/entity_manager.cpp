@@ -30,7 +30,11 @@ EntityManager::EntityManager(EntityManager&& other) noexcept
   other.data_ = nullptr;
 }
 
-EntityManager::~EntityManager() {}
+EntityManager::~EntityManager() {
+  data_->entities.clear();
+  data_->lights.clear();
+  data_.reset();
+}
 
 EntityManager& EntityManager::operator=(const EntityManager& other)
 {

@@ -110,6 +110,12 @@ namespace OpenGLEngine {
   }
 
   Window::~Window() {
+    if (wdata_->fbo) {
+      glDeleteFramebuffers(1, &wdata_->fbo);
+    }
+    if (wdata_->window) {
+      glfwDestroyWindow(wdata_->window);
+    }
     wdata_.reset();
   }
 

@@ -90,6 +90,11 @@ MaterialComponent::MaterialComponent(std::weak_ptr<class Entity> entity) {
   this->data_ = std::make_shared<MaterialData>();
 }
 
+MaterialComponent::~MaterialComponent(){
+  data_->materials.clear();
+  data_.reset();
+}
+
 MaterialComponent::MaterialComponent(const MaterialComponent& other) {
   this->entity = other.entity;
   this->id = other.id;
@@ -262,6 +267,13 @@ void MaterialComponent::BindMaterial(std::shared_ptr<class Shader> shader, int i
       glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    shader->SetVec3("material.ambient_color", material.ambient_color);
+    shader->SetVec3("material.diffuse_color", material.diffuse_color);
+    shader->SetVec3("material.specular_color", material.specular_color);
+    shader->SetFloat("material.shininess", material.shininess);
+    shader->SetFloat("material.dissolve", material.dissolve);
+    shader->SetFloat("material.optical_density", material.optical_density);
+    shader->SetInt("material.illumination", material.illumination);
   }
   else {
     LOG_F(ERROR, "Material index out of range");

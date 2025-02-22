@@ -11,7 +11,7 @@ public:
 
   MaterialComponent() = default;
   MaterialComponent(std::weak_ptr<class Entity> entity);
-  ~MaterialComponent() = default;
+  ~MaterialComponent();
   MaterialComponent(const MaterialComponent& other);
   MaterialComponent& operator=(const MaterialComponent& other);
   MaterialComponent(MaterialComponent&& other) noexcept;

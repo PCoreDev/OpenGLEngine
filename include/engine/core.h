@@ -46,6 +46,8 @@ namespace OpenGLEngine {
       void Render();
       void FPS();
 
+
+      void RenderFrame();
       
 
 

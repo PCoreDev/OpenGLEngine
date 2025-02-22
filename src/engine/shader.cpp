@@ -30,8 +30,10 @@ Shader::Shader(Shader&& other) noexcept{
   data_ = std::move(other.data_);
 }
 
-Shader::~Shader()
-{
+Shader::~Shader(){
+  if (data_->shader_program) {
+    glDeleteProgram(data_->shader_program);
+  }
 }
 
 void Shader::operator=(const Shader& other) {

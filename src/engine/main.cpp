@@ -1,7 +1,15 @@
-//Author: Pablo "Pau" Core Palmero
-//Date: 28-May-2024
-//Email: p.core.dev@outlook.com
-//Main file of the engine.
+/*****************************************************************//**
+ * \file   main.cpp
+ * \brief  main file of the engine
+ * 
+ * \author Pablo "Pau" Core Palmero
+ * \email p.core.dev@outlook.com
+ * \date   28-May-2024
+ *********************************************************************/
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 #include <memory>
 //#include <fstream>
@@ -20,12 +28,8 @@
 
 #include "imgui/imgui.h"
 
-
-#define PX_SCHED_IMPLEMENTATION 1
-
-//TODO: Make it multi-threaded with PX_SCHED
-
 int main(int argc, char** argv){
+  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 //First step initialize loguru and create the core of the engine.
 //Initialize loguru
   loguru::init(argc, argv);
@@ -75,5 +79,6 @@ int main(int argc, char** argv){
   }
 
    core->DeinitializeCore();
+   core.reset();
   return 0;
 }

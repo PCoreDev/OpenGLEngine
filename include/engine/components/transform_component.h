@@ -29,7 +29,7 @@ public:
   TransformComponent(std::weak_ptr<Entity> entity);
   TransformComponent(const TransformComponent& other);
   TransformComponent(TransformComponent&& other);
-  ~TransformComponent() = default;
+  ~TransformComponent();
   TransformComponent& operator=(TransformComponent&& other);
   void operator=(const TransformComponent& other);
 

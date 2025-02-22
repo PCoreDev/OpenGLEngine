@@ -151,6 +151,25 @@ namespace OpenGLEngine {
     }
 
     void Core::DeinitializeCore() {
+      ImGui_ImplOpenGL3_Shutdown();
+      ImGui_ImplGlfw_Shutdown();
+      ImGui::DestroyContext();
+
+      if (data_->framebuffer_texture) {
+        glDeleteTextures(1, &data_->framebuffer_texture);
+      }
+      if (data_->screen_quad_vao) {
+        glDeleteVertexArrays(1, &data_->screen_quad_vao);
+      }
+      if (data_->screen_quad_vbo) {
+        glDeleteBuffers(1, &data_->screen_quad_vbo);
+      }
+      if (data_->screen_quad_ubo) {
+        glDeleteBuffers(1, &data_->screen_quad_ubo);
+      }
+      if (data_->screen_quad_ibo) {
+        glDeleteBuffers(1, &data_->screen_quad_ibo);
+      }
       glfwDestroyWindow(static_cast<GLFWwindow*>(data_->window->GetWindow()));
       glfwTerminate();
     }

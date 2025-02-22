@@ -41,7 +41,6 @@ int OpenGLEngine::main(int argc, char** argv)
   };
   skybox->GetSkyBoxComponent()->LoadSkyBox(faces);
 
-
   
   std::shared_ptr<Entity> entity1 = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   entity1->AddMeshComponent();
@@ -59,9 +58,9 @@ int OpenGLEngine::main(int argc, char** argv)
     glm::vec3(0.5f),
     glm::vec3(0.2f),
     glm::vec3(1.0f),
-    0.0f, 0.0f, 0.0f, 0);
+    1.0f, 0.0f, 0.0f, 0);
 
-
+  //Directional
   std::shared_ptr<Entity> light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
   light->AddMeshComponent();
   light->AddRenderComponent();
@@ -70,21 +69,84 @@ int OpenGLEngine::main(int argc, char** argv)
   light->GetTransformComponent()->SetScale(glm::vec3(10.0f, 10.0f, 10.0f));
   light->AddMaterialComponent();
   light->GetMeshComponent()->LoadOBJ("../../data/models/sphere.obj", "../../data/models/");
-  light->GetMaterialComponent()->AddNewMaterial("Light",
+  light->GetMaterialComponent()->AddNewMaterial("Light3",
     "../../data/textures/white.png","",
     "../../data/textures/metal.png",
     "", "", "",
     glm::vec3(0.5f),
     glm::vec3(0.2f),
     glm::vec3(1.0f),
-    0.0f, 0.0f, 0.0f, 0);
+    1.0f, 0.0f, 0.0f, 0);
   light->AddLightComponent();
   light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
   light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
   light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
   light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
   light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
-  light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
+  light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+
+  //Spot
+  std::shared_ptr<Entity> spot_light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  spot_light->AddMeshComponent();
+  spot_light->AddRenderComponent();
+  spot_light->AddTransformComponent();
+  spot_light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 30.0f, 40.0f));
+  spot_light->GetTransformComponent()->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+  spot_light->AddMaterialComponent();
+  spot_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere1.obj", "../../data/models/");
+  spot_light->GetMaterialComponent()->AddNewMaterial("Light2",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    glm::vec3(0.5f),
+    glm::vec3(0.2f),
+    glm::vec3(1.0f),
+    1.0f, 0.0f, 0.0f, 0);
+  spot_light->AddLightComponent();
+  spot_light->GetLightComponent()->SetLightType(LightComponent::LightType::Spot);
+  spot_light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+  spot_light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+  spot_light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+  spot_light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+  spot_light->GetLightComponent()->SetConstant(1.0f);
+  spot_light->GetLightComponent()->SetLinear(0.0f);
+  spot_light->GetLightComponent()->SetQuadratic(0.0f);
+  spot_light->GetLightComponent()->SetCutOff(0.7f);
+  spot_light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 0.0f, 0.0f));
+
+  //Point
+  std::shared_ptr<Entity> point_light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+  point_light->AddMeshComponent();
+  point_light->AddRenderComponent();
+  point_light->AddTransformComponent();
+  point_light->GetTransformComponent()->SetPosition(glm::vec3(0.0f, 10.0f, -40.0f));
+  point_light->GetTransformComponent()->SetScale(glm::vec3(5.0f, 1.0f, 5.0f));
+  point_light->AddMaterialComponent();
+  point_light->GetMeshComponent()->LoadOBJ("../../data/models/sphere2.obj", "../../data/models/");
+  point_light->GetMaterialComponent()->AddNewMaterial("Light",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    "../../data/textures/white.png",
+    glm::vec3(0.5f),
+    glm::vec3(0.2f),
+    glm::vec3(1.0f),
+    1.0f, 0.0f, 0.0f, 0);
+  point_light->AddLightComponent();
+  point_light->GetLightComponent()->SetLightType(LightComponent::LightType::Point);
+  point_light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+  point_light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+  point_light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+  point_light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+  point_light->GetLightComponent()->SetConstant(1.0f);
+  point_light->GetLightComponent()->SetLinear(0.09f);
+  point_light->GetLightComponent()->SetQuadratic(0.0f);
+  point_light->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 0.0f, 1.0f));
 
  
   int num_cubes = 3;
@@ -105,31 +167,7 @@ int OpenGLEngine::main(int argc, char** argv)
           glm::vec3(0.5f),
           glm::vec3(0.2f),
           glm::vec3(1.0f),
-          0.0f, 0.0f, 0.0f, 0);
-        if (i == 0 && j == 0 && z == 0) {
-          entity->AddLightComponent();
-          entity->GetLightComponent()->SetLightType(LightComponent::LightType::Spot);
-          entity->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.0f));
-          entity->GetLightComponent()->SetAmbient(glm::vec3(1.0f));
-          entity->GetLightComponent()->SetDiffuse(glm::vec3(1.0f));
-          entity->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
-          entity->GetLightComponent()->SetConstant(1.0f);
-          entity->GetLightComponent()->SetLinear(1.0f);
-          entity->GetLightComponent()->SetQuadratic(1.0f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-
-        if (i == 1 && j == 1 && z == 1) {
-          entity->AddLightComponent();
-          entity->GetLightComponent()->SetLightType(LightComponent::LightType::Point);
-          entity->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
-          entity->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
-          entity->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
-          entity->GetLightComponent()->SetConstant(1.0f);
-          entity->GetLightComponent()->SetLinear(0.09f);
-          entity->GetLightComponent()->SetQuadratic(0.032f);
-          entity->GetLightComponent()->SetLightColor(glm::vec3(0.0f, 0.0f, 1.0f));
-        }
+          1.0f, 0.0f, 0.0f, 0);
       }
     }
   }

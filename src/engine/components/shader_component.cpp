@@ -56,7 +56,9 @@ ShaderComponent::ShaderComponent(ShaderComponent&& other) noexcept {
   data_ = std::move(other.data_);
 }
 
-ShaderComponent::~ShaderComponent() {}
+ShaderComponent::~ShaderComponent() {
+  data_.reset();
+}
 
 void ShaderComponent::operator=(const ShaderComponent& other) {
   entity = other.entity;

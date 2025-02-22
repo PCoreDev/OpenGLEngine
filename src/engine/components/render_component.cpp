@@ -54,6 +54,10 @@ void RenderComponent::operator=(const RenderComponent& other) {
   data->enabled = other.data->enabled;
 }
 
+RenderComponent::~RenderComponent(){
+  data.reset();
+}
+
 bool RenderComponent::IsEnabled() { return data->enabled; }
 
 void RenderComponent::SetEnabled(bool enabled) { data->enabled = enabled; }
@@ -91,7 +95,7 @@ void RenderComponent::Render() {
   }
 }
 
-void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
+void RenderComponent::RenderLights(std::shared_ptr<Shader> shader) {
   std::weak_ptr<Entity> directional_light;
   std::vector<std::weak_ptr<Entity>> point_lights;
   std::vector<std::weak_ptr<Entity>> spot_lights;
@@ -113,17 +117,15 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
     std::weak_ptr<LightComponent> light = directional_light.lock()->GetLightComponent();
     std::weak_ptr<TransformComponent> transform = directional_light.lock()->GetTransformComponent();
 
-    shader->SetVec3("directional_light.direction", directional_light.lock()->GetLightComponent()->GetDirection());
-    shader->SetVec3("directional_light.ambient", directional_light.lock()->GetLightComponent()->GetAmbient());
-    shader->SetVec3("directional_light.diffuse", directional_light.lock()->GetLightComponent()->GetDiffuse());
-    shader->SetVec3("directional_light.specular", directional_light.lock()->GetLightComponent()->GetSpecular());
-    shader->SetVec3("directional_light.color", directional_light.lock()->GetLightComponent()->GetLightColor());
+    shader->SetVec3("directional_light.direction", light.lock()->GetDirection());
+    shader->SetVec3("directional_light.ambient", light.lock()->GetAmbient());
+    shader->SetVec3("directional_light.diffuse", light.lock()->GetDiffuse());
+    shader->SetVec3("directional_light.specular", light.lock()->GetSpecular());
+    shader->SetVec3("directional_light.color", light.lock()->GetLightColor());
   }
-
 
   //point light
   for (int i = 0; i < point_lights.size(); ++i) {
-
     std::weak_ptr<LightComponent> light = point_lights[i].lock()->GetLightComponent();
     std::weak_ptr<TransformComponent> transform = point_lights[i].lock()->GetTransformComponent();
 
@@ -144,7 +146,6 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
 
   //spot light
   for (int i = 0; i < spot_lights.size(); ++i) {
-
     std::weak_ptr<LightComponent> light = spot_lights[i].lock()->GetLightComponent();
     std::weak_ptr<TransformComponent> transform = spot_lights[i].lock()->GetTransformComponent();
 
@@ -152,12 +153,12 @@ void RenderComponent::RenderLights(std::shared_ptr<Shader> shader){
     shader->SetVec3("spot_light[" + index + ']' + ".position", transform.lock()->GetPosition());
     shader->SetVec3("spot_light[" + index + ']' + ".direction", light.lock()->GetDirection());
     shader->SetFloat("spot_light[" + index + ']' + ".cutOff", light.lock()->GetCutOff());
-    shader->SetVec3("point_light[" + index + ']' + ".ambient", light.lock()->GetAmbient());
-    shader->SetVec3("point_light[" + index + ']' + ".diffuse", light.lock()->GetDiffuse());
-    shader->SetVec3("point_light[" + index + ']' + ".specular", light.lock()->GetSpecular());
-    shader->SetFloat("point_light[" + index + ']' + ".constant", light.lock()->GetConstant());
-    shader->SetFloat("point_light[" + index + ']' + ".linear", light.lock()->GetLinear());
-    shader->SetFloat("point_light[" + index + ']' + ".quadratic", light.lock()->GetQuadratic());
+    shader->SetVec3("spot_light[" + index + ']' + ".ambient", light.lock()->GetAmbient());
+    shader->SetVec3("spot_light[" + index + ']' + ".diffuse", light.lock()->GetDiffuse());
+    shader->SetVec3("spot_light[" + index + ']' + ".specular", light.lock()->GetSpecular());
+    shader->SetFloat("spot_light[" + index + ']' + ".constant", light.lock()->GetConstant());
+    shader->SetFloat("spot_light[" + index + ']' + ".linear", light.lock()->GetLinear());
+    shader->SetFloat("spot_light[" + index + ']' + ".quadratic", light.lock()->GetQuadratic());
     shader->SetVec3("spot_light[" + index + ']' + ".color", light.lock()->GetLightColor());
   }
 

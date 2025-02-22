@@ -136,17 +136,17 @@ void main() {
     vec3 result = vec3(0.0f);
 
     // Add directional light contribution
-    //result = CalculateDirectionalLight(directional_light, norm, view_dir);
+    result = CalculateDirectionalLight(directional_light, norm, view_dir);
 
     // Add point lights contribution
     for (int i = 0; i < point_light_count; i++) {
         result += CalculatePointLight(point_light[i], norm, position, view_dir);
     }
-
-    // Add spot lights contribution
-//    for (int i = 0; i < spot_light_count; i++) {
-//        result += CalculateSpotLight(spot_light[i], norm, position, view_dir);
-//    }
+//
+//    // Add spot lights contribution
+    for (int i = 0; i < spot_light_count; i++) {
+        result += CalculateSpotLight(spot_light[i], norm, position, view_dir);
+    }
 
     // Output the final color
     FragColor = vec4(result, 1.0);

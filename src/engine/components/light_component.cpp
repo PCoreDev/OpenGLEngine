@@ -69,7 +69,9 @@ void LightComponent::operator=(const LightComponent& other) {
   data_ = std::make_unique<LightData>(*other.data_);
 }
 
-LightComponent::~LightComponent() {}
+LightComponent::~LightComponent() {
+  data_.reset();
+}
 
 void LightComponent::SetLightType(LightType type) {
   data_->type = type;
@@ -166,7 +168,7 @@ void LightComponent::ShowStats(){
   //ImGui::Begin(begin.c_str());
   ImGui::Text("Light Stats");
   ImGui::Text("Light Type % d", data_->type);
-  ImGui::SliderFloat3("Direction", &data_->direction[0], -1000.0f, 1000.0f);
+  ImGui::SliderFloat3("Direction", &data_->direction[0], -1.0f, 1.0f);
   ImGui::SliderFloat3("Ambient", &data_->ambient[0], 0.0f, 1.0f);
   ImGui::SliderFloat3("Diffuse", &data_->diffuse[0], 0.0f, 1.0f);
   ImGui::SliderFloat3("Specular", &data_->specular[0], 0.0f, 1.0f);

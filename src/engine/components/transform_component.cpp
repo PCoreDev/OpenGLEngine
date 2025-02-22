@@ -37,6 +37,10 @@ TransformComponent::TransformComponent(TransformComponent&& other) {
   data = std::move(other.data);
 }
 
+TransformComponent::~TransformComponent(){
+  data.reset();
+}
+
 TransformComponent& TransformComponent::operator=(TransformComponent&& other) {
   this->id = other.id;
   this->type = other.type;

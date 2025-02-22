@@ -44,7 +44,10 @@ SkyBoxComponent& SkyBoxComponent::operator=(SkyBoxComponent&& other) noexcept {
   return *this;
 }
 
-SkyBoxComponent::~SkyBoxComponent() {}
+SkyBoxComponent::~SkyBoxComponent() {
+  glDeleteTextures(1, &data_->skybox_id);
+  data_.reset();
+}
 
 unsigned int SkyBoxComponent::GetSkyBoxID() const {
   return data_->skybox_id;

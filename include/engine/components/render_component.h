@@ -28,7 +28,7 @@ public:
   RenderComponent& operator=(RenderComponent&& other) noexcept; //Move assignment operator
   void operator=(const RenderComponent& other); //Copy assignment operator
 
-  ~RenderComponent() = default;
+  ~RenderComponent();
 
 
   bool IsEnabled();

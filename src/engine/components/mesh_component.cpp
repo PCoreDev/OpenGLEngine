@@ -113,7 +113,9 @@ MeshComponent::MeshComponent(MeshComponent&& other) noexcept  {
   data_ = std::move(other.data_);
 }
 
-MeshComponent::~MeshComponent() = default;
+MeshComponent::~MeshComponent() {
+  data_.reset();
+}
 
 MeshComponent& MeshComponent::operator=(MeshComponent&& other) noexcept
 {
@@ -327,7 +329,7 @@ void MeshComponent::Cube() {
 }
 
 bool MeshComponent::LoadOBJ(const std::string& obj_path, const std::string& texture_path) {
-  #if 0
+  #if 1
     // Load the OBJ file using fast_obj
     fastObjMesh* mesh = fast_obj_read(obj_path.c_str());
     if (!mesh) {
