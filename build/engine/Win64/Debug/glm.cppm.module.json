@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Win64\\Debug\\\\glm1.obj",
+            "outputs": [
+                "C:\\Users\\pablo\\OneDrive\\Documentos\\Projects\\OpenGL\\data\\engine\\Engine.pdb",
+                "Win64\\Debug\\",
+                "C:\\Users\\pablo\\OneDrive\\Documentos\\Projects\\OpenGL\\build\\engine\\Win64\\Debug\\glm.cppm.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "glm",
+                    "source-path": "c:\\users\\pablo\\onedrive\\documentos\\projects\\opengl\\deps\\glm\\glm\\glm.cppm",
+                    "is-interface": true
+                }
+            ],
+            "requires": []
+        }
+    ]
+}
