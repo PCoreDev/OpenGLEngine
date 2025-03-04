@@ -11,6 +11,7 @@
 #define __ENTITY_H__ 1
 
 #include <memory>
+#include <string>
 
 class Entity : public std::enable_shared_from_this<Entity>{
 
@@ -25,6 +26,7 @@ public:
 
   //Getters
   int ID();
+  std::string GetName() const;
 
   std::shared_ptr<class MeshComponent>  GetMeshComponent();
   std::shared_ptr<class ShaderComponent> GetShaderComponent();
@@ -47,6 +49,8 @@ public:
   void AddShaderComponent();
   void AddMaterialComponent();
   void AddSkyBoxComponent();
+
+  void SetName(const std::string name);
 
   void ShowStats();
 

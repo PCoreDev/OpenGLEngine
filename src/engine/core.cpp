@@ -8,6 +8,7 @@
 #include "engine/shader.h"
 #include "engine/command.h"
 #include "engine/component.h"
+#include "engine/components/light_component.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -146,6 +147,18 @@ namespace OpenGLEngine {
       std::shared_ptr<Entity> camera = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
       camera->AddCameraComponent();
       camera->GetCameraComponent()->SetMainCamera();
+
+      //Create directional light
+      std::shared_ptr<Entity> directional_light = OpenGLEngine::Engine::Core::entity_manager_->CreateEntity();
+      directional_light->AddLightComponent();
+      directional_light->GetLightComponent()->SetLightType(LightComponent::LightType::Directional);
+      directional_light->GetLightComponent()->SetDirection(glm::vec3(0.0f, -1.0f, 0.25f));
+      directional_light->GetLightComponent()->SetAmbient(glm::vec3(0.2f));
+      directional_light->GetLightComponent()->SetDiffuse(glm::vec3(0.5f));
+      directional_light->GetLightComponent()->SetSpecular(glm::vec3(1.0f));
+      directional_light->GetLightComponent()->SetLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+
+      
 
       return state;
     }

@@ -46,12 +46,6 @@ namespace OpenGLEngine {
       void Render();
       void FPS();
 
-
-      void RenderFrame();
-      
-
-
-
       static std::shared_ptr<EntityManager> entity_manager_;
       static std::shared_ptr<CameraComponent> camera_;
       static std::shared_ptr<Shader> shader_;
@@ -73,5 +67,7 @@ namespace OpenGLEngine {
   }
 
   int main(int argc, char** argv);
+  void Prepare();
+  void Update();
 }
 #endif

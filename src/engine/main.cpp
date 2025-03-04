@@ -8,7 +8,7 @@
  *********************************************************************/
 
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <crtdbg.h>
 
 #include <memory>
@@ -16,17 +16,17 @@
 //#include <string>
 
 #include "engine/core.h"
-#include "engine/entity_manager.h"
-#include "engine/entity.h"
-#include "engine/component.h"
-#include "engine/window.h"
+//#include "engine/entity_manager.h"
+//#include "engine/entity.h"
+//#include "engine/component.h"
+//#include "engine/window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "loguru/loguru.hpp"
 
-#include "imgui/imgui.h"
+//#include "imgui/imgui.h"
 
 int main(int argc, char** argv){
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -46,7 +46,8 @@ int main(int argc, char** argv){
     LOG_F(INFO, "Core failed to initialize");
   }
   
-  OpenGLEngine::main(argc, argv);
+  //OpenGLEngine::main(argc, argv);
+  OpenGLEngine::Prepare();
 
   float fov = core->camera_->GetFOV();
 
@@ -55,7 +56,7 @@ int main(int argc, char** argv){
     //Poll events
 
     //Update application/game state
-
+    OpenGLEngine::Update();
     //Render content into a framebuffer
 
     //Swap/Present framebuffer to the screen

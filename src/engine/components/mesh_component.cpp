@@ -1,4 +1,4 @@
-#include "engine/components/mesh_component.h"
+﻿#include "engine/components/mesh_component.h"
 
 #include <vector>
 #include <iostream>
@@ -325,6 +325,63 @@ void MeshComponent::Cube() {
   }
   else {
     data_->BindExisting(MeshData::loaded_meshes["Cube"]);
+  }
+}
+
+void MeshComponent::Sphere(float radius, int stacks, int slices) {
+  float pi = 3.1415926538;
+  if (!MeshData::loaded_meshes.contains("Sphere")) {
+    if (data_ != nullptr) {
+      Mesh mesh;
+      if (data_->meshes.size() != 0) { data_->meshes.clear(); }
+
+      std::vector<Vertex> vertices;
+      std::vector<unsigned int> indices;
+
+      for (int i = 0; i <= stacks; ++i) {
+        float phi = pi * float(i) / float(stacks);
+        float y = radius * cos(phi);
+        float sinPhi = sin(phi);
+
+        for (int j = 0; j <= slices; ++j) {
+          float theta = 2.0f * pi * float(j) / float(slices);
+          float x = radius * cos(theta) * sinPhi;
+          float z = radius * sin(theta) * sinPhi;
+
+          Vertex vertex;
+          vertex.position = { x, y, z };
+          vertex.normal = { x / radius, y / radius, z / radius };  // Normalized
+          vertex.uv = { -float(j) / slices, float(i) / stacks };
+
+          vertices.push_back(vertex);
+        }
+      }
+
+      // Generate index buffer (triangle strip)
+      for (int i = 0; i < stacks; ++i) {
+        for (int j = 0; j < slices; ++j) {
+          int first = (i * (slices + 1)) + j;
+          int second = first + slices + 1;
+
+          indices.push_back(first);
+          indices.push_back(first + 1);
+          indices.push_back(second);
+
+          indices.push_back(second);
+          indices.push_back(first + 1);
+          indices.push_back(second + 1);
+        }
+      }
+
+      mesh.vertex = vertices;
+      mesh.index = indices;
+      data_->meshes.push_back(mesh);
+      data_->Bind();
+      MeshData::loaded_meshes.insert({ mesh.name, data_->meshes });
+    }
+  }
+  else {
+    data_->BindExisting(MeshData::loaded_meshes["Sphere"]);
   }
 }
 

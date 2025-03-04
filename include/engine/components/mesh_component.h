@@ -17,6 +17,7 @@ public:
   void Triangle();
   void Square();
   void Cube();
+  void Sphere(float radius, int stacks, int slices);
   void SkyBox();
   //void Sphere(float radius, unsigned int sectorCount, unsigned int stackCount);
   bool LoadOBJ(const std::string& obj_path, const std::string& texture_path = "");

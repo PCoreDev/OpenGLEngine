@@ -14,6 +14,7 @@
 
 struct EntityData {
     int id;
+    std::string name;
     //std::vector<std::shared_ptr<Component>> components_;
 
     std::shared_ptr<MeshComponent> mesh_component;
@@ -27,7 +28,7 @@ struct EntityData {
     //std::shared_ptr<PhysicsComponent> physics_component;
     //std::shared_ptr<SoundComponent> sound_component;
 
-    EntityData() : id(-1), mesh_component(nullptr), shader_component(nullptr), transform_component(nullptr), camera_component(nullptr), material_component(nullptr), render_component(nullptr), light_component(nullptr), skybox_component(nullptr)  {}
+    EntityData() : id(-1), name("Entity " + std::to_string(id)), mesh_component(nullptr), shader_component(nullptr), transform_component(nullptr), camera_component(nullptr), material_component(nullptr), render_component(nullptr), light_component(nullptr), skybox_component(nullptr) {}
 };
 
 //Entity::Entity() {}
@@ -35,11 +36,13 @@ struct EntityData {
 Entity::Entity(int id){
   data_ = std::make_unique<EntityData>();
   data_->id = id;
+  data_->name = "Entity " + std::to_string(id);
 }
 
 Entity::Entity(const Entity& entity) {
   data_ = std::make_unique<EntityData>();
   data_->id = entity.data_->id;
+  data_->name = entity.data_->name;
   data_->mesh_component = std::shared_ptr<MeshComponent>(entity.data_->mesh_component);
   data_->shader_component = std::shared_ptr<ShaderComponent>(entity.data_->shader_component);
   data_->transform_component = std::shared_ptr<TransformComponent>(entity.data_->transform_component);
@@ -59,6 +62,7 @@ Entity& Entity::operator=(const Entity& entity) {
 
   data_ = std::make_unique<EntityData>();
   data_->id = entity.data_->id;
+  data_->name = entity.data_->name;
   data_->mesh_component = std::shared_ptr<MeshComponent>(entity.data_->mesh_component);
   data_->shader_component = std::shared_ptr<ShaderComponent>(entity.data_->shader_component);
   data_->transform_component = std::shared_ptr<TransformComponent>(entity.data_->transform_component);
@@ -94,7 +98,13 @@ Entity::~Entity() {
 
 //Setters
 
-int Entity::ID() { return data_->id; }
+int Entity::ID() {
+  return data_->id;
+}
+
+std::string Entity::GetName() const {
+  return data_->name;
+}
 
 std::shared_ptr<MeshComponent> Entity::GetMeshComponent() { 
   return data_->mesh_component;
@@ -198,6 +208,10 @@ void Entity::AddSkyBoxComponent(){
   else {
     LOG_F(ERROR, "SkyBoxComponent already exists");
   }
+}
+
+void Entity::SetName(const std::string name) {
+  data_->name = name;
 }
 
 void Entity::ShowStats()
